@@ -187,33 +187,33 @@ def run_fetch():
                     mismatches += 1
                     print(f"  ⚠ MISMATCH {t}: NASDAQ={nd['date']} Yahoo={yd}")
                 rows.append({
-                    "Sector":       sector,
-                    "Ticker":       t,
+                    "Sector":        sector,
+                    "Ticker":        t,
                     "Earnings Date": nd["date"],
-                    "Timing":       nd["timing"],
-                    "Source":       "NASDAQ",
-                    "Yahoo Date":   yd if mismatch else None,
-                    "Mismatch":     mismatch,
+                    "Timing":        nd["timing"],
+                    "Source":        "NASDAQ",
+                    "Yahoo Date":    yd or "N/A",
+                    "Mismatch":      mismatch,
                 })
             elif yd:
                 rows.append({
-                    "Sector":       sector,
-                    "Ticker":       t,
+                    "Sector":        sector,
+                    "Ticker":        t,
                     "Earnings Date": yd,
-                    "Timing":       None,
-                    "Source":       "Yahoo Finance",
-                    "Yahoo Date":   None,
-                    "Mismatch":     False,
+                    "Timing":        None,
+                    "Source":        "Yahoo Finance",
+                    "Yahoo Date":    yd,
+                    "Mismatch":      False,
                 })
             else:
                 rows.append({
-                    "Sector":       sector,
-                    "Ticker":       t,
+                    "Sector":        sector,
+                    "Ticker":        t,
                     "Earnings Date": None,
-                    "Timing":       None,
-                    "Source":       "—",
-                    "Yahoo Date":   None,
-                    "Mismatch":     False,
+                    "Timing":        None,
+                    "Source":        "—",
+                    "Yahoo Date":    "N/A",
+                    "Mismatch":      False,
                 })
 
     df = pd.DataFrame(rows)
@@ -244,7 +244,7 @@ def build_html(df, generated_at):
             r["Sector"],
             r["Timing"],
             r["Source"],
-            r["Yahoo Date"] if pd.notna(r["Yahoo Date"]) and r["Yahoo Date"] else None,
+            str(r["Yahoo Date"]) if pd.notna(r["Yahoo Date"]) else "N/A",
             bool(r["Mismatch"]),
         ))
 
@@ -276,10 +276,15 @@ def build_html(df, generated_at):
                 cn   = (COMPANY_NAMES.get(ticker, ticker)
                         .replace("'", "\\'").replace('"', "&quot;"))
                 st   = sector.replace("'", "\\'")
-                yd_safe = (yahoo_date or "").replace("'", "\\'")
-                badge = ('<span class="bdg bmo">PRE</span>' if timing == "BMO" else
+                yd_safe = yahoo_date.replace("'", "\\'") if yahoo_date else "N/A"
+
+                # PRE/AFT timing badge
+                badge = ('  <span class="bdg bmo">PRE</span>' if timing == "BMO" else
                          '<span class="bdg amc">AFT</span>' if timing == "AMC" else "")
-                warn  = '<span class="bdg warn">⚠</span>' if mismatch else ""
+
+                # Mismatch exclamation on the chip itself
+                warn = '<span class="bdg mismatch">!</span>' if mismatch else ""
+
                 chips += (
                     f'<div class="chip s-{safe}" style="--cc:{col}" '
                     f'onclick="showCard(\'{ticker}\',\'{cn}\',\'{st}\','
@@ -312,7 +317,7 @@ def build_html(df, generated_at):
                 f'onclick="showCard(\'{t}\','
                 f'\'{COMPANY_NAMES.get(t,t).replace(chr(39), chr(92)+chr(39))}\','
                 f'\'{s.replace(chr(39), chr(92)+chr(39))}\','
-                f'\'TBD\',\'TBD\',\'{col}\',\'—\',\'\',false)">{t}</span>'
+                f'\'TBD\',\'TBD\',\'{col}\',\'—\',\'N/A\',false)">{t}</span>'
                 for t in miss
             )
             rows_h += (f'<tr>'
@@ -371,7 +376,7 @@ body{{font-family:var(--sans);background:var(--bg0);color:var(--t1);min-height:1
 .tpill{{display:inline-flex;align-items:center;gap:4px;font-size:10px;font-weight:700;padding:2px 8px;border-radius:4px;font-family:var(--mono);letter-spacing:.3px;}}
 .tpill.pre{{background:rgba(79,142,247,.15);color:#8bbcff;border:1px solid rgba(79,142,247,.3);}}
 .tpill.aft{{background:rgba(201,168,76,.15);color:#e0c878;border:1px solid rgba(201,168,76,.3);}}
-.tpill.warn{{background:rgba(247,169,79,.15);color:#f7a94f;border:1px solid rgba(247,169,79,.3);}}
+.tpill.mis{{background:rgba(220,60,60,.2);color:#ff7070;border:1px solid rgba(220,60,60,.4);}}
 .main{{padding:32px 28px;max-width:1600px;margin:0 auto;}}
 .mblock{{margin-bottom:52px;}}
 .mlabel{{font-family:var(--mono);font-size:13px;font-weight:700;color:var(--t0);margin-bottom:14px;border-bottom:1px solid var(--line);padding-bottom:10px;letter-spacing:.5px;}}
@@ -387,11 +392,10 @@ body{{font-family:var(--sans);background:var(--bg0);color:var(--t1);min-height:1
 .chips{{display:flex;flex-wrap:wrap;gap:3px;}}
 .chip{{display:inline-flex;align-items:center;gap:3px;background:var(--cc,#444);font-family:var(--mono);font-size:10px;font-weight:700;color:#ffffff;padding:3px 7px;border-radius:5px;cursor:pointer;white-space:nowrap;transition:transform .12s,filter .12s;letter-spacing:.2px;text-shadow:0 1px 2px rgba(0,0,0,.4);}}
 .chip:hover{{transform:scale(1.08);filter:brightness(1.18);z-index:10;position:relative;}}
-.chip.dim{{opacity:.07;pointer-events:none;}}
 .bdg{{font-size:8px;font-weight:900;padding:1px 4px;border-radius:3px;letter-spacing:.4px;line-height:1.4;font-family:var(--mono);}}
 .bdg.bmo{{background:rgba(255,255,255,.25);color:#deeeff;}}
 .bdg.amc{{background:rgba(0,0,0,.4);color:#ffe090;}}
-.bdg.warn{{background:rgba(247,169,79,.3);color:#f7a94f;}}
+.bdg.mismatch{{background:rgba(220,60,60,.85);color:#ffffff;font-size:9px;font-weight:900;padding:1px 5px;border-radius:3px;}}
 .ubox{{margin:40px 28px 48px;background:var(--bg2);border:1px solid var(--line);border-radius:12px;overflow:hidden;}}
 .ubox-head{{padding:16px 22px;border-bottom:1px solid var(--line);display:flex;align-items:baseline;gap:14px;}}
 .ubox-title{{font-family:var(--mono);font-size:13px;font-weight:700;color:var(--t0);letter-spacing:.4px;}}
@@ -403,11 +407,10 @@ body{{font-family:var(--sans);background:var(--bg0);color:var(--t1);min-height:1
 .sbadge{{font-family:var(--mono);font-size:10px;font-weight:700;color:#fff;padding:3px 9px;border-radius:4px;white-space:nowrap;text-shadow:0 1px 2px rgba(0,0,0,.4);}}
 .uchip{{display:inline-flex;align-items:center;background:var(--cc,#444);font-family:var(--mono);font-size:10px;font-weight:700;color:#ffffff;padding:3px 8px;border-radius:5px;margin:2px;cursor:pointer;transition:transform .12s,filter .12s;text-shadow:0 1px 2px rgba(0,0,0,.4);}}
 .uchip:hover{{transform:scale(1.07);filter:brightness(1.18);}}
-.uchip.dim{{opacity:.07;pointer-events:none;}}
 .footer{{border-top:1px solid var(--line);padding:14px 28px;font-family:var(--mono);font-size:10.5px;color:var(--t1);display:flex;justify-content:space-between;align-items:center;}}
 .overlay{{display:none;position:fixed;inset:0;background:rgba(0,0,0,.82);backdrop-filter:blur(10px);z-index:999;align-items:center;justify-content:center;}}
 .overlay.on{{display:flex;}}
-.modal{{background:var(--bg3);border:1px solid var(--line2);border-radius:16px;padding:28px;max-width:400px;width:90%;box-shadow:0 24px 48px rgba(0,0,0,.8);position:relative;animation:popIn .2s cubic-bezier(.34,1.4,.64,1);}}
+.modal{{background:var(--bg3);border:1px solid var(--line2);border-radius:16px;padding:28px;max-width:420px;width:90%;box-shadow:0 24px 48px rgba(0,0,0,.8);position:relative;animation:popIn .2s cubic-bezier(.34,1.4,.64,1);}}
 @keyframes popIn{{from{{transform:scale(.9);opacity:0}}to{{transform:scale(1);opacity:1}}}}
 .modal-close{{position:absolute;top:12px;right:14px;background:none;border:none;font-size:22px;color:var(--t1);cursor:pointer;line-height:1;}}
 .modal-close:hover{{color:var(--t0);}}
@@ -417,8 +420,14 @@ body{{font-family:var(--sans);background:var(--bg0);color:var(--t1);min-height:1
 .modal-row:last-child{{border-bottom:none;}}
 .modal-key{{color:var(--t2);font-size:11px;text-transform:uppercase;letter-spacing:.6px;font-weight:600;}}
 .modal-val{{color:var(--t0);font-family:var(--mono);font-size:12px;font-weight:600;}}
-.modal-warn{{background:rgba(247,169,79,.1);border:1px solid rgba(247,169,79,.3);border-radius:8px;padding:10px 12px;margin-bottom:14px;font-size:11px;color:#f7a94f;display:none;}}
-.modal-warn.on{{display:block;}}
+.modal-val.secondary{{color:var(--t1);font-size:11px;font-weight:400;}}
+.modal-mismatch-banner{{background:rgba(220,60,60,.12);border:1px solid rgba(220,60,60,.35);border-radius:8px;padding:10px 14px;margin-bottom:16px;font-size:11.5px;color:#ff7070;display:none;line-height:1.5;}}
+.modal-mismatch-banner.on{{display:block;}}
+.modal-source-row{{display:flex;justify-content:space-between;align-items:flex-start;padding:9px 0;border-bottom:1px solid var(--line);gap:12px;}}
+.modal-source-col{{display:flex;flex-direction:column;gap:4px;flex:1;}}
+.modal-source-label{{color:var(--t2);font-size:10px;text-transform:uppercase;letter-spacing:.6px;font-weight:600;}}
+.modal-source-date{{font-family:var(--mono);font-size:12px;font-weight:600;color:var(--t0);}}
+.modal-source-date.conflict{{color:#ff7070;}}
 </style>
 </head>
 <body>
@@ -431,15 +440,15 @@ body{{font-family:var(--sans);background:var(--bg0);color:var(--t1);min-height:1
   <div class="topbar-right">
     <div class="tstat"><span class="tstat-num" style="color:#4f8ef7">{nf}</span><span class="tstat-lbl">Dates Found</span></div>
     <div class="tstat"><span class="tstat-num" style="color:#9098c0">{nu}</span><span class="tstat-lbl">Unannounced</span></div>
-    <div class="tstat"><span class="tstat-num" style="color:#f7a94f">{nm}</span><span class="tstat-lbl">Mismatches</span></div>
+    <div class="tstat"><span class="tstat-num" style="color:#ff7070">{nm}</span><span class="tstat-lbl">Mismatches</span></div>
   </div>
 </header>
 <div class="timingbar">
-  <span style="color:var(--t0);font-weight:600;font-size:11px;">TIMING KEY</span>
+  <span style="color:var(--t0);font-weight:600;font-size:11px;">KEY</span>
   <span class="tpill pre">PRE</span><span style="font-size:11px;">Before market open</span>
   <span class="tpill aft">AFT</span><span style="font-size:11px;">After market close</span>
-  <span class="tpill warn">⚠</span><span style="font-size:11px;">NASDAQ &amp; Yahoo dates differ</span>
-  <span style="margin-left:6px;font-size:11px;color:var(--t1);">No badge = time unconfirmed · All times ET</span>
+  <span class="tpill mis">!</span><span style="font-size:11px;">NASDAQ &amp; Yahoo dates conflict</span>
+  <span style="margin-left:6px;font-size:11px;color:var(--t1);">All times ET · Click any ticker for details</span>
 </div>
 <main class="main" id="calMain">{cal}</main>
 {uhtml}
@@ -452,15 +461,31 @@ body{{font-family:var(--sans);background:var(--bg0);color:var(--t1);min-height:1
     <button class="modal-close" onclick="closeModal()">×</button>
     <div class="modal-ticker" id="mTicker"></div>
     <div class="modal-name" id="mName"></div>
-    <div class="modal-warn" id="mWarn">⚠ Date conflict — NASDAQ and Yahoo Finance disagree. Verify before acting.</div>
-    <div class="modal-row"><span class="modal-key">Sector</span><span class="modal-val" id="mSector"></span></div>
-    <div class="modal-row"><span class="modal-key">NASDAQ Date</span><span class="modal-val" id="mDate"></span></div>
-    <div class="modal-row" id="mYahooRow" style="display:none">
-      <span class="modal-key">Yahoo Date</span>
-      <span class="modal-val" id="mYahooDate" style="color:#f7a94f"></span>
+    <div class="modal-mismatch-banner" id="mMismatch">
+      ⚠ Date conflict — NASDAQ and Yahoo Finance show different dates. Verify before acting.
     </div>
-    <div class="modal-row"><span class="modal-key">Timing</span><span class="modal-val" id="mTiming"></span></div>
-    <div class="modal-row"><span class="modal-key">Source</span><span class="modal-val" id="mSource"></span></div>
+    <div class="modal-row">
+      <span class="modal-key">Sector</span>
+      <span class="modal-val" id="mSector"></span>
+    </div>
+    <div class="modal-source-row">
+      <div class="modal-source-col">
+        <span class="modal-source-label">NASDAQ Date</span>
+        <span class="modal-source-date" id="mNasdaqDate"></span>
+      </div>
+      <div class="modal-source-col">
+        <span class="modal-source-label">Yahoo Date</span>
+        <span class="modal-source-date" id="mYahooDate"></span>
+      </div>
+    </div>
+    <div class="modal-row">
+      <span class="modal-key">Timing</span>
+      <span class="modal-val" id="mTiming"></span>
+    </div>
+    <div class="modal-row">
+      <span class="modal-key">Source</span>
+      <span class="modal-val secondary" id="mSource"></span>
+    </div>
   </div>
 </div>
 <script>
@@ -468,20 +493,22 @@ const SECTORS       = {sj};
 const SECTOR_COLORS = {cj};
 const COMPANY_NAMES = {nj};
 setTimeout(function() {{ location.reload(); }}, 6 * 60 * 60 * 1000);
-function showCard(ticker, name, sector, timing, date, color, source, yahooDate, mismatch) {{
-  document.getElementById('mTicker').textContent = ticker;
-  document.getElementById('mTicker').style.color = color;
-  document.getElementById('mName').textContent   = name;
-  document.getElementById('mSector').textContent = sector;
-  document.getElementById('mDate').textContent   = date === 'TBD' ? 'Not yet announced' : date;
+function showCard(ticker, name, sector, timing, nasdaqDate, color, source, yahooDate, mismatch) {{
+  document.getElementById('mTicker').textContent  = ticker;
+  document.getElementById('mTicker').style.color  = color;
+  document.getElementById('mName').textContent    = name;
+  document.getElementById('mSector').textContent  = sector;
+  document.getElementById('mNasdaqDate').textContent = nasdaqDate === 'TBD' ? 'Not yet announced' : nasdaqDate;
+  document.getElementById('mYahooDate').textContent  = yahooDate && yahooDate !== 'N/A' ? yahooDate : 'Not available';
+  document.getElementById('mYahooDate').classList.toggle('conflict', mismatch);
+  document.getElementById('mNasdaqDate').classList.toggle('conflict', mismatch);
   document.getElementById('mTiming').textContent =
     timing === 'BMO' ? 'Before Market Open (PRE)' :
     timing === 'AMC' ? 'After Market Close (AFT)' :
     timing === 'TBD' ? 'Not yet confirmed' : 'Unconfirmed';
-  document.getElementById('mSource').textContent = source;
-  document.getElementById('mWarn').classList.toggle('on', mismatch);
-  document.getElementById('mYahooRow').style.display = mismatch ? 'flex' : 'none';
-  document.getElementById('mYahooDate').textContent  = yahooDate || '';
+  document.getElementById('mSource').textContent  = source;
+  document.getElementById('mMismatch').classList.toggle('on', mismatch);
+  document.getElementById('overlay').classList.add('on');
 }}
 function closeModal(e) {{
   if (!e || e.target === document.getElementById('overlay'))
