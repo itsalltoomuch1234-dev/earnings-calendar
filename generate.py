@@ -164,35 +164,62 @@ def run_fetch():
     print("[1/2] NASDAQ API...")
     nasdaq = fetch_nasdaq(today, end)
 
-    missing = [t for t in ALL_TICKERS if t not in nasdaq]
-    print(f"[2/2] Yahoo Finance fallback ({len(missing)} tickers)...")
+    print(f"[2/2] Yahoo Finance (all {len(ALL_TICKERS)} tickers for cross-check)...")
     yf_data = {}
-    for i, t in enumerate(missing):
+    for i, t in enumerate(ALL_TICKERS):
         d = fetch_yahoo(t)
         if d:
             yf_data[t] = d
         time.sleep(0.4)
         if (i+1) % 10 == 0:
-            print(f"  {i+1}/{len(missing)}")
-    print(f"Yahoo: {len(yf_data)} additional tickers")
+            print(f"  {i+1}/{len(ALL_TICKERS)}")
 
+    mismatches = 0
     rows = []
     for sector, tickers in SECTORS.items():
         for t in tickers:
-            if t in nasdaq:
-                rows.append({"Sector":sector,"Ticker":t,
-                             "Earnings Date":nasdaq[t]["date"],
-                             "Timing":nasdaq[t]["timing"],"Source":"NASDAQ"})
-            elif t in yf_data:
-                rows.append({"Sector":sector,"Ticker":t,
-                             "Earnings Date":yf_data[t],
-                             "Timing":None,"Source":"Yahoo Finance"})
+            nd = nasdaq.get(t)
+            yd = yf_data.get(t)
+
+            if nd:
+                mismatch = bool(yd and yd != nd["date"])
+                if mismatch:
+                    mismatches += 1
+                    print(f"  ⚠ MISMATCH {t}: NASDAQ={nd['date']} Yahoo={yd}")
+                rows.append({
+                    "Sector":       sector,
+                    "Ticker":       t,
+                    "Earnings Date": nd["date"],
+                    "Timing":       nd["timing"],
+                    "Source":       "NASDAQ",
+                    "Yahoo Date":   yd if mismatch else None,
+                    "Mismatch":     mismatch,
+                })
+            elif yd:
+                rows.append({
+                    "Sector":       sector,
+                    "Ticker":       t,
+                    "Earnings Date": yd,
+                    "Timing":       None,
+                    "Source":       "Yahoo Finance",
+                    "Yahoo Date":   None,
+                    "Mismatch":     False,
+                })
             else:
-                rows.append({"Sector":sector,"Ticker":t,
-                             "Earnings Date":None,"Timing":None,"Source":"—"})
+                rows.append({
+                    "Sector":       sector,
+                    "Ticker":       t,
+                    "Earnings Date": None,
+                    "Timing":       None,
+                    "Source":       "—",
+                    "Yahoo Date":   None,
+                    "Mismatch":     False,
+                })
 
     df = pd.DataFrame(rows)
-    print(f"DONE: {df['Earnings Date'].notna().sum()} dates found · {df['Earnings Date'].isna().sum()} unannounced")
+    print(f"DONE: {df['Earnings Date'].notna().sum()} dates found · "
+          f"{df['Earnings Date'].isna().sum()} unannounced · "
+          f"{mismatches} mismatches")
     return df, today
 
 def build_html(df, generated_at):
@@ -212,8 +239,14 @@ def build_html(df, generated_at):
 
     dl = {}
     for _, r in dated.iterrows():
-        dl.setdefault(r["dt"].strftime("%Y-%m-%d"), []).append(
-            (r["Ticker"], r["Sector"], r["Timing"], r["Source"]))
+        dl.setdefault(r["dt"].strftime("%Y-%m-%d"), []).append((
+            r["Ticker"],
+            r["Sector"],
+            r["Timing"],
+            r["Source"],
+            r["Yahoo Date"] if pd.notna(r["Yahoo Date"]) and r["Yahoo Date"] else None,
+            bool(r["Mismatch"]),
+        ))
 
     today_str = generated_at.strftime("%Y-%m-%d")
     DAYS = ["MON","TUE","WED","THU","FRI","SAT","SUN"]
@@ -237,19 +270,22 @@ def build_html(df, generated_at):
             if rpts: cls += " has-e"
 
             chips = ""
-            for ticker, sector, timing, source in rpts:
+            for ticker, sector, timing, source, yahoo_date, mismatch in rpts:
                 col  = SECTOR_COLORS.get(sector, "#666")
                 safe = sector.replace(" ","_").replace("/","_").replace("&","_")
                 cn   = (COMPANY_NAMES.get(ticker, ticker)
                         .replace("'", "\\'").replace('"', "&quot;"))
                 st   = sector.replace("'", "\\'")
+                yd_safe = (yahoo_date or "").replace("'", "\\'")
                 badge = ('<span class="bdg bmo">PRE</span>' if timing == "BMO" else
                          '<span class="bdg amc">AFT</span>' if timing == "AMC" else "")
+                warn  = '<span class="bdg warn">⚠</span>' if mismatch else ""
                 chips += (
                     f'<div class="chip s-{safe}" style="--cc:{col}" '
                     f'onclick="showCard(\'{ticker}\',\'{cn}\',\'{st}\','
-                    f'\'{timing or "TBD"}\',\'{ds}\',\'{col}\',\'{source}\')">'
-                    f'{ticker}{badge}</div>'
+                    f'\'{timing or "TBD"}\',\'{ds}\',\'{col}\',\'{source}\','
+                    f'\'{yd_safe}\',{str(mismatch).lower()})">'
+                    f'{ticker}{badge}{warn}</div>'
                 )
 
             cells += (f'<div class="{cls}">'
@@ -276,7 +312,7 @@ def build_html(df, generated_at):
                 f'onclick="showCard(\'{t}\','
                 f'\'{COMPANY_NAMES.get(t,t).replace(chr(39), chr(92)+chr(39))}\','
                 f'\'{s.replace(chr(39), chr(92)+chr(39))}\','
-                f'\'TBD\',\'TBD\',\'{col}\',\'—\')">{t}</span>'
+                f'\'TBD\',\'TBD\',\'{col}\',\'—\',\'\',false)">{t}</span>'
                 for t in miss
             )
             rows_h += (f'<tr>'
@@ -295,6 +331,7 @@ def build_html(df, generated_at):
 
     nf = len(dated)
     nu = len(unann)
+    nm = int(df["Mismatch"].sum())
     ts = generated_at.strftime("%d %b %Y, %I:%M %p ET")
     sj = json.dumps(SECTORS)
     cj = json.dumps(SECTOR_COLORS)
@@ -316,6 +353,7 @@ def build_html(df, generated_at):
   --line:rgba(255,255,255,0.08);--line2:rgba(255,255,255,0.15);
   --t0:#ffffff;--t1:#c8cfe8;--t2:#7a84aa;
   --accent:#4f8ef7;
+  --warn:#f7a94f;
   --mono:'JetBrains Mono',monospace;
   --sans:'Inter',-apple-system,sans-serif;
 }}
@@ -333,6 +371,7 @@ body{{font-family:var(--sans);background:var(--bg0);color:var(--t1);min-height:1
 .tpill{{display:inline-flex;align-items:center;gap:4px;font-size:10px;font-weight:700;padding:2px 8px;border-radius:4px;font-family:var(--mono);letter-spacing:.3px;}}
 .tpill.pre{{background:rgba(79,142,247,.15);color:#8bbcff;border:1px solid rgba(79,142,247,.3);}}
 .tpill.aft{{background:rgba(201,168,76,.15);color:#e0c878;border:1px solid rgba(201,168,76,.3);}}
+.tpill.warn{{background:rgba(247,169,79,.15);color:#f7a94f;border:1px solid rgba(247,169,79,.3);}}
 .main{{padding:32px 28px;max-width:1600px;margin:0 auto;}}
 .mblock{{margin-bottom:52px;}}
 .mlabel{{font-family:var(--mono);font-size:13px;font-weight:700;color:var(--t0);margin-bottom:14px;border-bottom:1px solid var(--line);padding-bottom:10px;letter-spacing:.5px;}}
@@ -352,6 +391,7 @@ body{{font-family:var(--sans);background:var(--bg0);color:var(--t1);min-height:1
 .bdg{{font-size:8px;font-weight:900;padding:1px 4px;border-radius:3px;letter-spacing:.4px;line-height:1.4;font-family:var(--mono);}}
 .bdg.bmo{{background:rgba(255,255,255,.25);color:#deeeff;}}
 .bdg.amc{{background:rgba(0,0,0,.4);color:#ffe090;}}
+.bdg.warn{{background:rgba(247,169,79,.3);color:#f7a94f;}}
 .ubox{{margin:40px 28px 48px;background:var(--bg2);border:1px solid var(--line);border-radius:12px;overflow:hidden;}}
 .ubox-head{{padding:16px 22px;border-bottom:1px solid var(--line);display:flex;align-items:baseline;gap:14px;}}
 .ubox-title{{font-family:var(--mono);font-size:13px;font-weight:700;color:var(--t0);letter-spacing:.4px;}}
@@ -377,6 +417,8 @@ body{{font-family:var(--sans);background:var(--bg0);color:var(--t1);min-height:1
 .modal-row:last-child{{border-bottom:none;}}
 .modal-key{{color:var(--t2);font-size:11px;text-transform:uppercase;letter-spacing:.6px;font-weight:600;}}
 .modal-val{{color:var(--t0);font-family:var(--mono);font-size:12px;font-weight:600;}}
+.modal-warn{{background:rgba(247,169,79,.1);border:1px solid rgba(247,169,79,.3);border-radius:8px;padding:10px 12px;margin-bottom:14px;font-size:11px;color:#f7a94f;display:none;}}
+.modal-warn.on{{display:block;}}
 </style>
 </head>
 <body>
@@ -389,18 +431,20 @@ body{{font-family:var(--sans);background:var(--bg0);color:var(--t1);min-height:1
   <div class="topbar-right">
     <div class="tstat"><span class="tstat-num" style="color:#4f8ef7">{nf}</span><span class="tstat-lbl">Dates Found</span></div>
     <div class="tstat"><span class="tstat-num" style="color:#9098c0">{nu}</span><span class="tstat-lbl">Unannounced</span></div>
+    <div class="tstat"><span class="tstat-num" style="color:#f7a94f">{nm}</span><span class="tstat-lbl">Mismatches</span></div>
   </div>
 </header>
 <div class="timingbar">
   <span style="color:var(--t0);font-weight:600;font-size:11px;">TIMING KEY</span>
   <span class="tpill pre">PRE</span><span style="font-size:11px;">Before market open</span>
   <span class="tpill aft">AFT</span><span style="font-size:11px;">After market close</span>
+  <span class="tpill warn">⚠</span><span style="font-size:11px;">NASDAQ &amp; Yahoo dates differ</span>
   <span style="margin-left:6px;font-size:11px;color:var(--t1);">No badge = time unconfirmed · All times ET</span>
 </div>
 <main class="main" id="calMain">{cal}</main>
 {uhtml}
 <footer class="footer">
-  <span>Neil J Kanatt · Data: NASDAQ API + Yahoo Finance fallback</span>
+  <span>Neil J Kanatt · Data: NASDAQ API + Yahoo Finance cross-check</span>
   <span>Auto-refreshes every 6 hours · Generated {ts}</span>
 </footer>
 <div class="overlay" id="overlay" onclick="closeModal(event)">
@@ -408,8 +452,13 @@ body{{font-family:var(--sans);background:var(--bg0);color:var(--t1);min-height:1
     <button class="modal-close" onclick="closeModal()">×</button>
     <div class="modal-ticker" id="mTicker"></div>
     <div class="modal-name" id="mName"></div>
+    <div class="modal-warn" id="mWarn">⚠ Date conflict — NASDAQ and Yahoo Finance disagree. Verify before acting.</div>
     <div class="modal-row"><span class="modal-key">Sector</span><span class="modal-val" id="mSector"></span></div>
-    <div class="modal-row"><span class="modal-key">Date</span><span class="modal-val" id="mDate"></span></div>
+    <div class="modal-row"><span class="modal-key">NASDAQ Date</span><span class="modal-val" id="mDate"></span></div>
+    <div class="modal-row" id="mYahooRow" style="display:none">
+      <span class="modal-key">Yahoo Date</span>
+      <span class="modal-val" id="mYahooDate" style="color:#f7a94f"></span>
+    </div>
     <div class="modal-row"><span class="modal-key">Timing</span><span class="modal-val" id="mTiming"></span></div>
     <div class="modal-row"><span class="modal-key">Source</span><span class="modal-val" id="mSource"></span></div>
   </div>
@@ -419,7 +468,7 @@ const SECTORS       = {sj};
 const SECTOR_COLORS = {cj};
 const COMPANY_NAMES = {nj};
 setTimeout(function() {{ location.reload(); }}, 6 * 60 * 60 * 1000);
-function showCard(ticker, name, sector, timing, date, color, source) {{
+function showCard(ticker, name, sector, timing, date, color, source, yahooDate, mismatch) {{
   document.getElementById('mTicker').textContent = ticker;
   document.getElementById('mTicker').style.color = color;
   document.getElementById('mName').textContent   = name;
@@ -430,7 +479,9 @@ function showCard(ticker, name, sector, timing, date, color, source) {{
     timing === 'AMC' ? 'After Market Close (AFT)' :
     timing === 'TBD' ? 'Not yet confirmed' : 'Unconfirmed';
   document.getElementById('mSource').textContent = source;
-  document.getElementById('overlay').classList.add('on');
+  document.getElementById('mWarn').classList.toggle('on', mismatch);
+  document.getElementById('mYahooRow').style.display = mismatch ? 'flex' : 'none';
+  document.getElementById('mYahooDate').textContent  = yahooDate || '';
 }}
 function closeModal(e) {{
   if (!e || e.target === document.getElementById('overlay'))
