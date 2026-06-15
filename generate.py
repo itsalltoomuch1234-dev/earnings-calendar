@@ -3,6 +3,7 @@ import requests
 import pandas as pd
 from datetime import datetime, timedelta
 import time, warnings, json
+from zoneinfo import ZoneInfo
 warnings.filterwarnings('ignore')
 
 COMPANY_NAMES = {
@@ -61,21 +62,21 @@ SECTORS = {
 }
 
 SECTOR_COLORS = {
-    "APPAREL & FOOTWEAR":  "#4f8ef7",
-    "OFF-PRICE / DOLLAR":  "#9b78d4",
-    "LUXURY & BEAUTY":     "#c96b9e",
-    "RETAILERS":           "#e07d45",
-    "CRUISES":             "#3aada8",
-    "BEVERAGES & ALCOHOL": "#5fa85a",
-    "PACKAGED FOOD":       "#c9a84c",
-    "CONSUMER GOODS":      "#4a9e8a",
-    "CIGARS":              "#9e7a55",
-    "TOYMAKERS":           "#d45f5f",
-    "RESTAURANTS":         "#d47a3a",
-    "MEAT COS":            "#9a66c0",
-    "DELIVERY":            "#5580d4",
-    "REAL ESTATE":         "#6a8fa8",
-    "RANDOS":              "#7a8fa0",
+    "APPAREL & FOOTWEAR":  "#276244",
+    "OFF-PRICE / DOLLAR":  "#276261",
+    "LUXURY & BEAUTY":     "#274562",
+    "RETAILERS":           "#0D3863",
+    "CRUISES":             "#380D63",
+    "BEVERAGES & ALCOHOL": "#700013",
+    "PACKAGED FOOD":       "#705D00",
+    "CONSUMER GOODS":      "#007034",
+    "CIGARS":              "#703100",
+    "TOYMAKERS":           "#363A3A",
+    "RESTAURANTS":         "#422E38",
+    "MEAT COS":            "#26183E",
+    "DELIVERY":            "#402717",
+    "REAL ESTATE":         "#8F3E00",
+    "RANDOS":              "#080808",
 }
 
 ALL_TICKERS = [t for v in SECTORS.values() for t in v]
@@ -156,9 +157,9 @@ def fetch_yahoo(ticker):
     return None
 
 def run_fetch():
-    today = datetime.today()
+    today = datetime.now(ZoneInfo("America/New_York"))
     end   = today + timedelta(days=182)
-    print(f"EARNINGS CALENDAR REFRESH — {today.strftime('%B %d, %Y %I:%M %p')}")
+    print(f"EARNINGS CALENDAR REFRESH — {today.strftime('%B %d, %Y %I:%M %p ET')}")
 
     print("[1/2] NASDAQ API...")
     nasdaq = fetch_nasdaq(today, end)
@@ -213,15 +214,6 @@ def build_html(df, generated_at):
     for _, r in dated.iterrows():
         dl.setdefault(r["dt"].strftime("%Y-%m-%d"), []).append(
             (r["Ticker"], r["Sector"], r["Timing"], r["Source"]))
-
-    filters = ('<button class="fbtn active" style="--lc:#4f8ef7" '
-               'onclick="filt(this,\'ALL\')">All Sectors</button>\n')
-    for s, c in SECTOR_COLORS.items():
-        safe = s.replace(" ","_").replace("/","_").replace("&","_")
-        filters += (f'<button class="fbtn" style="--lc:{c}" '
-                    f'onclick="filt(this,\'{safe}\')">'
-                    f'<span class="fpip" style="background:{c}"></span>{s}'
-                    f'</button>\n')
 
     today_str = generated_at.strftime("%Y-%m-%d")
     DAYS = ["MON","TUE","WED","THU","FRI","SAT","SUN"]
@@ -303,7 +295,7 @@ def build_html(df, generated_at):
 
     nf = len(dated)
     nu = len(unann)
-    ts = generated_at.strftime("%d %b %Y, %H:%M")
+    ts = generated_at.strftime("%d %b %Y, %I:%M %p ET")
     sj = json.dumps(SECTORS)
     cj = json.dumps(SECTOR_COLORS)
     nj = json.dumps(COMPANY_NAMES)
@@ -337,12 +329,6 @@ body{{font-family:var(--sans);background:var(--bg0);color:var(--t1);min-height:1
 .tstat{{display:flex;flex-direction:column;align-items:flex-end;}}
 .tstat-num{{font-family:var(--mono);font-size:17px;font-weight:700;color:var(--t0);line-height:1;}}
 .tstat-lbl{{font-size:9px;color:var(--t2);text-transform:uppercase;letter-spacing:.7px;margin-top:3px;}}
-.filterbar{{background:var(--bg1);border-bottom:1px solid var(--line);padding:9px 28px;display:flex;flex-wrap:nowrap;overflow-x:auto;gap:5px;scrollbar-width:none;}}
-.filterbar::-webkit-scrollbar{{display:none}}
-.fbtn{{display:inline-flex;align-items:center;gap:6px;padding:6px 13px;border-radius:6px;border:1px solid transparent;background:transparent;color:var(--t2);font-family:var(--sans);font-size:11.5px;font-weight:500;cursor:pointer;white-space:nowrap;flex-shrink:0;transition:all .15s;}}
-.fbtn:hover{{background:var(--bg3);color:var(--t0);border-color:var(--line2);}}
-.fbtn.active{{background:color-mix(in srgb,var(--lc) 16%,transparent);border-color:color-mix(in srgb,var(--lc) 50%,transparent);color:var(--lc);font-weight:600;}}
-.fpip{{width:7px;height:7px;border-radius:50%;flex-shrink:0;}}
 .timingbar{{background:var(--bg0);border-bottom:1px solid var(--line);padding:7px 28px;display:flex;align-items:center;gap:14px;font-size:11.5px;color:var(--t1);}}
 .tpill{{display:inline-flex;align-items:center;gap:4px;font-size:10px;font-weight:700;padding:2px 8px;border-radius:4px;font-family:var(--mono);letter-spacing:.3px;}}
 .tpill.pre{{background:rgba(79,142,247,.15);color:#8bbcff;border:1px solid rgba(79,142,247,.3);}}
@@ -405,17 +391,16 @@ body{{font-family:var(--sans);background:var(--bg0);color:var(--t1);min-height:1
     <div class="tstat"><span class="tstat-num" style="color:#9098c0">{nu}</span><span class="tstat-lbl">Unannounced</span></div>
   </div>
 </header>
-<nav class="filterbar" id="filterBar">{filters}</nav>
 <div class="timingbar">
   <span style="color:var(--t0);font-weight:600;font-size:11px;">TIMING KEY</span>
   <span class="tpill pre">PRE</span><span style="font-size:11px;">Before market open</span>
   <span class="tpill aft">AFT</span><span style="font-size:11px;">After market close</span>
-  <span style="margin-left:6px;font-size:11px;color:var(--t1);">No badge = time unconfirmed</span>
+  <span style="margin-left:6px;font-size:11px;color:var(--t1);">No badge = time unconfirmed · All times ET</span>
 </div>
 <main class="main" id="calMain">{cal}</main>
 {uhtml}
 <footer class="footer">
-  <span>Data: NASDAQ API + Yahoo Finance fallback</span>
+  <span>Neil J Kanatt · Data: NASDAQ API + Yahoo Finance fallback</span>
   <span>Auto-refreshes every 6 hours · Generated {ts}</span>
 </footer>
 <div class="overlay" id="overlay" onclick="closeModal(event)">
@@ -434,13 +419,6 @@ const SECTORS       = {sj};
 const SECTOR_COLORS = {cj};
 const COMPANY_NAMES = {nj};
 setTimeout(function() {{ location.reload(); }}, 6 * 60 * 60 * 1000);
-function filt(btn, sector) {{
-  document.querySelectorAll('.fbtn').forEach(b => b.classList.remove('active'));
-  btn.classList.add('active');
-  document.querySelectorAll('.chip,.uchip').forEach(el => {{
-    el.classList.toggle('dim', sector !== 'ALL' && !el.classList.contains('s-' + sector));
-  }});
-}}
 function showCard(ticker, name, sector, timing, date, color, source) {{
   document.getElementById('mTicker').textContent = ticker;
   document.getElementById('mTicker').style.color = color;
