@@ -62,21 +62,21 @@ SECTORS = {
 }
 
 SECTOR_COLORS = {
-    "APPAREL & FOOTWEAR":  "#276244",
-    "OFF-PRICE / DOLLAR":  "#276261",
-    "LUXURY & BEAUTY":     "#274562",
-    "RETAILERS":           "#0D3863",
-    "CRUISES":             "#380D63",
-    "BEVERAGES & ALCOHOL": "#700013",
-    "PACKAGED FOOD":       "#705D00",
-    "CONSUMER GOODS":      "#007034",
-    "CIGARS":              "#703100",
-    "TOYMAKERS":           "#363A3A",
-    "RESTAURANTS":         "#422E38",
-    "MEAT COS":            "#26183E",
-    "DELIVERY":            "#402717",
-    "REAL ESTATE":         "#8F3E00",
-    "RANDOS":              "#080808",
+    "APPAREL & FOOTWEAR":  "#4f8ef7",
+    "OFF-PRICE / DOLLAR":  "#9b78d4",
+    "LUXURY & BEAUTY":     "#c96b9e",
+    "RETAILERS":           "#e07d45",
+    "CRUISES":             "#3aada8",
+    "BEVERAGES & ALCOHOL": "#5fa85a",
+    "PACKAGED FOOD":       "#c9a84c",
+    "CONSUMER GOODS":      "#4a9e8a",
+    "CIGARS":              "#9e7a55",
+    "TOYMAKERS":           "#d45f5f",
+    "RESTAURANTS":         "#d47a3a",
+    "MEAT COS":            "#9a66c0",
+    "DELIVERY":            "#5580d4",
+    "REAL ESTATE":         "#6a8fa8",
+    "RANDOS":              "#7a8fa0",
 }
 
 ALL_TICKERS = [t for v in SECTORS.values() for t in v]
