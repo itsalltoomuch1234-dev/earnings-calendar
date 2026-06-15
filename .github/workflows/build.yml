@@ -1,23 +1,27 @@
-name: Build Earnings Calendar
+name: Update Earnings Calendar
 
 on:
   schedule:
-    - cron: "0 */6 * * *"
+    - cron: '0 */6 * * *'
   workflow_dispatch:
 
 jobs:
   build:
     runs-on: ubuntu-latest
-    permissions:
-      contents: write
+
     steps:
-      - uses: actions/checkout@v6
-      - uses: actions/setup-python@v6
+      - name: Checkout
+        uses: actions/checkout@v4
         with:
-          python-version: "3.11"
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
 
       - name: Install dependencies
-        run: pip install -r requirements.txt
+        run: pip install yfinance requests pandas
 
       - name: Run script
         run: python generate.py
@@ -26,6 +30,7 @@ jobs:
         run: |
           git config user.name "github-actions"
           git config user.email "github-actions@github.com"
+          git pull --rebase origin main
           git add index.html
-          git diff --staged --quiet || git commit -m "Auto-update $(date -u '+%Y-%m-%d %H:%M UTC')"
-          git push --force origin main
+          git diff --cached --quiet || git commit -m "Auto-update $(date -u '+%Y-%m-%d %H:%M UTC')"
+          git push
