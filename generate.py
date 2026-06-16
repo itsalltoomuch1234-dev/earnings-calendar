@@ -252,7 +252,7 @@ def fetch_nasdaq(start, end):
         "sec-fetch-dest":"empty","sec-fetch-mode":"cors","sec-fetch-site":"same-site",
     }
     cur=start
-    while cur.date()<=end:
+    while cur <= end:
         if cur.weekday()>=5: cur+=timedelta(days=1); continue
         ds=cur.strftime("%Y-%m-%d")
         for _ in range(3):
