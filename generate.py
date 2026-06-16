@@ -45,93 +45,93 @@ COMPANY_NAMES = {
 }
 
 IR_URLS = {
-    "UAA":  "https://about.underarmour.com/en-us/investors",
-    "AEO":  "https://investors.ae.com",
+    "UAA":  "https://about.underarmour.com/en/investors/press-releases--events---presentations.html",
+    "AEO":  "https://investors.ae.com/investor-home/default.aspx",
     "ANF":  "https://corporate.abercrombie.com/investors",
-    "VFC":  "https://investors.vfc.com",
-    "GAP":  "https://investors.gapinc.com",
-    "BIRK": "https://ir.birkenstock.com",
-    "LEVI": "https://investors.levistrauss.com",
-    "ONON": "https://investors.on-running.com",
-    "LULU": "https://investor.lululemon.com",
-    "DECK": "https://investors.deckers.com",
+    "VFC":  "https://www.vfc.com/investors",
+    "GAP":  "https://investors.gapinc.com/Investor-Relation/default.aspx",
+    "BIRK": "https://www.birkenstock-holding.com/",
+    "LEVI": "https://investors.levistrauss.com/home/default.aspx",
+    "ONON": "https://investors.on-running.com/home/default.aspx",
+    "LULU": "https://corporate.lululemon.com/investors",
+    "DECK": "https://ir.deckers.com/",
     "NKE":  "https://investors.nike.com",
-    "DLTR": "https://investor.dollartree.com",
+    "DLTR": "https://corporate.dollartree.com/investors",
     "DG":   "https://investor.dollargeneral.com",
     "ROST": "https://investors.rossstores.com",
-    "TJX":  "https://ir.tjx.com",
+    "TJX":  "https://investor.tjx.com/",
     "GOOS": "https://investors.canadagoose.com",
     "COTY": "https://investors.coty.com",
-    "CPRI": "https://investors.capriholdings.com",
-    "ELF":  "https://ir.elfbeauty.com",
-    "ULTA": "https://ir.ultabeauty.com",
-    "RL":   "https://investor.ralphlauren.com",
-    "TPR":  "https://investors.tapestry.com",
-    "EL":   "https://ir.elcompanies.com",
-    "KSS":  "https://investor.kohls.com",
-    "BBWI": "https://investors.bathandbodyworks.com",
-    "M":    "https://investors.macysinc.com",
-    "ACI":  "https://investors.albertsonscompanies.com",
+    "CPRI": "https://capriholdings.com/",
+    "ELF":  "https://investor.elfbeauty.com/stock-and-financial/events-and-presentations",
+    "ULTA": "https://www.ulta.com/investor",
+    "RL":   "https://corporate.ralphlauren.com/investor-relations",
+    "TPR":  "https://www.tapestry.com/investors/",
+    "EL":   "https://www.elcompanies.com/en/investors",
+    "KSS":  "https://investors.kohls.com/overview/default.aspx",
+    "BBWI": "https://www.bbwinc.com/investors",
+    "M":    "https://www.macysinc.com/investors/",
+    "ACI":  "https://www.albertsonscompanies.com/investors/overview/default.aspx",
     "BBY":  "https://investors.bestbuy.com",
     "KR":   "https://ir.kroger.com",
-    "TGT":  "https://investors.target.com",
-    "LOW":  "https://ir.lowes.com",
+    "TGT":  "https://corporate.target.com/investors",
+    "LOW":  "https://corporate.lowes.com/investors",
     "HD":   "https://ir.homedepot.com",
     "COST": "https://investor.costco.com",
     "WMT":  "https://stock.walmart.com",
-    "NCLH": "https://www.nclhltdinvestorrelations.com",
-    "RCL":  "https://ir.royalcaribbean.com",
-    "CCL":  "https://www.carnivalcorp.com/investor-relations",
-    "TAP":  "https://investors.molsoncoors.com",
+    "NCLH": "https://www.nclhltd.com/investors",
+    "RCL":  "https://www.rclinvestor.com/",
+    "CCL":  "https://www.carnivalcorp.com/investors/",
+    "TAP":  "https://ir.molsoncoors.com/overview/default.aspx",
     "BF-B": "https://investors.brown-forman.com",
-    "STZ":  "https://www.cbrands.com/investors",
+    "STZ":  "https://ir.cbrands.com/",
     "KDP":  "https://investors.keurigdrpepper.com",
     "PEP":  "https://www.pepsico.com/investors",
     "KO":   "https://investors.coca-colacompany.com",
     "BYND": "https://investors.beyondmeat.com",
-    "LW":   "https://ir.lambweston.com",
+    "LW":   "https://www.lambweston.com/en/investors.html",
     "CAG":  "https://www.conagrabrands.com/investor-relations",
-    "CPB":  "https://www.thecampbellscompany.com/investors",
+    "CPB":  "https://investor.thecampbellscompany.com/",
     "SJM":  "https://investors.jmsmucker.com",
-    "MKC":  "https://ir.mccormickcorporation.com",
+    "MKC":  "https://ir.mccormick.com/",
     "HRL":  "https://investors.hormelfoods.com",
-    "GIS":  "https://investors.generalmills.com",
+    "GIS":  "https://investors.generalmills.com/home/default.aspx",
     "IFF":  "https://ir.iff.com",
     "KHC":  "https://ir.kraftheinzcompany.com",
     "HSY":  "https://www.thehersheycompany.com/en_us/investors.html",
     "MDLZ": "https://ir.mondelezinternational.com",
     "NWL":  "https://ir.newellbrands.com",
-    "CLX":  "https://investors.thecloroxcompany.com",
-    "CHD":  "https://investors.churchdwight.com",
-    "KMB":  "https://investor.kimberly-clark.com",
-    "CL":   "https://investor.colgatepalmolive.com",
-    "PG":   "https://pginvestor.com",
-    "MO":   "https://investor.altria.com",
-    "PM":   "https://www.pmi.com/investor-relations",
-    "MAT":  "https://corporate.mattel.com/investor-relations",
+    "CLX":  "https://investors.thecloroxcompany.com/overview/default.aspx",
+    "CHD":  "https://investor.churchdwight.com/overview/default.aspx",
+    "KMB":  "https://www.investor.kimberly-clark.com/",
+    "CL":   "https://investor.colgatepalmolive.com/",
+    "PG":   "https://www.pginvestor.com/overview/default.aspx",
+    "MO":   "https://www.altria.com/Investors/at-a-glance",
+    "PM":   "https://www.pmi.com/investor-relations/overview",
+    "MAT":  "https://investors.mattel.com/overview/default.aspx",
     "HAS":  "https://investor.hasbro.com",
     "DPZ":  "https://ir.dominos.com",
-    "DRI":  "https://ir.darden.com",
-    "QSR":  "https://www.rbi.com/investor-relations",
+    "DRI":  "https://investor.darden.com/home/default.aspx",
+    "QSR":  "https://www.rbi.com/English/investors/investor-home/default.aspx",
     "CMG":  "https://ir.chipotle.com",
-    "YUM":  "https://www.yum.com/wps/portal/yumbrands/Yumbrands/investors",
-    "SBUX": "https://investor.starbucks.com",
+    "YUM":  "https://investors.yum.com/corporateprofile/default.aspx",
+    "SBUX": "https://investor.starbucks.com/ir-home/default.aspx",
     "MCD":  "https://corporate.mcdonalds.com/corpmcd/investors.html",
-    "SFD":  "https://www.smithfieldfoods.com/investor-relations",
-    "TSN":  "https://ir.tysonfoods.com",
-    "SYY":  "https://investors.sysco.com",
-    "CART": "https://investors.instacart.com",
-    "DASH": "https://ir.doordash.com",
-    "FRT":  "https://www.federalrealty.com/investor-relations",
-    "REG":  "https://investors.regencycenters.com",
-    "KIM":  "https://investors.kimcorealty.com",
-    "SPG":  "https://investors.simon.com",
-    "MAS":  "https://investor.masco.com",
-    "BALL": "https://investor.ball.com",
-    "TSCO": "https://ir.tractorsupply.com",
+    "SFD":  "https://investors.smithfieldfoods.com/",
+    "TSN":  "https://ir.tyson.com/investor-home/default.aspx",
+    "SYY":  "https://investors.sysco.com/",
+    "CART": "https://investors.instacart.com/",
+    "DASH": "https://ir.doordash.com/overview/default.aspx",
+    "FRT":  "https://www.federalrealty.com/investors/overview/",
+    "REG":  "https://investors.regencycenters.com/",
+    "KIM":  "https://investors.kimcorealty.com/",
+    "SPG":  "https://simonpg.gcs-web.com/news-events/stockholder-events",
+    "MAS":  "https://investor.masco.com/overview/default.aspx",
+    "BALL": "https://investors.ball.com/",
+    "TSCO": "https://ir.tractorsupply.com/investor-relations/overview/default.aspx",
     "AMCR": "https://www.amcor.com/investors",
-    "ROL":  "https://ir.rollins.com",
-    "CTAS": "https://investors.cintas.com",
+    "ROL":  "https://www.rollins.com/investors",
+    "CTAS": "https://www.cintas.com/investors/",
     "IP":   "https://www.internationalpaper.com/investors",
 }
 
@@ -338,7 +338,8 @@ def build_html(df, generated_at):
 
     today_dt = generated_at.date()
     days_since_monday = today_dt.weekday()
-    
+    prior_monday = today_dt - timedelta(days=days_since_monday + 7)
+
     if dated.empty:
         months = [today_dt.replace(day=1)]
     else:
@@ -467,12 +468,20 @@ def build_html(df, generated_at):
     nf = len(dated); nu = len(unann); nm = int(df["Mismatch"].sum())
     ts = generated_at.strftime("%d %b %Y, %I:%M %p ET")
     sj = json.dumps(SECTORS); cj = json.dumps(SECTOR_COLORS); nj = json.dumps(COMPANY_NAMES)
+    ir_json = json.dumps(IR_URLS)
 
+    # ── Sidebar: each ticker is a link to its IR page ──────────────────────
     sidebar_html = ""
     for s in SECTORS:
         col  = SECTOR_COLORS[s]
         safe = s.replace(" ","_").replace("/","_").replace("&","_")
-        tickers_html = "".join(f'<span class="sleg-ticker">{t}</span>' for t in SECTORS[s])
+        tickers_html = ""
+        for t in SECTORS[s]:
+            ir = IR_URLS.get(t, f"https://finance.yahoo.com/quote/{t}")
+            tickers_html += (
+                f'<a class="sleg-ticker" href="{ir}" target="_blank" rel="noopener" '
+                f'title="{COMPANY_NAMES.get(t, t)}">{t}</a>'
+            )
         sidebar_html += (
             f'<div class="sleg-group">'
             f'<button class="sleg-toggle" onclick="toggleSector(\'{safe}\')" style="--cc:{col}">'
@@ -495,15 +504,17 @@ def build_html(df, generated_at):
 <style>
 *,*::before,*::after{{box-sizing:border-box;margin:0;padding:0}}
 :root{{
-  --bg0:#07091a;--bg1:#0a0d1f;--bg2:#0d1226;--bg3:#11172e;--bg4:#161e38;--bg5:#1b2442;
-  --glass-light:rgba(255,255,255,0.04);
-  --glass-mid:rgba(255,255,255,0.08);
-  --glass-heavy:rgba(255,255,255,0.13);
-  --glass-border:rgba(255,255,255,0.08);
-  --glass-border2:rgba(255,255,255,0.14);
-  --glass-border3:rgba(255,255,255,0.24);
-  --t0:#ffffff;--t1:#c8d4f0;--t2:#7a88b0;--t3:#3a4260;
-  --accent:#5b9fff;--accent2:#82bcff;--accent-glow:rgba(91,159,255,0.3);
+  /* ── Brighter background palette ── */
+  --bg0:#0d1120;--bg1:#111628;--bg2:#151c30;--bg3:#1a2238;--bg4:#1f2942;--bg5:#25304e;
+  --glass-light:rgba(255,255,255,0.06);
+  --glass-mid:rgba(255,255,255,0.10);
+  --glass-heavy:rgba(255,255,255,0.16);
+  --glass-border:rgba(255,255,255,0.10);
+  --glass-border2:rgba(255,255,255,0.18);
+  --glass-border3:rgba(255,255,255,0.28);
+  /* ── Higher contrast text ── */
+  --t0:#ffffff;--t1:#dde6ff;--t2:#9aadd4;--t3:#4e5f88;
+  --accent:#6aabff;--accent2:#93c8ff;--accent-glow:rgba(106,171,255,0.25);
   --bmo:#ffd740;--amc:#b8a4ff;--unconf:#ffaa33;--conflict:#ff5252;
   --mono:'JetBrains Mono',monospace;
   --sans:'Inter',-apple-system,sans-serif;
@@ -513,24 +524,24 @@ def build_html(df, generated_at):
 }}
 ::-webkit-scrollbar{{width:3px;height:3px}}
 ::-webkit-scrollbar-track{{background:transparent}}
-::-webkit-scrollbar-thumb{{background:rgba(255,255,255,0.12);border-radius:3px}}
-::-webkit-scrollbar-thumb:hover{{background:rgba(255,255,255,0.22)}}
+::-webkit-scrollbar-thumb{{background:rgba(255,255,255,0.15);border-radius:3px}}
+::-webkit-scrollbar-thumb:hover{{background:rgba(255,255,255,0.28)}}
 
 body{{
   font-family:var(--sans);background:var(--bg0);color:var(--t1);
   min-height:100vh;-webkit-font-smoothing:antialiased;overflow-x:hidden;
   background-image:
-    radial-gradient(ellipse 90% 60% at 15% -10%,rgba(60,100,255,0.18) 0%,transparent 55%),
-    radial-gradient(ellipse 70% 50% at 85% 110%,rgba(160,60,220,0.13) 0%,transparent 55%),
-    radial-gradient(ellipse 50% 40% at 50% 50%,rgba(20,30,80,0.4) 0%,transparent 70%);
+    radial-gradient(ellipse 90% 60% at 15% -10%,rgba(80,130,255,0.14) 0%,transparent 55%),
+    radial-gradient(ellipse 70% 50% at 85% 110%,rgba(160,60,220,0.10) 0%,transparent 55%),
+    radial-gradient(ellipse 50% 40% at 50% 50%,rgba(20,30,80,0.3) 0%,transparent 70%);
 }}
 .page-wrap{{display:flex;min-height:100vh;}}
 
 /* ========== SIDEBAR ========== */
 .sidebar{{
   width:var(--sidebar-w);flex-shrink:0;
-  background:linear-gradient(180deg,rgba(10,13,31,0.98) 0%,rgba(7,9,26,1) 100%);
-  border-right:1px solid rgba(255,255,255,0.1);
+  background:linear-gradient(180deg,rgba(14,18,36,0.99) 0%,rgba(10,13,28,1) 100%);
+  border-right:1px solid rgba(255,255,255,0.12);
   position:sticky;top:0;height:100vh;
   display:flex;flex-direction:column;
   transition:width var(--dur) var(--ease);
@@ -541,28 +552,28 @@ body{{
 
 .sidebar-head{{
   padding:14px 14px 10px;
-  border-bottom:1px solid rgba(255,255,255,0.08);
+  border-bottom:1px solid rgba(255,255,255,0.10);
   flex-shrink:0;
-  background:linear-gradient(180deg,rgba(91,159,255,0.08) 0%,transparent 100%);
+  background:linear-gradient(180deg,rgba(106,171,255,0.10) 0%,transparent 100%);
 }}
 .sidebar-title{{
   font-family:var(--mono);font-size:8.5px;font-weight:700;
   color:var(--accent);text-transform:uppercase;letter-spacing:2px;white-space:nowrap;
 }}
 
-/* Sector list */
 .sidebar-sectors{{overflow-y:auto;flex:1;padding:4px 0;min-height:0;}}
 
-.sleg-group{{border-bottom:1px solid rgba(255,255,255,0.05);}}
+.sleg-group{{border-bottom:1px solid rgba(255,255,255,0.06);}}
 .sleg-toggle{{
   display:flex;align-items:center;gap:8px;
   width:100%;padding:7px 12px;background:none;border:none;cursor:pointer;
   transition:background var(--dur);
 }}
-.sleg-toggle:hover{{background:rgba(255,255,255,0.05);}}
+.sleg-toggle:hover{{background:rgba(255,255,255,0.07);}}
 .sleg-dot{{
   width:8px;height:8px;border-radius:50%;flex-shrink:0;
-  box-shadow:0 0 6px currentColor;
+  /* reduced glow on dots */
+  box-shadow:0 0 4px currentColor;
 }}
 .sleg-label{{
   font-family:var(--mono);font-size:8.5px;font-weight:700;
@@ -576,29 +587,35 @@ body{{
   overflow:hidden;max-height:0;transition:max-height 0.3s var(--ease),padding 0.2s;
 }}
 .sleg-tickers.open{{max-height:200px;padding:0 12px 8px;}}
+
+/* Ticker links in sidebar */
 .sleg-ticker{{
   font-family:var(--mono);font-size:7.5px;color:var(--t1);
-  background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);
-  border-radius:3px;padding:1px 5px;cursor:default;
-  transition:color var(--dur),background var(--dur);
+  background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.12);
+  border-radius:3px;padding:1px 5px;cursor:pointer;
+  transition:color var(--dur),background var(--dur),border-color var(--dur);
+  text-decoration:none;display:inline-block;
 }}
-.sleg-ticker:hover{{color:#fff;background:rgba(255,255,255,0.12);}}
+.sleg-ticker:hover{{
+  color:#fff;background:rgba(106,171,255,0.18);
+  border-color:rgba(106,171,255,0.45);
+}}
 
-/* ========== COMMENTS PANEL ========== */
+/* ========== NOTES PANEL ========== */
 .comments-panel{{
   flex-shrink:0;
   display:flex;flex-direction:column;
-  background:rgba(5,7,20,0.95);
-  border-top:2px solid rgba(91,159,255,0.3);
+  background:rgba(8,10,24,0.97);
+  border-top:2px solid rgba(106,171,255,0.35);
   min-height:0;
-  max-height:340px;
+  max-height:360px;
 }}
 .comments-head{{
   padding:9px 12px 7px;
   display:flex;align-items:center;justify-content:space-between;
-  border-bottom:1px solid rgba(255,255,255,0.07);
+  border-bottom:1px solid rgba(255,255,255,0.08);
   flex-shrink:0;
-  background:linear-gradient(90deg,rgba(91,159,255,0.1) 0%,transparent 80%);
+  background:linear-gradient(90deg,rgba(106,171,255,0.12) 0%,transparent 80%);
 }}
 .comments-title{{
   font-family:var(--mono);font-size:8.5px;font-weight:700;
@@ -612,15 +629,15 @@ body{{
   min-width:18px;text-align:center;
 }}
 .comments-list{{
-  overflow-y:auto;flex:1;padding:4px 0;min-height:40px;max-height:120px;
+  overflow-y:auto;flex:1;padding:4px 0;min-height:40px;max-height:140px;
 }}
 .comment-item{{
-  padding:7px 12px;border-bottom:1px solid rgba(255,255,255,0.04);
+  padding:7px 10px;border-bottom:1px solid rgba(255,255,255,0.05);
   transition:background var(--dur);
 }}
 .comment-item:last-child{{border-bottom:none;}}
-.comment-item:hover{{background:rgba(255,255,255,0.03);}}
-.comment-meta{{display:flex;align-items:center;gap:6px;margin-bottom:3px;}}
+.comment-item:hover{{background:rgba(255,255,255,0.04);}}
+.comment-meta{{display:flex;align-items:center;gap:5px;margin-bottom:3px;flex-wrap:wrap;}}
 .comment-avatar{{
   width:18px;height:18px;border-radius:50%;background:var(--cc,var(--accent));
   display:flex;align-items:center;justify-content:center;
@@ -638,39 +655,66 @@ body{{
   padding:16px 12px;text-align:center;
   font-size:9.5px;color:var(--t3);font-style:italic;
 }}
+/* Edit / delete action buttons */
+.comment-actions{{display:flex;gap:4px;margin-left:4px;}}
+.comment-btn{{
+  background:none;border:none;cursor:pointer;font-size:9px;
+  padding:0 2px;line-height:1;transition:color .15s;color:var(--t3);
+}}
+.comment-btn:hover{{color:#fff;}}
+.comment-btn.del:hover{{color:#ff5252;}}
+.comment-edit-area{{
+  margin-top:4px;display:flex;flex-direction:column;gap:3px;
+}}
+.comment-edit-input{{
+  background:rgba(255,255,255,0.08);border:1px solid rgba(106,171,255,0.4);
+  border-radius:5px;padding:4px 7px;font-family:var(--sans);font-size:10px;
+  color:#fff;outline:none;resize:none;line-height:1.4;
+}}
+.comment-edit-btns{{display:flex;gap:5px;}}
+.comment-edit-save{{
+  background:linear-gradient(135deg,#6aabff,#3a7ee0);color:#fff;
+  border:none;border-radius:5px;padding:3px 10px;
+  font-family:var(--mono);font-size:8px;font-weight:700;cursor:pointer;
+}}
+.comment-edit-cancel{{
+  background:rgba(255,255,255,0.08);color:var(--t1);
+  border:1px solid rgba(255,255,255,0.12);border-radius:5px;
+  padding:3px 10px;font-family:var(--mono);font-size:8px;cursor:pointer;
+}}
 .comments-input-area{{
   flex-shrink:0;padding:8px 10px;
-  border-top:1px solid rgba(255,255,255,0.07);
-  background:rgba(7,9,26,0.8);
+  border-top:1px solid rgba(255,255,255,0.08);
+  background:rgba(8,10,24,0.9);
   display:flex;flex-direction:column;gap:5px;
 }}
 .comment-name-row{{display:flex;gap:5px;}}
 .comment-name-input{{
-  flex:1;background:rgba(255,255,255,0.07);
-  border:1px solid rgba(255,255,255,0.12);border-radius:6px;
+  flex:1;background:rgba(255,255,255,0.08);
+  border:1px solid rgba(255,255,255,0.14);border-radius:6px;
   padding:4px 8px;font-family:var(--mono);font-size:9px;color:#fff;outline:none;
   transition:border-color var(--dur);
 }}
 .comment-name-input::placeholder{{color:var(--t3);}}
-.comment-name-input:focus{{border-color:rgba(91,159,255,0.5);}}
+.comment-name-input:focus{{border-color:rgba(106,171,255,0.55);}}
 .comment-box{{
-  background:rgba(255,255,255,0.07);
-  border:1px solid rgba(255,255,255,0.12);border-radius:6px;
+  background:rgba(255,255,255,0.08);
+  border:1px solid rgba(255,255,255,0.14);border-radius:6px;
   padding:5px 8px;font-family:var(--sans);font-size:10px;color:#fff;
   outline:none;resize:none;height:48px;
   transition:border-color var(--dur);line-height:1.4;
 }}
 .comment-box::placeholder{{color:var(--t3);}}
-.comment-box:focus{{border-color:rgba(91,159,255,0.5);}}
+.comment-box:focus{{border-color:rgba(106,171,255,0.55);}}
 .comment-submit-row{{display:flex;align-items:center;justify-content:space-between;gap:6px;}}
 .comment-char-count{{font-family:var(--mono);font-size:7.5px;color:var(--t3);}}
 .comment-char-count.warn{{color:var(--unconf);}}
 .comment-submit{{
-  background:linear-gradient(135deg,#5b9fff,#3a7ee0);
+  background:linear-gradient(135deg,#6aabff,#3a7ee0);
   color:#fff;border:none;border-radius:6px;padding:5px 12px;
   font-family:var(--mono);font-size:8.5px;font-weight:700;cursor:pointer;
   letter-spacing:.3px;transition:filter var(--dur),transform 0.1s;white-space:nowrap;
-  box-shadow:0 2px 10px rgba(91,159,255,0.4);
+  box-shadow:0 2px 8px rgba(106,171,255,0.3);
 }}
 .comment-submit:hover{{filter:brightness(1.15);transform:translateY(-1px);}}
 .comment-submit:active{{transform:translateY(0);}}
@@ -682,51 +726,51 @@ body{{
 /* ========== TOPBAR ========== */
 .topbar{{
   height:52px;
-  background:rgba(7,9,26,0.9);
+  background:rgba(10,13,28,0.92);
   backdrop-filter:blur(32px) saturate(180%);-webkit-backdrop-filter:blur(32px) saturate(180%);
-  border-bottom:1px solid rgba(255,255,255,0.1);
+  border-bottom:1px solid rgba(255,255,255,0.12);
   display:flex;align-items:center;justify-content:space-between;
   padding:0 18px;position:sticky;top:0;z-index:300;gap:12px;
-  box-shadow:0 1px 0 rgba(255,255,255,0.06),0 4px 20px rgba(0,0,0,0.5);
+  box-shadow:0 1px 0 rgba(255,255,255,0.07),0 4px 20px rgba(0,0,0,0.5);
 }}
 .topbar-left{{display:flex;align-items:center;gap:10px;}}
 .page-title{{font-size:13px;font-weight:700;color:#fff;letter-spacing:-.3px;white-space:nowrap;}}
 .title-dot{{
   width:8px;height:8px;border-radius:50%;background:var(--accent);
-  box-shadow:0 0 0 2px rgba(91,159,255,0.3),0 0 16px rgba(91,159,255,0.6);
+  box-shadow:0 0 0 2px rgba(106,171,255,0.25),0 0 10px rgba(106,171,255,0.5);
   flex-shrink:0;animation:dotPulse 2.5s ease-in-out infinite;
 }}
 @keyframes dotPulse{{
-  0%,100%{{box-shadow:0 0 0 2px rgba(91,159,255,0.2),0 0 12px rgba(91,159,255,0.5);}}
-  50%{{box-shadow:0 0 0 3px rgba(91,159,255,0.35),0 0 24px rgba(91,159,255,0.8);}}
+  0%,100%{{box-shadow:0 0 0 2px rgba(106,171,255,0.15),0 0 8px rgba(106,171,255,0.4);}}
+  50%{{box-shadow:0 0 0 3px rgba(106,171,255,0.28),0 0 18px rgba(106,171,255,0.65);}}
 }}
-.vdiv{{width:1px;height:16px;background:rgba(255,255,255,0.1);}}
+.vdiv{{width:1px;height:16px;background:rgba(255,255,255,0.12);}}
 .topbar-meta{{font-size:10px;color:var(--t2);white-space:nowrap;}}
 .topbar-right{{display:flex;align-items:center;gap:8px;flex-shrink:0;}}
 .tstat{{
   display:flex;flex-direction:column;align-items:center;
   padding:5px 12px;border-radius:10px;
-  background:rgba(255,255,255,0.06);
-  border:1px solid rgba(255,255,255,0.1);
+  background:rgba(255,255,255,0.07);
+  border:1px solid rgba(255,255,255,0.12);
   transition:background var(--dur),border-color var(--dur);
 }}
-.tstat:hover{{background:rgba(255,255,255,0.1);border-color:rgba(255,255,255,0.2);}}
+.tstat:hover{{background:rgba(255,255,255,0.12);border-color:rgba(255,255,255,0.22);}}
 .tstat-num{{font-family:var(--mono);font-size:15px;font-weight:700;color:#fff;line-height:1.1;}}
 .tstat-lbl{{font-size:7px;color:var(--t2);text-transform:uppercase;letter-spacing:.9px;margin-top:2px;}}
 .sidebar-toggle{{
   display:flex;align-items:center;justify-content:center;
   width:28px;height:28px;border-radius:8px;
-  background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.12);
+  background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.14);
   color:var(--t1);cursor:pointer;font-size:16px;line-height:1;
   transition:background var(--dur),color var(--dur);flex-shrink:0;
 }}
-.sidebar-toggle:hover{{background:rgba(255,255,255,0.14);color:#fff;}}
+.sidebar-toggle:hover{{background:rgba(255,255,255,0.16);color:#fff;}}
 
 /* ========== KEY BAR ========== */
 .timingbar{{
-  background:rgba(7,9,26,0.8);
+  background:rgba(10,13,28,0.85);
   backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);
-  border-bottom:1px solid rgba(255,255,255,0.08);
+  border-bottom:1px solid rgba(255,255,255,0.09);
   padding:8px 18px 10px;
   display:flex;align-items:center;gap:8px;
   font-size:11px;color:var(--t2);flex-wrap:wrap;
@@ -744,7 +788,7 @@ body{{
 .key-desc{{font-size:9.5px;color:var(--t1);}}
 .event-legend{{
   display:flex;flex-wrap:wrap;align-items:center;gap:6px;
-  width:100%;margin-top:7px;padding-top:7px;border-top:1px solid rgba(255,255,255,0.06);
+  width:100%;margin-top:7px;padding-top:7px;border-top:1px solid rgba(255,255,255,0.07);
 }}
 .evleg-label{{font-family:var(--mono);font-size:8px;font-weight:700;color:var(--t2);text-transform:uppercase;letter-spacing:1px;}}
 .evleg-item{{display:inline-flex;align-items:center;gap:4px;font-size:9px;color:var(--t1);}}
@@ -755,21 +799,21 @@ body{{
 
 /* ========== SEARCH ========== */
 .search-bar{{
-  background:rgba(7,9,26,0.75);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);
-  border-bottom:1px solid rgba(255,255,255,0.08);padding:7px 18px;
+  background:rgba(10,13,28,0.80);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);
+  border-bottom:1px solid rgba(255,255,255,0.09);padding:7px 18px;
   display:flex;align-items:center;gap:10px;position:sticky;top:52px;z-index:299;
 }}
 .search-wrap{{position:relative;display:flex;align-items:center;}}
 .search-icon{{position:absolute;left:9px;color:var(--t2);font-size:13px;pointer-events:none;}}
 .search-input{{
-  background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.12);border-radius:8px;
+  background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.14);border-radius:8px;
   padding:5px 28px 5px 28px;font-family:var(--mono);font-size:11px;color:#fff;
   outline:none;width:200px;transition:border-color var(--dur),background var(--dur),box-shadow var(--dur);
 }}
 .search-input::placeholder{{color:var(--t3);}}
 .search-input:focus{{
-  border-color:rgba(91,159,255,0.55);background:rgba(255,255,255,0.1);
-  box-shadow:0 0 0 3px rgba(91,159,255,0.12);
+  border-color:rgba(106,171,255,0.55);background:rgba(255,255,255,0.11);
+  box-shadow:0 0 0 3px rgba(106,171,255,0.10);
 }}
 .search-clear{{
   position:absolute;right:7px;background:none;border:none;color:var(--t2);
@@ -783,12 +827,12 @@ body{{
 .main{{padding:16px 18px 32px;max-width:1440px;margin:0 auto;}}
 .mblock{{
   margin-bottom:24px;border-radius:var(--r-lg);overflow:hidden;
-  border:1px solid rgba(255,255,255,0.1);
-  background:rgba(10,13,31,0.7);
-  box-shadow:0 8px 40px rgba(0,0,0,0.6),inset 0 1px 0 rgba(255,255,255,0.06);
+  border:1px solid rgba(255,255,255,0.11);
+  background:rgba(13,17,34,0.85);
+  box-shadow:0 6px 30px rgba(0,0,0,0.5),inset 0 1px 0 rgba(255,255,255,0.07);
 }}
 .mblock-header{{
-  padding:10px 14px 8px;border-bottom:1px solid rgba(255,255,255,0.08);
+  padding:10px 14px 8px;border-bottom:1px solid rgba(255,255,255,0.09);
   display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;
   background:linear-gradient(90deg,var(--es-bg,rgba(255,255,255,0.02)) 0%,transparent 50%);
 }}
@@ -801,92 +845,89 @@ body{{
 }}
 .earn-season-sub{{font-size:7px;font-weight:400;opacity:0.65;margin-left:5px;}}
 
-/* Grid */
 .cgrid{{
   display:grid;grid-template-columns:repeat(7,1fr);gap:2px;padding:4px;
-  background:rgba(4,6,18,0.6);
+  background:rgba(6,8,20,0.7);
 }}
 .dname{{
   text-align:center;font-family:var(--mono);font-size:8px;font-weight:700;
-  color:var(--t3);padding:5px 0;letter-spacing:1.2px;
+  color:var(--t2);padding:5px 0;letter-spacing:1.2px;
 }}
 
-/* Calendar cells — MUCH more vivid */
+/* Calendar cells — brighter base */
 .dcell{{
-  background:linear-gradient(145deg,rgba(16,22,50,0.9) 0%,rgba(11,15,36,0.95) 100%);
-  border:1px solid rgba(255,255,255,0.07);
+  background:linear-gradient(145deg,rgba(20,27,58,0.92) 0%,rgba(14,19,44,0.96) 100%);
+  border:1px solid rgba(255,255,255,0.08);
   border-radius:8px;min-height:100px;padding:7px 6px 5px;
   transition:border-color 0.15s,background 0.15s,box-shadow 0.15s;
   position:relative;overflow:hidden;
 }}
 .dcell::before{{
   content:'';position:absolute;inset:0;
-  background:linear-gradient(135deg,rgba(255,255,255,0.025) 0%,transparent 60%);
+  background:linear-gradient(135deg,rgba(255,255,255,0.03) 0%,transparent 60%);
   pointer-events:none;
 }}
 .dcell.empty{{background:transparent;border-color:transparent;pointer-events:none;}}
-.dcell.wknd{{
-  background:rgba(6,8,22,0.7);opacity:0.4;
-}}
-.dcell.past{{opacity:0.38;filter:saturate(0.4) brightness(0.8);}}
+.dcell.wknd{{background:rgba(8,10,24,0.75);opacity:0.45;}}
+.dcell.past{{opacity:0.40;filter:saturate(0.45) brightness(0.82);}}
+/* Today — toned-down glow */
 .dcell.today{{
-  border-color:rgba(91,159,255,0.8)!important;
-  background:linear-gradient(145deg,rgba(91,159,255,0.15) 0%,rgba(30,60,140,0.2) 100%)!important;
-  box-shadow:0 0 0 1px rgba(91,159,255,0.25),0 4px 24px rgba(91,159,255,0.15),inset 0 1px 0 rgba(91,159,255,0.2)!important;
+  border-color:rgba(106,171,255,0.65)!important;
+  background:linear-gradient(145deg,rgba(106,171,255,0.10) 0%,rgba(40,70,160,0.16) 100%)!important;
+  box-shadow:0 0 0 1px rgba(106,171,255,0.18),0 3px 16px rgba(106,171,255,0.10),inset 0 1px 0 rgba(106,171,255,0.15)!important;
 }}
 .dcell.today::after{{
   content:'';position:absolute;top:0;left:0;right:0;height:2px;
   background:linear-gradient(90deg,transparent,var(--accent),var(--accent2),transparent);
-  border-radius:8px 8px 0 0;
+  border-radius:8px 8px 0 0;opacity:0.7;
 }}
 .dcell.today .dno{{color:var(--accent)!important;font-weight:700;}}
 .dcell.has-e{{
-  border-color:rgba(255,255,255,0.12);
-  background:linear-gradient(145deg,rgba(20,28,60,0.95) 0%,rgba(13,18,44,0.98) 100%);
+  border-color:rgba(255,255,255,0.13);
+  background:linear-gradient(145deg,rgba(24,32,68,0.96) 0%,rgba(16,22,52,0.99) 100%);
 }}
 .dcell.mkt-closed{{
-  background:linear-gradient(145deg,rgba(40,8,8,0.8) 0%,rgba(25,5,5,0.9) 100%);
-  border-color:rgba(180,40,40,.2);
+  background:linear-gradient(145deg,rgba(44,10,10,0.82) 0%,rgba(28,6,6,0.92) 100%);
+  border-color:rgba(180,40,40,.22);
 }}
 .dno{{
   font-family:var(--mono);font-size:10.5px;font-weight:600;
-  color:rgba(200,212,240,0.7);margin-bottom:3px;display:block;
+  color:rgba(220,230,255,0.80);margin-bottom:3px;display:block;
 }}
 .evbadge{{
   font-family:var(--mono);font-size:6.5px;font-weight:700;padding:1px 4px;border-radius:3px;
   margin-bottom:2px;display:inline-block;letter-spacing:.2px;white-space:nowrap;
   max-width:100%;overflow:hidden;text-overflow:ellipsis;
 }}
-.evbadge-holiday{{background:rgba(74,122,200,.3);color:#90b8f0;border:1px solid rgba(74,122,200,.5);}}
-.evbadge-retail{{background:rgba(160,112,48,.3);color:#e0b870;border:1px solid rgba(160,112,48,.5);}}
+.evbadge-holiday{{background:rgba(74,122,200,.32);color:#a0c4f8;border:1px solid rgba(74,122,200,.55);}}
+.evbadge-retail{{background:rgba(160,112,48,.32);color:#f0c878;border:1px solid rgba(160,112,48,.55);}}
 .ev-closed{{
   font-size:6px;font-weight:900;background:rgba(220,40,40,.9);color:#fff;
   padding:0 3px;border-radius:2px;margin-left:2px;letter-spacing:.3px;vertical-align:middle;
 }}
 .chips{{display:flex;flex-wrap:wrap;gap:3px;margin-top:3px;}}
 
-/* ========== CHIPS — VIVID & GLOWING ========== */
+/* ========== CHIPS — vivid but less glow ========== */
 .chip{{
   display:inline-flex;align-items:center;gap:2px;
-  background:linear-gradient(135deg,color-mix(in srgb,var(--cc) 90%,#fff 10%) 0%,var(--cc) 100%);
+  background:linear-gradient(135deg,color-mix(in srgb,var(--cc) 88%,#fff 12%) 0%,var(--cc) 100%);
   font-family:var(--mono);font-size:9px;font-weight:800;color:#fff;
   padding:4px 7px;border-radius:6px;cursor:pointer;white-space:nowrap;
   transition:transform 0.13s,filter 0.13s,box-shadow 0.13s,opacity 0.13s;
   letter-spacing:.2px;
-  text-shadow:0 1px 4px rgba(0,0,0,0.7);
-  border:1px solid rgba(255,255,255,0.28);
+  text-shadow:0 1px 3px rgba(0,0,0,0.65);
+  border:1px solid rgba(255,255,255,0.25);
   box-shadow:
-    inset 0 1px 0 rgba(255,255,255,0.3),
-    0 2px 8px rgba(0,0,0,0.5),
-    0 0 12px color-mix(in srgb,var(--cc) 40%,transparent);
+    inset 0 1px 0 rgba(255,255,255,0.28),
+    0 2px 6px rgba(0,0,0,0.45);
 }}
 .chip:hover{{
-  transform:translateY(-2px) scale(1.1);
-  filter:brightness(1.35) saturate(1.2);
+  transform:translateY(-2px) scale(1.08);
+  filter:brightness(1.28) saturate(1.15);
   box-shadow:
-    0 6px 20px rgba(0,0,0,0.6),
-    0 0 20px color-mix(in srgb,var(--cc) 60%,transparent),
-    inset 0 1px 0 rgba(255,255,255,0.35);
+    0 5px 16px rgba(0,0,0,0.55),
+    0 0 12px color-mix(in srgb,var(--cc) 40%,transparent),
+    inset 0 1px 0 rgba(255,255,255,0.32);
   z-index:10;position:relative;
 }}
 .chip.dimmed{{opacity:0.06;pointer-events:none;}}
@@ -917,32 +958,32 @@ body{{
 /* ========== UNANNOUNCED ========== */
 .ubox{{
   margin:0 18px 32px;
-  background:rgba(10,13,31,0.8);
-  border:1px solid rgba(255,255,255,0.1);
+  background:rgba(13,17,34,0.88);
+  border:1px solid rgba(255,255,255,0.11);
   border-radius:var(--r-lg);overflow:hidden;
-  box-shadow:0 8px 32px rgba(0,0,0,0.5),inset 0 1px 0 rgba(255,255,255,0.05);
+  box-shadow:0 6px 28px rgba(0,0,0,0.45),inset 0 1px 0 rgba(255,255,255,0.06);
 }}
 .ubox-head{{
-  padding:12px 18px;border-bottom:1px solid rgba(255,255,255,0.08);
+  padding:12px 18px;border-bottom:1px solid rgba(255,255,255,0.09);
   display:flex;align-items:baseline;gap:12px;
-  background:rgba(255,255,255,0.03);
+  background:rgba(255,255,255,0.04);
 }}
 .ubox-title{{font-family:var(--mono);font-size:10.5px;font-weight:700;color:#fff;letter-spacing:.5px;}}
 .ubox-sub{{font-size:9.5px;color:var(--t1);}}
 .utable{{width:100%;border-collapse:collapse;}}
 .utable th{{
   text-align:left;padding:6px 14px;font-family:var(--mono);font-size:7.5px;font-weight:700;
-  color:var(--t1);border-bottom:1px solid rgba(255,255,255,0.08);text-transform:uppercase;letter-spacing:.8px;
+  color:var(--t1);border-bottom:1px solid rgba(255,255,255,0.09);text-transform:uppercase;letter-spacing:.8px;
 }}
-.utable td{{padding:7px 14px;border-bottom:1px solid rgba(255,255,255,0.05);vertical-align:middle;}}
+.utable td{{padding:7px 14px;border-bottom:1px solid rgba(255,255,255,0.06);vertical-align:middle;}}
 .utable tr:last-child td{{border-bottom:none;}}
-.utable tr:hover td{{background:rgba(255,255,255,0.03);}}
+.utable tr:hover td{{background:rgba(255,255,255,0.04);}}
 .sbadge{{
   font-family:var(--mono);font-size:8.5px;font-weight:700;color:#fff;
   padding:3px 8px;border-radius:5px;white-space:nowrap;
   text-shadow:0 1px 3px rgba(0,0,0,.6);
   border:1px solid rgba(255,255,255,.18);
-  box-shadow:inset 0 1px 0 rgba(255,255,255,.2),0 0 8px rgba(0,0,0,.4);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.2),0 0 6px rgba(0,0,0,.4);
 }}
 .uchip{{
   display:inline-flex;align-items:center;
@@ -951,58 +992,58 @@ body{{
   padding:3px 7px;border-radius:5px;margin:2px;cursor:pointer;
   transition:transform 0.13s,filter 0.13s,opacity 0.13s;
   text-shadow:0 1px 3px rgba(0,0,0,.6);
-  border:1px solid rgba(255,255,255,.22);
-  box-shadow:inset 0 1px 0 rgba(255,255,255,.25),0 0 10px color-mix(in srgb,var(--cc) 35%,transparent);
+  border:1px solid rgba(255,255,255,.20);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.22);
 }}
-.uchip:hover{{transform:translateY(-1px) scale(1.09);filter:brightness(1.3);}}
+.uchip:hover{{transform:translateY(-1px) scale(1.08);filter:brightness(1.25);}}
 .uchip.dimmed{{opacity:0.06;pointer-events:none;}}
 
 /* ========== FOOTER ========== */
 .footer{{
-  border-top:1px solid rgba(255,255,255,0.08);padding:10px 18px;
+  border-top:1px solid rgba(255,255,255,0.09);padding:10px 18px;
   font-family:var(--mono);font-size:8.5px;color:var(--t2);
   display:flex;justify-content:space-between;align-items:center;
-  background:rgba(7,9,26,0.8);
+  background:rgba(8,10,24,0.85);
 }}
 
 /* ========== MODAL ========== */
 .overlay{{
   display:none;position:fixed;inset:0;
-  background:rgba(0,0,0,0.85);
+  background:rgba(0,0,0,0.82);
   backdrop-filter:blur(24px) saturate(120%);-webkit-backdrop-filter:blur(24px) saturate(120%);
   z-index:999;align-items:center;justify-content:center;
 }}
 .overlay.on{{display:flex;}}
 .modal{{
-  background:linear-gradient(145deg,rgba(18,24,52,0.98) 0%,rgba(11,15,36,0.99) 100%);
-  border:1px solid rgba(255,255,255,0.18);border-radius:var(--r-xl);
+  background:linear-gradient(145deg,rgba(20,26,56,0.99) 0%,rgba(13,17,40,0.99) 100%);
+  border:1px solid rgba(255,255,255,0.20);border-radius:var(--r-xl);
   padding:26px;max-width:400px;width:90%;
-  box-shadow:0 40px 80px rgba(0,0,0,0.95),0 0 0 1px rgba(255,255,255,0.04),inset 0 1px 0 rgba(255,255,255,0.08);
+  box-shadow:0 40px 80px rgba(0,0,0,0.9),0 0 0 1px rgba(255,255,255,0.05),inset 0 1px 0 rgba(255,255,255,0.09);
   position:relative;animation:popIn .22s cubic-bezier(.34,1.4,.64,1);
 }}
 @keyframes popIn{{from{{transform:scale(.88) translateY(14px);opacity:0}}to{{transform:scale(1) translateY(0);opacity:1}}}}
 .modal-close{{
   position:absolute;top:12px;right:14px;
-  background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.12);
+  background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.14);
   border-radius:6px;width:24px;height:24px;font-size:14px;color:var(--t1);cursor:pointer;
   display:flex;align-items:center;justify-content:center;transition:background var(--dur),color var(--dur);
 }}
-.modal-close:hover{{background:rgba(255,255,255,0.14);color:#fff;}}
+.modal-close:hover{{background:rgba(255,255,255,0.16);color:#fff;}}
 .modal-ticker{{
   font-family:var(--mono);font-size:28px;font-weight:700;margin-bottom:3px;line-height:1;
-  filter:drop-shadow(0 0 16px currentColor);
+  filter:drop-shadow(0 0 10px currentColor);
 }}
 .modal-name{{font-size:11.5px;color:var(--t1);margin-bottom:20px;}}
 .modal-banner{{border-radius:8px;padding:9px 12px;margin-bottom:12px;font-size:10.5px;line-height:1.5;display:none;}}
 .modal-banner.on{{display:block;}}
 .modal-banner.warn{{background:rgba(255,82,82,.1);border:1px solid rgba(255,82,82,.3);color:#ff8080;}}
 .modal-banner.info{{background:rgba(255,170,51,.09);border:1px solid rgba(255,170,51,.28);color:#ffaa33;}}
-.modal-row{{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.06);font-size:11.5px;}}
+.modal-row{{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.07);font-size:11.5px;}}
 .modal-row:last-of-type{{border-bottom:none;}}
 .modal-key{{color:var(--t2);font-size:9px;text-transform:uppercase;letter-spacing:.7px;font-weight:600;}}
 .modal-val{{color:#fff;font-family:var(--mono);font-size:11px;font-weight:600;}}
 .modal-val.secondary{{color:var(--t1);font-size:10.5px;font-weight:400;}}
-.modal-source-row{{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.06);gap:12px;}}
+.modal-source-row{{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.07);gap:12px;}}
 .modal-source-col{{display:flex;flex-direction:column;gap:3px;flex:1;}}
 .modal-source-label{{color:var(--t2);font-size:8.5px;text-transform:uppercase;letter-spacing:.7px;font-weight:600;}}
 .modal-source-date{{font-family:var(--mono);font-size:11.5px;font-weight:600;color:#fff;}}
@@ -1010,13 +1051,13 @@ body{{
 .modal-ir-link{{
   display:inline-flex;align-items:center;gap:6px;margin-top:16px;
   font-family:var(--mono);font-size:9.5px;font-weight:600;color:var(--accent);text-decoration:none;
-  border:1px solid rgba(91,159,255,.3);border-radius:9px;padding:9px 14px;width:100%;
-  justify-content:center;background:rgba(91,159,255,.08);
+  border:1px solid rgba(106,171,255,.32);border-radius:9px;padding:9px 14px;width:100%;
+  justify-content:center;background:rgba(106,171,255,.09);
   transition:background var(--dur),border-color var(--dur),box-shadow var(--dur);
 }}
 .modal-ir-link:hover{{
-  background:rgba(91,159,255,.16);border-color:rgba(91,159,255,.55);
-  box-shadow:0 0 20px rgba(91,159,255,.2);
+  background:rgba(106,171,255,.18);border-color:rgba(106,171,255,.58);
+  box-shadow:0 0 16px rgba(106,171,255,.18);
 }}
 
 /* ========== MOBILE ========== */
@@ -1037,8 +1078,6 @@ body{{
   .chip{{font-size:7px;padding:2px 4px;border-radius:4px;}}
   .evbadge{{font-size:5.5px;padding:1px 2px;}}
   .dname{{font-size:7px;padding:3px 0;}}
-  .pw-grid{{grid-template-columns:1fr;gap:3px;}}
-  .pw-panel{{margin:10px 8px 0;}}
   .main{{padding:10px 8px 20px;}}
   .mblock{{margin-bottom:14px;}}
   .ubox{{margin:0 8px 20px;}}
@@ -1057,7 +1096,7 @@ body{{
   </div>
   <div class="sidebar-sectors">{sidebar_html}</div>
 
-  <!-- COMMENTS pinned to bottom -->
+  <!-- NOTES pinned to bottom -->
   <div class="comments-panel">
     <div class="comments-head">
       <span class="comments-title">
@@ -1097,7 +1136,7 @@ body{{
   </div>
   <div class="topbar-right">
     <div class="tstat">
-      <span class="tstat-num" style="color:#5b9fff">{nf}</span>
+      <span class="tstat-num" style="color:#6aabff">{nf}</span>
       <span class="tstat-lbl">Dates Found</span>
     </div>
     <div class="tstat">
@@ -1198,8 +1237,9 @@ body{{
 const SECTORS       = {sj};
 const SECTOR_COLORS = {cj};
 const COMPANY_NAMES = {nj};
+const IR_URLS_JS    = {ir_json};
 
-// Sidebar
+// ── Sidebar toggle ──────────────────────────────────────────────────────────
 let sidebarOpen = true;
 function toggleSidebar() {{
   sidebarOpen = !sidebarOpen;
@@ -1214,7 +1254,7 @@ function toggleSector(safe) {{
   a.classList.toggle('open', !open);
 }}
 
-// Auto-refresh
+// ── Auto-refresh ────────────────────────────────────────────────────────────
 function scheduleSmartRefresh() {{
   const now = new Date();
   const fmt = new Intl.DateTimeFormat('en-US',{{
@@ -1235,7 +1275,7 @@ function scheduleSmartRefresh() {{
 }}
 scheduleSmartRefresh();
 
-// Search
+// ── Search ──────────────────────────────────────────────────────────────────
 const searchInput=document.getElementById('searchInput');
 const searchClear=document.getElementById('searchClear');
 const searchHint =document.getElementById('searchHint');
@@ -1262,7 +1302,7 @@ function applySearch(q){{
   searchHint.textContent=found?found+' result'+(found>1?'s':''):'No results';
 }}
 
-// Modal
+// ── Modal ───────────────────────────────────────────────────────────────────
 function showCard(ticker,name,sector,timing,nasdaqDate,color,source,yahooDate,mismatch,confirmed,irUrl){{
   document.getElementById('mTicker').textContent=ticker;
   document.getElementById('mTicker').style.color=color;
@@ -1292,109 +1332,188 @@ document.addEventListener('keydown',e=>{{
   if(e.key==='Escape')document.getElementById('overlay').classList.remove('on');
 }});
 
-// ===== COMMENTS =====
-const STORAGE_KEY='earnings_cal_comments_v1';
-let comments=[];
+// ── NOTES — persistent, editable, owner-deletable ──────────────────────────
+// Storage key versioned so old data is not lost on refresh
+const STORAGE_KEY = 'earnings_cal_notes_v2';
+let notes = [];
 
-function loadComments(){{
-  try{{comments=JSON.parse(localStorage.getItem(STORAGE_KEY))||[];}}catch{{comments=[];}}
-  renderComments();
+function loadNotes() {{
+  try {{ notes = JSON.parse(localStorage.getItem(STORAGE_KEY)) || []; }}
+  catch {{ notes = []; }}
+  renderNotes();
 }}
 
-function saveComments(){{
-  try{{localStorage.setItem(STORAGE_KEY,JSON.stringify(comments.slice(-200)));}}catch{{}}
+function saveNotes() {{
+  try {{ localStorage.setItem(STORAGE_KEY, JSON.stringify(notes)); }}
+  catch {{}}
 }}
 
-function renderComments(){{
-  const list =document.getElementById('commentsList');
-  const empty=document.getElementById('commentsEmpty');
-  const count=document.getElementById('commentCount');
-  count.textContent=comments.length;
-  list.querySelectorAll('.comment-item').forEach(el=>el.remove());
-  if(!comments.length){{empty.style.display='block';return;}}
-  empty.style.display='none';
-  [...comments].reverse().forEach((c,i)=>{{
-    const idx=comments.length-1-i;
-    const el=document.createElement('div');
-    el.className='comment-item';
-    const initials=(c.author||'?').slice(0,2).toUpperCase();
-    const hue=[...(c.author||'A')].reduce((a,ch)=>a+ch.charCodeAt(0),0)%360;
-    const col=`hsl(${{hue}},55%,48%)`;
-    el.innerHTML=`
+// Each note: {{ id, author, text, ts, edited }}
+function genId() {{
+  return Date.now().toString(36) + Math.random().toString(36).slice(2,6);
+}}
+
+function renderNotes() {{
+  const list  = document.getElementById('commentsList');
+  const empty = document.getElementById('commentsEmpty');
+  const count = document.getElementById('commentCount');
+  count.textContent = notes.length;
+
+  // Remove existing note items (keep the empty placeholder)
+  list.querySelectorAll('.comment-item').forEach(el => el.remove());
+
+  if (!notes.length) {{ empty.style.display = 'block'; return; }}
+  empty.style.display = 'none';
+
+  // Show newest first
+  [...notes].reverse().forEach((note, ri) => {{
+    const idx = notes.length - 1 - ri;   // index in the original array
+    const el  = document.createElement('div');
+    el.className = 'comment-item';
+    el.dataset.id = note.id;
+
+    const initials = (note.author || '?').slice(0,2).toUpperCase();
+    const hue = [...(note.author||'A')].reduce((a,ch)=>a+ch.charCodeAt(0),0) % 360;
+    const col = `hsl(${{hue}},55%,48%)`;
+    const editedMark = note.edited
+      ? `<span style="font-size:7px;color:var(--t3);margin-left:3px">(edited)</span>` : '';
+
+    el.innerHTML = `
       <div class="comment-meta">
         <div class="comment-avatar" style="--cc:${{col}}">${{initials}}</div>
-        <span class="comment-author">${{escHtml(c.author||'Anonymous')}}</span>
-        <span class="comment-time">${{formatAge(c.ts)}}</span>
-        <button onclick="deleteComment(${{idx}})" title="Delete"
-          style="background:none;border:none;color:var(--t3);cursor:pointer;font-size:10px;
-                 margin-left:4px;padding:0;line-height:1;transition:color .15s"
-          onmouseover="this.style.color='#ff5252'"
-          onmouseout="this.style.color='var(--t3)'">✕</button>
+        <span class="comment-author">${{escHtml(note.author||'Anonymous')}}</span>
+        ${{editedMark}}
+        <span class="comment-time">${{formatAge(note.ts)}}</span>
+        <div class="comment-actions">
+          <button class="comment-btn" title="Edit note"
+                  onclick="startEdit('${{note.id}}')">✎</button>
+          <button class="comment-btn del" title="Delete note"
+                  onclick="tryDelete('${{note.id}}')">✕</button>
+        </div>
       </div>
-      <div class="comment-text">${{formatText(c.text)}}</div>`;
+      <div class="comment-text" id="text-${{note.id}}">${{formatText(note.text)}}</div>
+      <div class="comment-edit-area" id="edit-${{note.id}}" style="display:none">
+        <textarea class="comment-edit-input" id="editbox-${{note.id}}"
+                  rows="2" maxlength="280">${{escHtml(note.text)}}</textarea>
+        <div class="comment-edit-btns">
+          <button class="comment-edit-save"   onclick="saveEdit('${{note.id}}')">Save</button>
+          <button class="comment-edit-cancel" onclick="cancelEdit('${{note.id}}')">Cancel</button>
+        </div>
+      </div>`;
     list.appendChild(el);
   }});
-  list.scrollTop=0;
+  list.scrollTop = 0;
 }}
 
-function escHtml(s){{
+function escHtml(s) {{
   return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
           .replace(/"/g,'&quot;').replace(/'/g,'&#39;');
 }}
 
-function formatText(raw){{
-  const escaped=escHtml(raw);
-  return escaped.replace(/\$?([A-Z]{{2,5}})(?=[^a-z]|$)/g,(m,sym)=>{{
-    if(COMPANY_NAMES[sym]){{
-      const col=Object.entries(SECTORS).find(([,v])=>v.includes(sym));
-      const c=col?SECTOR_COLORS[col[0]]:'var(--accent)';
+function formatText(raw) {{
+  const escaped = escHtml(raw);
+  return escaped.replace(/\$?([A-Z]{{2,5}})(?=[^a-z]|$)/g, (m, sym) => {{
+    if (COMPANY_NAMES[sym]) {{
+      const col_entry = Object.entries(SECTORS).find(([,v]) => v.includes(sym));
+      const c = col_entry ? SECTOR_COLORS[col_entry[0]] : 'var(--accent)';
       return `<span class="comment-ticker-tag" style="background:${{c}}22;color:${{c}};border-color:${{c}}44">${{sym}}</span>`;
     }}
     return m;
   }});
 }}
 
-function formatAge(ts){{
-  const diff=Date.now()-ts;
-  const m=Math.floor(diff/60000);
-  if(m<1)return 'just now';
-  if(m<60)return m+'m ago';
-  const h=Math.floor(m/60);
-  if(h<24)return h+'h ago';
-  return Math.floor(h/24)+'d ago';
+function formatAge(ts) {{
+  const diff = Date.now() - ts;
+  const m = Math.floor(diff / 60000);
+  if (m < 1)  return 'just now';
+  if (m < 60) return m + 'm ago';
+  const h = Math.floor(m / 60);
+  if (h < 24) return h + 'h ago';
+  return Math.floor(h / 24) + 'd ago';
 }}
 
-function deleteComment(idx){{
-  comments.splice(idx,1);saveComments();renderComments();
+// ── Edit flow ────────────────────────────────────────────────────────────────
+function startEdit(id) {{
+  // Ask for author name to verify ownership
+  const note = notes.find(n => n.id === id);
+  if (!note) return;
+  const who = (document.getElementById('commentName').value.trim() || '').toLowerCase();
+  const owner = (note.author || '').toLowerCase();
+  if (who !== owner) {{
+    alert('Enter your name in the "Your name" field to edit your own notes.');
+    return;
+  }}
+  document.getElementById('text-' + id).style.display = 'none';
+  document.getElementById('edit-' + id).style.display = 'block';
+  const box = document.getElementById('editbox-' + id);
+  box.value = note.text;
+  box.focus();
 }}
 
-function submitComment(){{
-  const nameEl=document.getElementById('commentName');
-  const boxEl =document.getElementById('commentBox');
-  const text  =boxEl.value.trim();
-  const author=nameEl.value.trim()||'Anonymous';
-  if(!text)return;
-  comments.push({{author,text,ts:Date.now()}});
-  saveComments();boxEl.value='';updateCharCount();renderComments();
+function cancelEdit(id) {{
+  document.getElementById('text-' + id).style.display = '';
+  document.getElementById('edit-' + id).style.display = 'none';
 }}
 
-function updateCharCount(){{
-  const box  =document.getElementById('commentBox');
-  const count=document.getElementById('charCount');
-  const btn  =document.getElementById('commentSubmit');
-  const len  =box.value.length;
-  count.textContent=len+' / 280';
-  count.classList.toggle('warn',len>240);
-  btn.disabled=len===0;
+function saveEdit(id) {{
+  const box  = document.getElementById('editbox-' + id);
+  const text = box.value.trim();
+  if (!text) return;
+  const note = notes.find(n => n.id === id);
+  if (!note) return;
+  note.text   = text;
+  note.edited = true;
+  saveNotes();
+  renderNotes();
 }}
 
-document.getElementById('commentBox').addEventListener('input',updateCharCount);
-document.getElementById('commentBox').addEventListener('keydown',function(e){{
-  if(e.key==='Enter'&&(e.ctrlKey||e.metaKey))submitComment();
+// ── Delete flow ──────────────────────────────────────────────────────────────
+function tryDelete(id) {{
+  const note = notes.find(n => n.id === id);
+  if (!note) return;
+  const who   = (document.getElementById('commentName').value.trim() || '').toLowerCase();
+  const owner = (note.author || '').toLowerCase();
+  if (who !== owner) {{
+    alert('Enter your name in the "Your name" field to delete your own notes.');
+    return;
+  }}
+  notes = notes.filter(n => n.id !== id);
+  saveNotes();
+  renderNotes();
+}}
+
+// ── Submit ───────────────────────────────────────────────────────────────────
+function submitComment() {{
+  const nameEl = document.getElementById('commentName');
+  const boxEl  = document.getElementById('commentBox');
+  const text   = boxEl.value.trim();
+  const author = nameEl.value.trim() || 'Anonymous';
+  if (!text) return;
+  notes.push({{ id: genId(), author, text, ts: Date.now(), edited: false }});
+  saveNotes();
+  boxEl.value = '';
+  updateCharCount();
+  renderNotes();
+}}
+
+function updateCharCount() {{
+  const box   = document.getElementById('commentBox');
+  const count = document.getElementById('charCount');
+  const btn   = document.getElementById('commentSubmit');
+  const len   = box.value.length;
+  count.textContent = len + ' / 280';
+  count.classList.toggle('warn', len > 240);
+  btn.disabled = len === 0;
+}}
+
+document.getElementById('commentBox').addEventListener('input', updateCharCount);
+document.getElementById('commentBox').addEventListener('keydown', function(e) {{
+  if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) submitComment();
 }});
 
-setInterval(()=>renderComments(),60000);
-loadComments();
+// Refresh relative timestamps every minute
+setInterval(() => renderNotes(), 60000);
+loadNotes();
 </script>
 </body>
 </html>"""
