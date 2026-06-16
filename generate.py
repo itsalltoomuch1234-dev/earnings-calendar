@@ -1240,7 +1240,7 @@ import {{ getFirestore, collection, addDoc, onSnapshot,
           query, orderBy, doc, updateDoc, deleteDoc,
           serverTimestamp }} from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
 
-// ── Paste your Firebase config here ─────────────────────────────────────────
+// Paste your Firebase config here
 const firebaseConfig = {{
   apiKey:            "AIzaSyBOcOYrizw5dZXns_YQHhvChtnGquZvNBo",
   authDomain:        "earnings-calendar-ad07d.firebaseapp.com",
