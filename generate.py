@@ -1319,8 +1319,8 @@ const STORAGE_KEY = 'earnings_cal_private_notes_v1';
 let notes = [];
 
 function loadNotes() {
-  try { notes = JSON.parse(localStorage.getItem(STORAGE_KEY)) || []; }
-  catch { notes = []; }
+  try {{ notes = JSON.parse(localStorage.getItem(STORAGE_KEY)) || []; }}
+  catch {{ notes = []; }}
   renderNotes();
 }
 
