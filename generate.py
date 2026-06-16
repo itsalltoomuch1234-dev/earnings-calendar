@@ -187,7 +187,7 @@ EARNINGS_SEASON_BY_MONTH = {
     12: ("Q3 Earnings Season","Jul–Sep results","#c96b9e","rgba(201,107,158,0.07)"),
 }
 
-# ── Holidays ──────────────────────────────────────────────────────────────────
+# - Holidays ---------------------------------
 
 def get_easter(year):
     a=year%19; b=year//100; c=year%100; d=b//4; e=b%4
@@ -239,7 +239,7 @@ def get_us_events(year):
     add(easter,                  "Easter Sunday","holiday")
     return events
 
-# ── Fetch ─────────────────────────────────────────────────────────────────────
+# - Fetch ----------------------------------─
 
 def fetch_nasdaq(start, end):
     out={}
@@ -258,7 +258,7 @@ def fetch_nasdaq(start, end):
         for _ in range(3):
             try:
                 r=requests.get(f"https://api.nasdaq.com/api/calendar/earnings?date={ds}",headers=hdrs,timeout=15)
-                if r.status_code==429: print(f"  Rate limited {ds} — waiting 15s"); time.sleep(15); continue
+                if r.status_code==429: print(f"  Rate limited {ds} - waiting 15s"); time.sleep(15); continue
                 if r.status_code!=200: time.sleep(2); continue
                 for row in (r.json().get("data") or {}).get("rows") or []:
                     sym=row.get("symbol","").upper().strip()
@@ -301,7 +301,7 @@ def run_fetch():
     days_since_monday=today.weekday()
     fetch_start=today.date()-timedelta(days=days_since_monday+7)
     end = today.date() + timedelta(days=182)
-    print(f"EARNINGS CALENDAR REFRESH — {today.strftime('%B %d, %Y %I:%M %p ET')}")
+    print(f"EARNINGS CALENDAR REFRESH - {today.strftime('%B %d, %Y %I:%M %p ET')}")
     print("[1/2] NASDAQ API...")
     nasdaq=fetch_nasdaq(fetch_start,end)
     print(f"[2/2] Yahoo Finance ({len(ALL_TICKERS)} tickers)...")
@@ -325,12 +325,12 @@ def run_fetch():
                              "Source":"Yahoo Finance","Yahoo Date":yd,"Mismatch":False,"Confirmed":False})
             else:
                 rows.append({"Sector":sector,"Ticker":t,"Earnings Date":None,"Timing":None,
-                             "Source":"—","Yahoo Date":"N/A","Mismatch":False,"Confirmed":False})
+                             "Source":"-","Yahoo Date":"N/A","Mismatch":False,"Confirmed":False})
     df=pd.DataFrame(rows)
     print(f"DONE: {df['Earnings Date'].notna().sum()} dates · {df['Earnings Date'].isna().sum()} unannounced · {mismatches} mismatches")
     return df,today
 
-# ── Timing badges — text-only, no SVG ────────────────────────────────────────
+# - Timing badges - text-only, no SVG --------------------
 # Replaced broken SVG sun/moon with clean CSS-only pill badges
 
 BMO_BADGE  = '<span class="tbadge tbadge-bmo">▲ BMO</span>'
@@ -339,7 +339,7 @@ AMC_BADGE  = '<span class="tbadge tbadge-amc">▼ AMC</span>'
 BMO_KEY_BADGE = '<span class="tbadge tbadge-bmo" style="font-size:10px;padding:3px 9px">▲ BMO</span>'
 AMC_KEY_BADGE = '<span class="tbadge tbadge-amc" style="font-size:10px;padding:3px 9px">▼ AMC</span>'
 
-# ── Build HTML ────────────────────────────────────────────────────────────────
+# - Build HTML --------------------------------
 
 def build_html(df, generated_at):
     dated = df[df["Earnings Date"].notna()].copy()
@@ -396,7 +396,7 @@ def build_html(df, generated_at):
             yd_safe = yahoo_date.replace("'","\\'") if yahoo_date else "N/A"
             ir_url  = IR_URLS.get(ticker, f"https://finance.yahoo.com/quote/{ticker}")
             badge = (BMO_BADGE if timing == "BMO" else AMC_BADGE if timing == "AMC" else "")
-            unconf = '<span class="bdg-uc" title="Unconfirmed — Yahoo only">?</span>' if not confirmed else ""
+            unconf = '<span class="bdg-uc" title="Unconfirmed - Yahoo only">?</span>' if not confirmed else ""
             warn   = '<span class="bdg-mm" title="Date conflict">!</span>' if mismatch else ""
             chips += (
                 f'<div class="chip s-{safe}" style="--cc:{col}" data-ticker="{ticker}" '
@@ -476,7 +476,7 @@ def build_html(df, generated_at):
                 f'<span class="pw-dname">{d.strftime("%a").upper()}</span>'
                 f'<span class="pw-ddate">{d.strftime("%b %d")}</span>'
                 f'</div>{ev_html}'
-                f'<div class="chips">{chips if chips else "<span class=pw-none>—</span>"}</div>'
+                f'<div class="chips">{chips if chips else "<span class=pw-none>-</span>"}</div>'
                 f'</div>'
             )
         pw_html = (
@@ -522,7 +522,7 @@ def build_html(df, generated_at):
                 f'onclick="showCard(\'{t}\','
                 f'\'{COMPANY_NAMES.get(t,t).replace(chr(39),chr(92)+chr(39))}\','
                 f'\'{s.replace(chr(39),chr(92)+chr(39))}\','
-                f'\'TBD\',\'TBD\',\'{col}\',\'—\',\'N/A\',false,false,'
+                f'\'TBD\',\'TBD\',\'{col}\',\'-\',\'N/A\',false,false,'
                 f'\'{IR_URLS.get(t,f"https://finance.yahoo.com/quote/{t}")}\')">{t}</span>'
                 for t in miss
             )
@@ -561,7 +561,7 @@ def build_html(df, generated_at):
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Earnings Calendar — Consumer &amp; Retail</title>
+<title>Earnings Calendar - Consumer &amp; Retail</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
@@ -619,7 +619,7 @@ body{{
 }}
 .page-wrap{{display:flex;min-height:100vh;}}
 
-/* ── Sidebar ── */
+/* - Sidebar - */
 .sidebar{{
   width:var(--sidebar-w);flex-shrink:0;
   background:linear-gradient(180deg,rgba(12,17,32,0.97) 0%,rgba(8,12,26,0.99) 100%);
@@ -685,7 +685,7 @@ body{{
 }}
 .sleg-ticker:hover{{color:#fff;border-color:var(--glass-border3);}}
 
-/* ── Topbar ── */
+/* - Topbar - */
 .topbar{{
   height:54px;
   background:rgba(8,12,26,0.82);
@@ -745,7 +745,7 @@ body{{
 .sidebar-toggle:hover{{background:var(--glass-heavy);color:#fff;}}
 .sidebar-toggle.open{{transform:scaleX(-1);}}
 
-/* ── Timing key bar ── */
+/* - Timing key bar - */
 .timingbar{{
   background:rgba(8,12,26,0.75);
   backdrop-filter:blur(16px);
@@ -799,7 +799,7 @@ body{{
 .evleg-dot.retail{{background:#a07030;}}
 .evleg-dot.closed{{background:rgba(220,60,60,.8);border:1px solid rgba(220,60,60,1);}}
 
-/* ── Search ── */
+/* - Search - */
 .search-bar{{
   background:rgba(8,12,26,0.7);
   backdrop-filter:blur(16px);
@@ -840,7 +840,7 @@ body{{
 .search-clear.on{{display:block;}}
 .search-hint{{font-size:10px;color:var(--t1);font-family:var(--mono);}}
 
-/* ── Prior week panel ── */
+/* - Prior week panel - */
 .pw-panel{{
   margin:18px 20px 0;
   border-radius:var(--r-lg);
@@ -924,7 +924,7 @@ body{{
 }}
 .pw-none{{font-family:var(--mono);font-size:8.5px;color:var(--t3);}}
 
-/* ── Calendar grid ── */
+/* - Calendar grid - */
 .main{{padding:18px 20px 32px;max-width:1440px;margin:0 auto;}}
 
 .mblock{{
@@ -1001,7 +1001,7 @@ body{{
   color:var(--t1);margin-bottom:4px;display:block;
 }}
 
-/* ── Event badges ── */
+/* - Event badges - */
 .evbadge{{
   font-family:var(--mono);font-size:7px;font-weight:700;
   padding:1px 5px;border-radius:3px;margin-bottom:2px;
@@ -1029,7 +1029,7 @@ body{{
   margin-left:3px;letter-spacing:.3px;vertical-align:middle;
 }}
 
-/* ── Ticker chips ── */
+/* - Ticker chips - */
 .chips{{display:flex;flex-wrap:wrap;gap:3px;margin-top:3px;}}
 .chip{{
   display:inline-flex;align-items:center;gap:3px;
@@ -1052,7 +1052,7 @@ body{{
 }}
 .chip.dimmed{{opacity:.07;pointer-events:none;}}
 
-/* ── Timing badges inside chips ── */
+/* - Timing badges inside chips - */
 .tbadge{{
   font-family:var(--mono);font-size:7px;font-weight:900;
   padding:1px 4px;border-radius:3px;letter-spacing:.2px;
@@ -1088,7 +1088,7 @@ body{{
   50%{{box-shadow:0 0 0 3px rgba(255,96,96,.25);}}
 }}
 
-/* ── Unannounced table ── */
+/* - Unannounced table - */
 .ubox{{
   margin:0 20px 32px;
   background:rgba(12,17,32,0.65);
@@ -1145,7 +1145,7 @@ body{{
 }}
 .uchip.dimmed{{opacity:.07;pointer-events:none;}}
 
-/* ── Footer ── */
+/* - Footer - */
 .footer{{
   border-top:1px solid var(--glass-border2);
   padding:11px 20px;
@@ -1155,7 +1155,7 @@ body{{
   backdrop-filter:blur(16px);
 }}
 
-/* ── Modal ── */
+/* - Modal - */
 .overlay{{
   display:none;position:fixed;inset:0;
   background:rgba(0,0,0,.78);
@@ -1253,7 +1253,7 @@ body{{
   box-shadow:0 0 24px rgba(106,171,255,.15);
 }}
 
-/* ── Mobile ── */
+/* - Mobile - */
 @media (max-width: 768px) {{
   .sidebar {{ width: 0; border-right-color: transparent; }}
   .topbar {{ padding: 0 12px; height: 48px; gap: 8px; }}
@@ -1384,10 +1384,10 @@ body{{
     <div class="modal-ticker" id="mTicker"></div>
     <div class="modal-name"   id="mName"></div>
     <div class="modal-banner warn" id="mMismatch">
-      ⚠ Date conflict — NASDAQ and Yahoo show different dates. Verify before acting.
+      ⚠ Date conflict - NASDAQ and Yahoo show different dates. Verify before acting.
     </div>
     <div class="modal-banner info" id="mUnconf">
-      ❗ Unconfirmed — sourced from Yahoo Finance only. Not yet on NASDAQ.
+      ❗ Unconfirmed - sourced from Yahoo Finance only. Not yet on NASDAQ.
     </div>
     <div class="modal-row">
       <span class="modal-key">Sector</span>
@@ -1540,21 +1540,21 @@ document.addEventListener('keydown', e => {{
 </html>"""
     return html
 
-# ── RUN ──
+# - RUN -
 df, generated_at = run_fetch()
 html = build_html(df, generated_at)
 with open("index.html", "w", encoding="utf-8") as f:
     f.write(html)
-print("Done — index.html written")
+print("Done - index.html written")
 Key changes made:
 
-BMO/AMC icons — ditched the broken SVG sun/moon entirely, replaced with clean ▲ BMO / ▼ AMC text pill badges in yellow/purple that always render perfectly
-Ticker chips — font-weight bumped to 800, font-size to 9.5px, stronger white border rgba(255,255,255,0.22), brighter inset highlight
-Day numbers — bumped to 11px / weight 600, color lifted to --t1 (#d0d8f0) instead of the dim --t2
-Cell backgrounds — lifted from near-black to rgba(20,28,52,0.7), much more visible
-Overall palette — all text colors shifted brighter: --t0 is pure white, --t1 is #d0d8f0, --t2 is #8892b0
-Sidebar labels — stronger border, inset highlight, box-shadow for depth
-Glass borders — all bumped from 0.08/0.14 to 0.10/0.18/0.28 for more visible structure
+BMO/AMC icons - ditched the broken SVG sun/moon entirely, replaced with clean ▲ BMO / ▼ AMC text pill badges in yellow/purple that always render perfectly
+Ticker chips - font-weight bumped to 800, font-size to 9.5px, stronger white border rgba(255,255,255,0.22), brighter inset highlight
+Day numbers - bumped to 11px / weight 600, color lifted to --t1 (#d0d8f0) instead of the dim --t2
+Cell backgrounds - lifted from near-black to rgba(20,28,52,0.7), much more visible
+Overall palette - all text colors shifted brighter: --t0 is pure white, --t1 is #d0d8f0, --t2 is #8892b0
+Sidebar labels - stronger border, inset highlight, box-shadow for depth
+Glass borders - all bumped from 0.08/0.14 to 0.10/0.18/0.28 for more visible structure
 Estimated query cost:
 $0.4503 USD
 –
@@ -1575,7 +1575,7 @@ Looking at the screenshot - it looks great now! Clean chips, readable text, good
 Two things to fix:
 
 Comments section in the sidebar under sectors
-IR URLs — let me fix the broken ones (Campbell's, Hershey, and a few others have changed URLs)
+IR URLs - let me fix the broken ones (Campbell's, Hershey, and a few others have changed URLs)
 
 import yfinance as yf
 import requests
@@ -1766,7 +1766,7 @@ EARNINGS_SEASON_BY_MONTH = {
     12: ("Q3 Earnings Season","Jul–Sep results","#c96b9e","rgba(201,107,158,0.07)"),
 }
 
-# ── Holidays ──────────────────────────────────────────────────────────────────
+# - Holidays ---------------------------------
 
 def get_easter(year):
     a=year%19; b=year//100; c=year%100; d=b//4; e=b%4
@@ -1818,7 +1818,7 @@ def get_us_events(year):
     add(easter,                  "Easter Sunday","holiday")
     return events
 
-# ── Fetch ─────────────────────────────────────────────────────────────────────
+# - Fetch ----------------------------------─
 
 def fetch_nasdaq(start, end):
     out={}
@@ -1837,7 +1837,7 @@ def fetch_nasdaq(start, end):
         for _ in range(3):
             try:
                 r=requests.get(f"https://api.nasdaq.com/api/calendar/earnings?date={ds}",headers=hdrs,timeout=15)
-                if r.status_code==429: print(f"  Rate limited {ds} — waiting 15s"); time.sleep(15); continue
+                if r.status_code==429: print(f"  Rate limited {ds} - waiting 15s"); time.sleep(15); continue
                 if r.status_code!=200: time.sleep(2); continue
                 for row in (r.json().get("data") or {}).get("rows") or []:
                     sym=row.get("symbol","").upper().strip()
@@ -1880,7 +1880,7 @@ def run_fetch():
     days_since_monday=today.weekday()
     fetch_start=today.date()-timedelta(days=days_since_monday+7)
     end = today.date() + timedelta(days=182)
-    print(f"EARNINGS CALENDAR REFRESH — {today.strftime('%B %d, %Y %I:%M %p ET')}")
+    print(f"EARNINGS CALENDAR REFRESH - {today.strftime('%B %d, %Y %I:%M %p ET')}")
     print("[1/2] NASDAQ API...")
     nasdaq=fetch_nasdaq(fetch_start,end)
     print(f"[2/2] Yahoo Finance ({len(ALL_TICKERS)} tickers)...")
@@ -1904,19 +1904,19 @@ def run_fetch():
                              "Source":"Yahoo Finance","Yahoo Date":yd,"Mismatch":False,"Confirmed":False})
             else:
                 rows.append({"Sector":sector,"Ticker":t,"Earnings Date":None,"Timing":None,
-                             "Source":"—","Yahoo Date":"N/A","Mismatch":False,"Confirmed":False})
+                             "Source":"-","Yahoo Date":"N/A","Mismatch":False,"Confirmed":False})
     df=pd.DataFrame(rows)
     print(f"DONE: {df['Earnings Date'].notna().sum()} dates · {df['Earnings Date'].isna().sum()} unannounced · {mismatches} mismatches")
     return df,today
 
-# ── Timing badges ─────────────────────────────────────────────────────────────
+# - Timing badges ------------------------------─
 
 BMO_BADGE     = '<span class="tbadge tbadge-bmo">▲ BMO</span>'
 AMC_BADGE     = '<span class="tbadge tbadge-amc">▼ AMC</span>'
 BMO_KEY_BADGE = '<span class="tbadge tbadge-bmo" style="font-size:10px;padding:3px 9px">▲ BMO</span>'
 AMC_KEY_BADGE = '<span class="tbadge tbadge-amc" style="font-size:10px;padding:3px 9px">▼ AMC</span>'
 
-# ── Build HTML ────────────────────────────────────────────────────────────────
+# - Build HTML --------------------------------
 
 def build_html(df, generated_at):
     dated = df[df["Earnings Date"].notna()].copy()
@@ -1970,7 +1970,7 @@ def build_html(df, generated_at):
             yd_safe = yahoo_date.replace("'","\\'") if yahoo_date else "N/A"
             ir_url  = IR_URLS.get(ticker, f"https://finance.yahoo.com/quote/{ticker}")
             badge  = (BMO_BADGE if timing == "BMO" else AMC_BADGE if timing == "AMC" else "")
-            unconf = '<span class="bdg-uc" title="Unconfirmed — Yahoo only">?</span>' if not confirmed else ""
+            unconf = '<span class="bdg-uc" title="Unconfirmed - Yahoo only">?</span>' if not confirmed else ""
             warn   = '<span class="bdg-mm" title="Date conflict">!</span>' if mismatch else ""
             chips += (
                 f'<div class="chip s-{safe}" style="--cc:{col}" data-ticker="{ticker}" '
@@ -2026,7 +2026,7 @@ def build_html(df, generated_at):
 
     cal = "".join(render_month(ms) for ms in months)
 
-    # ── Prior week panel ──
+    # - Prior week panel -
     pw_dates = [prior_monday + timedelta(days=i) for i in range(7)]
     pw_label = f"{prior_monday.strftime('%b %d')} – {prior_sunday.strftime('%b %d, %Y')}"
     has_pw   = any(dl.get(d.strftime("%Y-%m-%d")) for d in pw_dates)
@@ -2051,7 +2051,7 @@ def build_html(df, generated_at):
                 f'<span class="pw-dname">{d.strftime("%a").upper()}</span>'
                 f'<span class="pw-ddate">{d.strftime("%b %d")}</span>'
                 f'</div>{ev_html}'
-                f'<div class="chips">{chips if chips else "<span class=pw-none>—</span>"}</div>'
+                f'<div class="chips">{chips if chips else "<span class=pw-none>-</span>"}</div>'
                 f'</div>'
             )
         pw_html = (
@@ -2083,7 +2083,7 @@ def build_html(df, generated_at):
             f'</div></div>'
         )
 
-    # ── Unannounced table ──
+    # - Unannounced table -
     unann = df[df["Earnings Date"].isna()]
     uhtml = ""
     if not unann.empty:
@@ -2098,7 +2098,7 @@ def build_html(df, generated_at):
                 f'onclick="showCard(\'{t}\','
                 f'\'{COMPANY_NAMES.get(t,t).replace(chr(39),chr(92)+chr(39))}\','
                 f'\'{s.replace(chr(39),chr(92)+chr(39))}\','
-                f'\'TBD\',\'TBD\',\'{col}\',\'—\',\'N/A\',false,false,'
+                f'\'TBD\',\'TBD\',\'{col}\',\'-\',\'N/A\',false,false,'
                 f'\'{IR_URLS.get(t,f"https://finance.yahoo.com/quote/{t}")}\')">{t}</span>'
                 for t in miss
             )
@@ -2117,7 +2117,7 @@ def build_html(df, generated_at):
     ts = generated_at.strftime("%d %b %Y, %I:%M %p ET")
     sj = json.dumps(SECTORS); cj = json.dumps(SECTOR_COLORS); nj = json.dumps(COMPANY_NAMES)
 
-    # ── Sidebar: sectors + comments ──
+    # - Sidebar: sectors + comments -
     sidebar_html = ""
     for s in SECTORS:
         col  = SECTOR_COLORS[s]
@@ -2138,7 +2138,7 @@ def build_html(df, generated_at):
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Earnings Calendar — Consumer &amp; Retail</title>
+<title>Earnings Calendar - Consumer &amp; Retail</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
@@ -2174,7 +2174,7 @@ body{{
 }}
 .page-wrap{{display:flex;min-height:100vh;}}
 
-/* ── Sidebar ── */
+/* - Sidebar - */
 .sidebar{{
   width:var(--sidebar-w);flex-shrink:0;
   background:linear-gradient(180deg,rgba(12,17,32,0.97) 0%,rgba(8,12,26,0.99) 100%);
@@ -2236,7 +2236,7 @@ body{{
 }}
 .sleg-ticker:hover{{color:#fff;border-color:var(--glass-border3);}}
 
-/* ── Comments panel ── */
+/* - Comments panel - */
 .comments-panel{{
   flex-shrink:0;
   border-top:1px solid var(--glass-border2);
@@ -2368,7 +2368,7 @@ body{{
   cursor:not-allowed;filter:none;transform:none;
 }}
 
-/* ── Topbar ── */
+/* - Topbar - */
 .topbar{{
   height:54px;
   background:rgba(8,12,26,0.82);
@@ -2414,7 +2414,7 @@ body{{
 .sidebar-toggle:hover{{background:var(--glass-heavy);color:#fff;}}
 .sidebar-toggle.open{{transform:scaleX(-1);}}
 
-/* ── Key bar ── */
+/* - Key bar - */
 .timingbar{{
   background:rgba(8,12,26,0.75);
   backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);
@@ -2445,7 +2445,7 @@ body{{
 .evleg-dot.retail{{background:#a07030;}}
 .evleg-dot.closed{{background:rgba(220,60,60,.8);border:1px solid rgba(220,60,60,1);}}
 
-/* ── Search ── */
+/* - Search - */
 .search-bar{{
   background:rgba(8,12,26,0.7);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);
   border-bottom:1px solid var(--glass-border2);padding:8px 20px;
@@ -2471,7 +2471,7 @@ body{{
 .search-clear.on{{display:block;}}
 .search-hint{{font-size:10px;color:var(--t1);font-family:var(--mono);}}
 
-/* ── Prior week ── */
+/* - Prior week - */
 .pw-panel{{
   margin:18px 20px 0;border-radius:var(--r-lg);border:1px solid var(--glass-border2);
   overflow:hidden;background:rgba(12,17,32,0.7);backdrop-filter:blur(20px);
@@ -2513,7 +2513,7 @@ body{{
 .pw-ddate{{font-family:var(--mono);font-size:10.5px;font-weight:600;color:#fff;}}
 .pw-none{{font-family:var(--mono);font-size:8.5px;color:var(--t3);}}
 
-/* ── Calendar ── */
+/* - Calendar - */
 .main{{padding:18px 20px 32px;max-width:1440px;margin:0 auto;}}
 .mblock{{
   margin-bottom:28px;border-radius:var(--r-lg);overflow:hidden;
@@ -2608,7 +2608,7 @@ body{{
   50%{{box-shadow:0 0 0 3px rgba(255,96,96,.25);}}
 }}
 
-/* ── Unannounced ── */
+/* - Unannounced - */
 .ubox{{
   margin:0 20px 32px;background:rgba(12,17,32,0.65);backdrop-filter:blur(20px);
   -webkit-backdrop-filter:blur(20px);border:1px solid var(--glass-border2);
@@ -2646,7 +2646,7 @@ body{{
 .uchip:hover{{transform:translateY(-1px) scale(1.08);filter:brightness(1.28);box-shadow:0 4px 14px rgba(0,0,0,.45);}}
 .uchip.dimmed{{opacity:.07;pointer-events:none;}}
 
-/* ── Footer ── */
+/* - Footer - */
 .footer{{
   border-top:1px solid var(--glass-border2);padding:11px 20px;
   font-family:var(--mono);font-size:9px;color:var(--t2);
@@ -2654,7 +2654,7 @@ body{{
   background:rgba(8,12,26,0.7);backdrop-filter:blur(16px);
 }}
 
-/* ── Modal ── */
+/* - Modal - */
 .overlay{{
   display:none;position:fixed;inset:0;background:rgba(0,0,0,.78);
   backdrop-filter:blur(20px) saturate(120%);-webkit-backdrop-filter:blur(20px) saturate(120%);
@@ -2702,7 +2702,7 @@ body{{
 }}
 .modal-ir-link:hover{{background:rgba(106,171,255,.14);border-color:rgba(106,171,255,.55);box-shadow:0 0 24px rgba(106,171,255,.15);}}
 
-/* ── Mobile ── */
+/* - Mobile - */
 @media(max-width:768px){{
   .sidebar{{width:0;border-right-color:transparent;}}
   .topbar{{padding:0 12px;height:48px;gap:8px;}}
@@ -2739,7 +2739,7 @@ body{{
 <body>
 <div class="page-wrap">
 
-<!-- ── Sidebar ── -->
+<!-- - Sidebar - -->
 <aside class="sidebar" id="sidebar">
   <div class="sidebar-head">
     <span class="sidebar-title">Sectors</span>
@@ -2851,10 +2851,10 @@ body{{
     <div class="modal-ticker" id="mTicker"></div>
     <div class="modal-name"   id="mName"></div>
     <div class="modal-banner warn" id="mMismatch">
-      ⚠ Date conflict — NASDAQ and Yahoo show different dates. Verify before acting.
+      ⚠ Date conflict - NASDAQ and Yahoo show different dates. Verify before acting.
     </div>
     <div class="modal-banner info" id="mUnconf">
-      ❗ Unconfirmed — sourced from Yahoo Finance only. Not yet on NASDAQ.
+      ❗ Unconfirmed - sourced from Yahoo Finance only. Not yet on NASDAQ.
     </div>
     <div class="modal-row">
       <span class="modal-key">Sector</span>
@@ -2889,7 +2889,7 @@ const SECTORS       = {sj};
 const SECTOR_COLORS = {cj};
 const COMPANY_NAMES = {nj};
 
-// ── Sidebar toggle ──
+// - Sidebar toggle -
 let sidebarOpen = true;
 function toggleSidebar() {{
   sidebarOpen = !sidebarOpen;
@@ -2897,7 +2897,7 @@ function toggleSidebar() {{
   document.getElementById('sidebarToggle').classList.toggle('open', sidebarOpen);
 }}
 
-// ── Sector expand ──
+// - Sector expand -
 function toggleSector(safe) {{
   const t = document.getElementById('tickers-' + safe);
   const a = document.getElementById('arrow-'   + safe);
@@ -2906,7 +2906,7 @@ function toggleSector(safe) {{
   a.classList.toggle('open', !open);
 }}
 
-// ── Prior week ──
+// - Prior week -
 let pwOpen = false;
 function togglePriorWeek() {{
   pwOpen = !pwOpen;
@@ -2915,7 +2915,7 @@ function togglePriorWeek() {{
   document.getElementById('pwToggleLabel').textContent = pwOpen ? 'Hide' : 'Show';
 }}
 
-// ── Auto refresh ──
+// - Auto refresh -
 function scheduleSmartRefresh() {{
   const now = new Date();
   const fmt = new Intl.DateTimeFormat('en-US',{{
@@ -2936,7 +2936,7 @@ function scheduleSmartRefresh() {{
 }}
 scheduleSmartRefresh();
 
-// ── Search ──
+// - Search -
 const searchInput=document.getElementById('searchInput');
 const searchClear=document.getElementById('searchClear');
 const searchHint =document.getElementById('searchHint');
@@ -2959,7 +2959,7 @@ function applySearch(q){{
   searchHint.textContent=found?found+' result'+(found>1?'s':''):'No results';
 }}
 
-// ── Modal ──
+// - Modal -
 function showCard(ticker,name,sector,timing,nasdaqDate,color,source,yahooDate,mismatch,confirmed,irUrl){{
   document.getElementById('mTicker').textContent=ticker;
   document.getElementById('mTicker').style.color=color;
@@ -2985,7 +2985,7 @@ function closeModal(e){{
 }}
 document.addEventListener('keydown',e=>{{if(e.key==='Escape')document.getElementById('overlay').classList.remove('on');}});
 
-// ── Comments ──
+// - Comments -
 const STORAGE_KEY = 'earnings_cal_comments_v1';
 let comments = [];
 
@@ -3107,9 +3107,9 @@ loadComments();
 </html>"""
     return html
 
-# ── RUN ──
+# - RUN -
 df, generated_at = run_fetch()
 html = build_html(df, generated_at)
 with open("index.html", "w", encoding="utf-8") as f:
     f.write(html)
-print("Done — index.html written")
+print("Done - index.html written")
