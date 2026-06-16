@@ -300,7 +300,7 @@ def run_fetch():
     today=datetime.now(ZoneInfo("America/New_York"))
     days_since_monday=today.weekday()
     fetch_start=today.date()-timedelta(days=days_since_monday+7)
-    end=today+timedelta(days=182)
+    end = today.date() + timedelta(days=182)
     print(f"EARNINGS CALENDAR REFRESH — {today.strftime('%B %d, %Y %I:%M %p ET')}")
     print("[1/2] NASDAQ API...")
     nasdaq=fetch_nasdaq(fetch_start,end)
