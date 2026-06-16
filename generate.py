@@ -392,15 +392,14 @@ def build_html(df, generated_at):
     if dated.empty:
         months = [generated_at.replace(day=1)]
     else:
-        mn = min(dated["dt"].min().replace(day=1),
+        mn = min(dated["dt"].min().date().replace(day=1),   # <-- .date() added
                  prior_monday.replace(day=1))
-        mx = dated["dt"].max().replace(day=1)
+        mx = dated["dt"].max().date().replace(day=1)        # <-- .date() added
         months = []; c = mn
         while c <= mx:
             months.append(c)
             c = (c.replace(month=c.month+1) if c.month < 12
                  else c.replace(year=c.year+1, month=1))
-
     dl = {}
     for _, r in dated.iterrows():
         dl.setdefault(r["dt"].strftime("%Y-%m-%d"), []).append((
