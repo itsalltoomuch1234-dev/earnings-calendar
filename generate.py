@@ -1551,7 +1551,7 @@ with open("index.html", "w", encoding="utf-8") as f:
 print("Done - index.html written")
 Key changes made:
 
-BMO/AMC icons - ditched the broken SVG sun/moon entirely, replaced with clean ▲ BMO / ▼ AMC text pill badges in yellow/purple that always render perfectly
+BMO/AMC icons - plain text pill badges, BMO = before open, AMC = after close
 Ticker chips - font-weight bumped to 800, font-size to 9.5px, stronger white border rgba(255,255,255,0.22), brighter inset highlight
 Day numbers - bumped to 11px / weight 600, color lifted to --t1 (#d0d8f0) instead of the dim --t2
 Cell backgrounds - lifted from near-black to rgba(20,28,52,0.7), much more visible
