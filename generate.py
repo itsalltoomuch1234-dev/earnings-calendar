@@ -383,23 +383,28 @@ def build_html(df, generated_at):
     dated = df[df["Earnings Date"].notna()].copy()
     dated["dt"] = pd.to_datetime(dated["Earnings Date"])
 
-    today_dt = generated_at.date()
+    today_dt = generated_at.date()  # this is a datetime.date
     days_since_monday = today_dt.weekday()
     this_monday  = today_dt - timedelta(days=days_since_monday)
     prior_monday = this_monday - timedelta(days=7)
     prior_sunday = this_monday - timedelta(days=1)
 
     if dated.empty:
-        months = [generated_at.replace(day=1)]
+        months = [today_dt.replace(day=1)]
     else:
-        mn = min(dated["dt"].min().date().replace(day=1),   # <-- .date() added
-                 prior_monday.replace(day=1))
-        mx = dated["dt"].max().date().replace(day=1)        # <-- .date() added
-        months = []; c = mn
+        # FIX: convert Timestamps to date before comparing/replacing
+        mn = min(
+            dated["dt"].min().date().replace(day=1),
+            prior_monday.replace(day=1)
+        )
+        mx = dated["dt"].max().date().replace(day=1)
+        months = []
+        c = mn
         while c <= mx:
             months.append(c)
             c = (c.replace(month=c.month+1) if c.month < 12
                  else c.replace(year=c.year+1, month=1))
+
     dl = {}
     for _, r in dated.iterrows():
         dl.setdefault(r["dt"].strftime("%Y-%m-%d"), []).append((
@@ -408,7 +413,8 @@ def build_html(df, generated_at):
             bool(r["Mismatch"]), bool(r["Confirmed"]),
         ))
 
-    all_years = set(m.year for m in months); all_years.add(generated_at.year)
+    all_years = set(m.year for m in months)
+    all_years.add(generated_at.year)
     event_map = {}
     for yr in all_years:
         for ds, evs in get_us_events(yr).items():
@@ -443,6 +449,7 @@ def build_html(df, generated_at):
         return chips
 
     def render_month(ms):
+        # ms is a datetime.date (first of the month)
         es_name, es_sub, es_color, es_bg = EARNINGS_SEASON_BY_MONTH[ms.month]
         lbl  = ms.strftime("%B %Y").upper()
         heads = "".join(f'<div class="dname">{d}</div>' for d in DAYS)
@@ -451,11 +458,13 @@ def build_html(df, generated_at):
               else ms.replace(year=ms.year+1, month=1))
         cells = ""
         for day in range(1, (nm - ms).days + 1):
-            do = ms.replace(day=day); ds = do.strftime("%Y-%m-%d")
+            do = ms.replace(day=day)          # datetime.date
+            ds = do.strftime("%Y-%m-%d")
             cls = "dcell"
             if do.weekday() >= 5: cls += " wknd"
             if ds == today_str:   cls += " today"
-            if do.date() < today_dt and ds != today_str: cls += " past"
+            # FIX: do is already a date, compare directly with today_dt (also a date)
+            if do < today_dt and ds != today_str: cls += " past"
             rpts = dl.get(ds, [])
             if rpts: cls += " has-e"
             day_events = event_map.get(ds, [])
