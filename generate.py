@@ -470,7 +470,7 @@ def build_html(df, generated_at):
     sj = json.dumps(SECTORS); cj = json.dumps(SECTOR_COLORS); nj = json.dumps(COMPANY_NAMES)
     ir_json = json.dumps(IR_URLS)
 
-    # ── Sidebar: each ticker is a link to its IR page ──────────────────────
+    # -- Sidebar: each ticker is a link to its IR page ----------------------
     sidebar_html = ""
     for s in SECTORS:
         col  = SECTOR_COLORS[s]
@@ -504,7 +504,7 @@ def build_html(df, generated_at):
 <style>
 *,*::before,*::after{{box-sizing:border-box;margin:0;padding:0}}
 :root{{
-  /* ── Brighter background palette ── */
+  /* -- Brighter background palette -- */
   --bg0:#0d1120;--bg1:#111628;--bg2:#151c30;--bg3:#1a2238;--bg4:#1f2942;--bg5:#25304e;
   --glass-light:rgba(255,255,255,0.06);
   --glass-mid:rgba(255,255,255,0.10);
@@ -512,7 +512,7 @@ def build_html(df, generated_at):
   --glass-border:rgba(255,255,255,0.10);
   --glass-border2:rgba(255,255,255,0.18);
   --glass-border3:rgba(255,255,255,0.28);
-  /* ── Higher contrast text ── */
+  /* -- Higher contrast text -- */
   --t0:#ffffff;--t1:#dde6ff;--t2:#9aadd4;--t3:#4e5f88;
   --accent:#6aabff;--accent2:#93c8ff;--accent-glow:rgba(106,171,255,0.25);
   --bmo:#ffd740;--amc:#b8a4ff;--unconf:#ffaa33;--conflict:#ff5252;
@@ -1249,7 +1249,7 @@ const firebaseConfig = {{
   messagingSenderId: "1096143268867",
   appId:             "1:1096143268867:web:41fc3339935cf9a4e43236"
 }};
-// ─────────────────────────────────────────────────────────────────────────────
+// -----------------------------------------------------------------------------
 
 const app = initializeApp(firebaseConfig);
 const db  = getFirestore(app);
@@ -1260,7 +1260,7 @@ const SECTOR_COLORS = {cj};
 const COMPANY_NAMES = {nj};
 const IR_URLS_JS    = {ir_json};
 
-// ── Sidebar toggle ───────────────────────────────────────────────────────────
+// -- Sidebar toggle -----------------------------------------------------------
 let sidebarOpen = true;
 function toggleSidebar() {{
   sidebarOpen = !sidebarOpen;
@@ -1277,7 +1277,7 @@ function toggleSector(safe) {{
 }}
 window.toggleSector = toggleSector;
 
-// ── Auto-refresh ─────────────────────────────────────────────────────────────
+// -- Auto-refresh -------------------------------------------------------------
 function scheduleSmartRefresh() {{
   const now = new Date();
   const fmt = new Intl.DateTimeFormat('en-US',{{
@@ -1298,7 +1298,7 @@ function scheduleSmartRefresh() {{
 }}
 scheduleSmartRefresh();
 
-// ── Search ───────────────────────────────────────────────────────────────────
+// -- Search -------------------------------------------------------------------
 const searchInput=document.getElementById('searchInput');
 const searchClear=document.getElementById('searchClear');
 const searchHint =document.getElementById('searchHint');
@@ -1326,7 +1326,7 @@ function applySearch(q){{
   searchHint.textContent=found?found+' result'+(found>1?'s':''):'No results';
 }}
 
-// ── Modal ────────────────────────────────────────────────────────────────────
+// -- Modal --------------------------------------------------------------------
 function showCard(ticker,name,sector,timing,nasdaqDate,color,source,yahooDate,mismatch,confirmed,irUrl){{
   document.getElementById('mTicker').textContent=ticker;
   document.getElementById('mTicker').style.color=color;
@@ -1359,7 +1359,7 @@ document.addEventListener('keydown',e=>{{
   if(e.key==='Escape')document.getElementById('overlay').classList.remove('on');
 }});
 
-// ── NOTES — Firestore real-time ───────────────────────────────────────────────
+// -- NOTES — Firestore real-time -----------------------------------------------
 function escHtml(s) {{
   return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
           .replace(/"/g,'&quot;').replace(/'/g,'&#39;');
@@ -1437,7 +1437,7 @@ onSnapshot(q, snapshot => {{
   renderNotes(notes);
 }});
 
-// ── Submit ────────────────────────────────────────────────────────────────────
+// -- Submit --------------------------------------------------------------------
 async function submitComment() {{
   const nameEl = document.getElementById('commentName');
   const boxEl  = document.getElementById('commentBox');
@@ -1470,7 +1470,7 @@ document.getElementById('commentBox').addEventListener('keydown', function(e) {{
   if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) submitComment();
 }});
 
-// ── Edit ──────────────────────────────────────────────────────────────────────
+// -- Edit ----------------------------------------------------------------------
 function startEdit(id) {{
   const who = document.getElementById('commentName').value.trim().toLowerCase();
   const item = document.querySelector(`[data-id="${{id}}"]`);
@@ -1500,7 +1500,7 @@ async function saveEdit(id) {{
 }}
 window.saveEdit = saveEdit;
 
-// ── Delete ────────────────────────────────────────────────────────────────────
+// -- Delete --------------------------------------------------------------------
 async function tryDelete(id) {{
   const who  = document.getElementById('commentName').value.trim().toLowerCase();
   const item = document.querySelector(`[data-id="${{id}}"]`);
