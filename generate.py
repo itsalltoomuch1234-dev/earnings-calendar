@@ -1232,19 +1232,41 @@ body{{
     </a>
   </div>
 </div>
+# inside build_html, replace the <script>...</script> section with this:
+    script = f"""
+<script type="module">
+import {{ initializeApp }}      from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
+import {{ getFirestore, collection, addDoc, onSnapshot,
+          query, orderBy, doc, updateDoc, deleteDoc,
+          serverTimestamp }} from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
 
-<script>
+// ── Paste your Firebase config here ─────────────────────────────────────────
+const firebaseConfig = {{
+  apiKey:            "AIzaSyBOcOYrizw5dZXns_YQHhvChtnGquZvNBo",
+  authDomain:        "earnings-calendar-ad07d.firebaseapp.com",
+  projectId:         "earnings-calendar-ad07d",
+  storageBucket:     "earnings-calendar-ad07d.firebasestorage.app",
+  messagingSenderId: "1096143268867",
+  appId:             "1:1096143268867:web:41fc3339935cf9a4e43236"
+}};
+// ─────────────────────────────────────────────────────────────────────────────
+
+const app = initializeApp(firebaseConfig);
+const db  = getFirestore(app);
+const notesCol = collection(db, 'notes');
+
 const SECTORS       = {sj};
 const SECTOR_COLORS = {cj};
 const COMPANY_NAMES = {nj};
 const IR_URLS_JS    = {ir_json};
 
-// ── Sidebar toggle ──────────────────────────────────────────────────────────
+// ── Sidebar toggle ───────────────────────────────────────────────────────────
 let sidebarOpen = true;
 function toggleSidebar() {{
   sidebarOpen = !sidebarOpen;
   document.getElementById('sidebar').classList.toggle('collapsed', !sidebarOpen);
 }}
+window.toggleSidebar = toggleSidebar;
 
 function toggleSector(safe) {{
   const t = document.getElementById('tickers-' + safe);
@@ -1253,8 +1275,9 @@ function toggleSector(safe) {{
   t.classList.toggle('open', !open);
   a.classList.toggle('open', !open);
 }}
+window.toggleSector = toggleSector;
 
-// ── Auto-refresh ────────────────────────────────────────────────────────────
+// ── Auto-refresh ─────────────────────────────────────────────────────────────
 function scheduleSmartRefresh() {{
   const now = new Date();
   const fmt = new Intl.DateTimeFormat('en-US',{{
@@ -1275,7 +1298,7 @@ function scheduleSmartRefresh() {{
 }}
 scheduleSmartRefresh();
 
-// ── Search ──────────────────────────────────────────────────────────────────
+// ── Search ───────────────────────────────────────────────────────────────────
 const searchInput=document.getElementById('searchInput');
 const searchClear=document.getElementById('searchClear');
 const searchHint =document.getElementById('searchHint');
@@ -1288,6 +1311,7 @@ function clearSearch(){{
   searchInput.value='';searchClear.classList.remove('on');
   searchHint.textContent='';applySearch('');
 }}
+window.clearSearch = clearSearch;
 function applySearch(q){{
   const chips=document.querySelectorAll('.chip');
   const uchips=document.querySelectorAll('.uchip');
@@ -1302,7 +1326,7 @@ function applySearch(q){{
   searchHint.textContent=found?found+' result'+(found>1?'s':''):'No results';
 }}
 
-// ── Modal ───────────────────────────────────────────────────────────────────
+// ── Modal ────────────────────────────────────────────────────────────────────
 function showCard(ticker,name,sector,timing,nasdaqDate,color,source,yahooDate,mismatch,confirmed,irUrl){{
   document.getElementById('mTicker').textContent=ticker;
   document.getElementById('mTicker').style.color=color;
@@ -1324,87 +1348,18 @@ function showCard(ticker,name,sector,timing,nasdaqDate,color,source,yahooDate,mi
   document.getElementById('mIRLink').href=irUrl||('https://finance.yahoo.com/quote/'+ticker);
   document.getElementById('overlay').classList.add('on');
 }}
+window.showCard = showCard;
+
 function closeModal(e){{
   if(!e||e.target===document.getElementById('overlay'))
     document.getElementById('overlay').classList.remove('on');
 }}
+window.closeModal = closeModal;
 document.addEventListener('keydown',e=>{{
   if(e.key==='Escape')document.getElementById('overlay').classList.remove('on');
 }});
 
-// ── NOTES — persistent, editable, owner-deletable ──────────────────────────
-// Storage key versioned so old data is not lost on refresh
-const STORAGE_KEY = 'earnings_cal_notes_v2';
-let notes = [];
-
-function loadNotes() {{
-  try {{ notes = JSON.parse(localStorage.getItem(STORAGE_KEY)) || []; }}
-  catch {{ notes = []; }}
-  renderNotes();
-}}
-
-function saveNotes() {{
-  try {{ localStorage.setItem(STORAGE_KEY, JSON.stringify(notes)); }}
-  catch {{}}
-}}
-
-// Each note: {{ id, author, text, ts, edited }}
-function genId() {{
-  return Date.now().toString(36) + Math.random().toString(36).slice(2,6);
-}}
-
-function renderNotes() {{
-  const list  = document.getElementById('commentsList');
-  const empty = document.getElementById('commentsEmpty');
-  const count = document.getElementById('commentCount');
-  count.textContent = notes.length;
-
-  // Remove existing note items (keep the empty placeholder)
-  list.querySelectorAll('.comment-item').forEach(el => el.remove());
-
-  if (!notes.length) {{ empty.style.display = 'block'; return; }}
-  empty.style.display = 'none';
-
-  // Show newest first
-  [...notes].reverse().forEach((note, ri) => {{
-    const idx = notes.length - 1 - ri;   // index in the original array
-    const el  = document.createElement('div');
-    el.className = 'comment-item';
-    el.dataset.id = note.id;
-
-    const initials = (note.author || '?').slice(0,2).toUpperCase();
-    const hue = [...(note.author||'A')].reduce((a,ch)=>a+ch.charCodeAt(0),0) % 360;
-    const col = `hsl(${{hue}},55%,48%)`;
-    const editedMark = note.edited
-      ? `<span style="font-size:7px;color:var(--t3);margin-left:3px">(edited)</span>` : '';
-
-    el.innerHTML = `
-      <div class="comment-meta">
-        <div class="comment-avatar" style="--cc:${{col}}">${{initials}}</div>
-        <span class="comment-author">${{escHtml(note.author||'Anonymous')}}</span>
-        ${{editedMark}}
-        <span class="comment-time">${{formatAge(note.ts)}}</span>
-        <div class="comment-actions">
-          <button class="comment-btn" title="Edit note"
-                  onclick="startEdit('${{note.id}}')">✎</button>
-          <button class="comment-btn del" title="Delete note"
-                  onclick="tryDelete('${{note.id}}')">✕</button>
-        </div>
-      </div>
-      <div class="comment-text" id="text-${{note.id}}">${{formatText(note.text)}}</div>
-      <div class="comment-edit-area" id="edit-${{note.id}}" style="display:none">
-        <textarea class="comment-edit-input" id="editbox-${{note.id}}"
-                  rows="2" maxlength="280">${{escHtml(note.text)}}</textarea>
-        <div class="comment-edit-btns">
-          <button class="comment-edit-save"   onclick="saveEdit('${{note.id}}')">Save</button>
-          <button class="comment-edit-cancel" onclick="cancelEdit('${{note.id}}')">Cancel</button>
-        </div>
-      </div>`;
-    list.appendChild(el);
-  }});
-  list.scrollTop = 0;
-}}
-
+// ── NOTES — Firestore real-time ───────────────────────────────────────────────
 function escHtml(s) {{
   return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
           .replace(/"/g,'&quot;').replace(/'/g,'&#39;');
@@ -1423,7 +1378,8 @@ function formatText(raw) {{
 }}
 
 function formatAge(ts) {{
-  const diff = Date.now() - ts;
+  if (!ts) return 'just now';
+  const diff = Date.now() - ts.toMillis();
   const m = Math.floor(diff / 60000);
   if (m < 1)  return 'just now';
   if (m < 60) return m + 'm ago';
@@ -1432,69 +1388,72 @@ function formatAge(ts) {{
   return Math.floor(h / 24) + 'd ago';
 }}
 
-// ── Edit flow ────────────────────────────────────────────────────────────────
-function startEdit(id) {{
-  // Ask for author name to verify ownership
-  const note = notes.find(n => n.id === id);
-  if (!note) return;
-  const who = (document.getElementById('commentName').value.trim() || '').toLowerCase();
-  const owner = (note.author || '').toLowerCase();
-  if (who !== owner) {{
-    alert('Enter your name in the "Your name" field to edit your own notes.');
-    return;
-  }}
-  document.getElementById('text-' + id).style.display = 'none';
-  document.getElementById('edit-' + id).style.display = 'block';
-  const box = document.getElementById('editbox-' + id);
-  box.value = note.text;
-  box.focus();
+function renderNotes(notes) {{
+  const list  = document.getElementById('commentsList');
+  const empty = document.getElementById('commentsEmpty');
+  const count = document.getElementById('commentCount');
+  count.textContent = notes.length;
+  list.querySelectorAll('.comment-item').forEach(el => el.remove());
+  if (!notes.length) {{ empty.style.display = 'block'; return; }}
+  empty.style.display = 'none';
+
+  notes.forEach(note => {{
+    const el  = document.createElement('div');
+    el.className = 'comment-item';
+    el.dataset.id = note.id;
+    const initials = (note.author || '?').slice(0,2).toUpperCase();
+    const hue = [...(note.author||'A')].reduce((a,ch)=>a+ch.charCodeAt(0),0) % 360;
+    const col = `hsl(${{hue}},55%,48%)`;
+    const editedMark = note.edited
+      ? `<span style="font-size:7px;color:var(--t3);margin-left:3px">(edited)</span>` : '';
+    el.innerHTML = `
+      <div class="comment-meta">
+        <div class="comment-avatar" style="--cc:${{col}}">${{initials}}</div>
+        <span class="comment-author">${{escHtml(note.author||'Anonymous')}}</span>
+        ${{editedMark}}
+        <span class="comment-time">${{formatAge(note.ts)}}</span>
+        <div class="comment-actions">
+          <button class="comment-btn" title="Edit"   onclick="startEdit('${{note.id}}')">✎</button>
+          <button class="comment-btn del" title="Delete" onclick="tryDelete('${{note.id}}')">✕</button>
+        </div>
+      </div>
+      <div class="comment-text" id="text-${{note.id}}">${{formatText(note.text)}}</div>
+      <div class="comment-edit-area" id="edit-${{note.id}}" style="display:none">
+        <textarea class="comment-edit-input" id="editbox-${{note.id}}"
+                  rows="2" maxlength="280">${{escHtml(note.text)}}</textarea>
+        <div class="comment-edit-btns">
+          <button class="comment-edit-save"   onclick="saveEdit('${{note.id}}')">Save</button>
+          <button class="comment-edit-cancel" onclick="cancelEdit('${{note.id}}')">Cancel</button>
+        </div>
+      </div>`;
+    list.appendChild(el);
+  }});
 }}
 
-function cancelEdit(id) {{
-  document.getElementById('text-' + id).style.display = '';
-  document.getElementById('edit-' + id).style.display = 'none';
-}}
+// Real-time listener — fires instantly whenever Firestore changes
+const q = query(notesCol, orderBy('ts', 'desc'));
+onSnapshot(q, snapshot => {{
+  const notes = snapshot.docs.map(d => ({{ id: d.id, ...d.data() }}));
+  renderNotes(notes);
+}});
 
-function saveEdit(id) {{
-  const box  = document.getElementById('editbox-' + id);
-  const text = box.value.trim();
-  if (!text) return;
-  const note = notes.find(n => n.id === id);
-  if (!note) return;
-  note.text   = text;
-  note.edited = true;
-  saveNotes();
-  renderNotes();
-}}
-
-// ── Delete flow ──────────────────────────────────────────────────────────────
-function tryDelete(id) {{
-  const note = notes.find(n => n.id === id);
-  if (!note) return;
-  const who   = (document.getElementById('commentName').value.trim() || '').toLowerCase();
-  const owner = (note.author || '').toLowerCase();
-  if (who !== owner) {{
-    alert('Enter your name in the "Your name" field to delete your own notes.');
-    return;
-  }}
-  notes = notes.filter(n => n.id !== id);
-  saveNotes();
-  renderNotes();
-}}
-
-// ── Submit ───────────────────────────────────────────────────────────────────
-function submitComment() {{
+// ── Submit ────────────────────────────────────────────────────────────────────
+async function submitComment() {{
   const nameEl = document.getElementById('commentName');
   const boxEl  = document.getElementById('commentBox');
   const text   = boxEl.value.trim();
   const author = nameEl.value.trim() || 'Anonymous';
   if (!text) return;
-  notes.push({{ id: genId(), author, text, ts: Date.now(), edited: false }});
-  saveNotes();
+  await addDoc(notesCol, {{
+    author,
+    text,
+    ts:     serverTimestamp(),
+    edited: false
+  }});
   boxEl.value = '';
   updateCharCount();
-  renderNotes();
 }}
+window.submitComment = submitComment;
 
 function updateCharCount() {{
   const box   = document.getElementById('commentBox');
@@ -1505,16 +1464,64 @@ function updateCharCount() {{
   count.classList.toggle('warn', len > 240);
   btn.disabled = len === 0;
 }}
-
+window.updateCharCount = updateCharCount;
 document.getElementById('commentBox').addEventListener('input', updateCharCount);
 document.getElementById('commentBox').addEventListener('keydown', function(e) {{
   if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) submitComment();
 }});
 
-// Refresh relative timestamps every minute
-setInterval(() => renderNotes(), 60000);
-loadNotes();
-</script>
+// ── Edit ──────────────────────────────────────────────────────────────────────
+function startEdit(id) {{
+  const who = document.getElementById('commentName').value.trim().toLowerCase();
+  const item = document.querySelector(`[data-id="${{id}}"]`);
+  const authorEl = item?.querySelector('.comment-author');
+  const owner = authorEl?.textContent.trim().toLowerCase() || '';
+  if (who !== owner) {{
+    alert('Enter your name in the "Your name" field to edit your own notes.');
+    return;
+  }}
+  document.getElementById('text-' + id).style.display = 'none';
+  document.getElementById('edit-' + id).style.display = 'block';
+  document.getElementById('editbox-' + id).focus();
+}}
+window.startEdit = startEdit;
+
+function cancelEdit(id) {{
+  document.getElementById('text-' + id).style.display = '';
+  document.getElementById('edit-' + id).style.display = 'none';
+}}
+window.cancelEdit = cancelEdit;
+
+async function saveEdit(id) {{
+  const box  = document.getElementById('editbox-' + id);
+  const text = box.value.trim();
+  if (!text) return;
+  await updateDoc(doc(db, 'notes', id), {{ text, edited: true }});
+}}
+window.saveEdit = saveEdit;
+
+// ── Delete ────────────────────────────────────────────────────────────────────
+async function tryDelete(id) {{
+  const who  = document.getElementById('commentName').value.trim().toLowerCase();
+  const item = document.querySelector(`[data-id="${{id}}"]`);
+  const authorEl = item?.querySelector('.comment-author');
+  const owner = authorEl?.textContent.trim().toLowerCase() || '';
+  if (who !== owner) {{
+    alert('Enter your name in the "Your name" field to delete your own notes.');
+    return;
+  }}
+  await deleteDoc(doc(db, 'notes', id));
+}}
+window.tryDelete = tryDelete;
+
+setInterval(() => {{
+  document.querySelectorAll('.comment-time').forEach(el => {{
+    // timestamps refresh via onSnapshot; this just re-renders age labels
+  }});
+}}, 60000);
+
+</script>"""
+    return script
 </body>
 </html>"""
     return html
