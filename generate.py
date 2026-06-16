@@ -172,31 +172,22 @@ SECTOR_COLORS = {
 
 ALL_TICKERS = [t for v in SECTORS.values() for t in v]
 
-# ── Calendar & Earnings Seasons ──────────────────────────────────────────────
-
-def get_calendar_season(d):
-    m = d.month
-    if m in (12,1,2):  return ("Winter","cal-winter")
-    if m in (3,4,5):   return ("Spring","cal-spring")
-    if m in (6,7,8):   return ("Summer","cal-summer")
-    return                    ("Fall",  "cal-fall")
-
 EARNINGS_SEASON_BY_MONTH = {
-    1:  ("Q4 Earnings Season","reporting Oct–Dec results","#4f8ef7","rgba(79,142,247,0.06)"),
-    2:  ("Q4 Earnings Season","reporting Oct–Dec results","#4f8ef7","rgba(79,142,247,0.06)"),
-    3:  ("Q4 Earnings Season","reporting Oct–Dec results","#4f8ef7","rgba(79,142,247,0.06)"),
-    4:  ("Q1 Earnings Season","reporting Jan–Mar results","#5fa85a","rgba(95,168,90,0.06)"),
-    5:  ("Q1 Earnings Season","reporting Jan–Mar results","#5fa85a","rgba(95,168,90,0.06)"),
-    6:  ("Q1 Earnings Season","reporting Jan–Mar results","#5fa85a","rgba(95,168,90,0.06)"),
-    7:  ("Q2 Earnings Season","reporting Apr–Jun results","#c9a84c","rgba(201,168,76,0.06)"),
-    8:  ("Q2 Earnings Season","reporting Apr–Jun results","#c9a84c","rgba(201,168,76,0.06)"),
-    9:  ("Q2 Earnings Season","reporting Apr–Jun results","#c9a84c","rgba(201,168,76,0.06)"),
-    10: ("Q3 Earnings Season","reporting Jul–Sep results","#c96b9e","rgba(201,107,158,0.06)"),
-    11: ("Q3 Earnings Season","reporting Jul–Sep results","#c96b9e","rgba(201,107,158,0.06)"),
-    12: ("Q3 Earnings Season","reporting Jul–Sep results","#c96b9e","rgba(201,107,158,0.06)"),
+    1:  ("Q4 Earnings Season","Oct–Dec results","#4f8ef7","rgba(79,142,247,0.07)"),
+    2:  ("Q4 Earnings Season","Oct–Dec results","#4f8ef7","rgba(79,142,247,0.07)"),
+    3:  ("Q4 Earnings Season","Oct–Dec results","#4f8ef7","rgba(79,142,247,0.07)"),
+    4:  ("Q1 Earnings Season","Jan–Mar results","#5fa85a","rgba(95,168,90,0.07)"),
+    5:  ("Q1 Earnings Season","Jan–Mar results","#5fa85a","rgba(95,168,90,0.07)"),
+    6:  ("Q1 Earnings Season","Jan–Mar results","#5fa85a","rgba(95,168,90,0.07)"),
+    7:  ("Q2 Earnings Season","Apr–Jun results","#c9a84c","rgba(201,168,76,0.07)"),
+    8:  ("Q2 Earnings Season","Apr–Jun results","#c9a84c","rgba(201,168,76,0.07)"),
+    9:  ("Q2 Earnings Season","Apr–Jun results","#c9a84c","rgba(201,168,76,0.07)"),
+    10: ("Q3 Earnings Season","Jul–Sep results","#c96b9e","rgba(201,107,158,0.07)"),
+    11: ("Q3 Earnings Season","Jul–Sep results","#c96b9e","rgba(201,107,158,0.07)"),
+    12: ("Q3 Earnings Season","Jul–Sep results","#c96b9e","rgba(201,107,158,0.07)"),
 }
 
-# ── Holidays ─────────────────────────────────────────────────────────────────
+# ── Holidays ──────────────────────────────────────────────────────────────────
 
 def get_easter(year):
     a=year%19; b=year//100; c=year%100; d=b//4; e=b%4
@@ -212,7 +203,6 @@ def get_us_events(year):
     def add(d,label,etype,closed=False):
         ds=d.strftime("%Y-%m-%d")
         events.setdefault(ds,[]).append({"label":label,"type":etype,"closed":closed})
-
     add(date(year,1,1),  "New Year's Day",   "holiday",closed=True)
     add(date(year,6,19), "Juneteenth",       "holiday",closed=True)
     add(date(year,7,4),  "Independence Day", "holiday",closed=True)
@@ -223,46 +213,35 @@ def get_us_events(year):
     add(date(year,2,14), "Valentine's Day",  "retail")
     add(date(year,3,17), "St. Patrick's Day","retail")
     add(date(year,10,31),"Halloween",        "retail")
-
     jan_mon=[date(year,1,d) for d in range(1,32) if date(year,1,d).weekday()==0]
     add(jan_mon[2],"MLK Day","holiday",closed=True)
-
     feb_mon=[date(year,2,d) for d in range(1,29) if date(year,2,d).weekday()==0]
     add(feb_mon[2],"Presidents' Day","holiday",closed=True)
-
     feb_sun=[date(year,2,d) for d in range(1,29) if date(year,2,d).weekday()==6]
     add(feb_sun[1],"Super Bowl Sunday","retail")
-
     may_mon=[date(year,5,d) for d in range(1,32) if date(year,5,d).weekday()==0]
     add(may_mon[-1],"Memorial Day","holiday",closed=True)
-
     may_sun=[date(year,5,d) for d in range(1,32) if date(year,5,d).weekday()==6]
     add(may_sun[1],"Mother's Day","retail")
-
     jun_sun=[date(year,6,d) for d in range(1,31) if date(year,6,d).weekday()==6]
     add(jun_sun[2],"Father's Day","retail")
-
     sep_mon=[date(year,9,d) for d in range(1,31) if date(year,9,d).weekday()==0]
     add(sep_mon[0],"Labor Day","holiday",closed=True)
-
     oct_mon=[date(year,10,d) for d in range(1,32) if date(year,10,d).weekday()==0]
     add(oct_mon[1],"Columbus Day","holiday")
-
     nov_thu=[date(year,11,d) for d in range(1,31) if date(year,11,d).weekday()==3]
     tg=nov_thu[3]
-    add(tg,                    "Thanksgiving Day","holiday",closed=True)
-    add(tg+timedelta(days=1),  "Black Friday",    "retail")
-    add(tg+timedelta(days=3),  "Cyber Monday",    "retail")
-
+    add(tg,                   "Thanksgiving Day","holiday",closed=True)
+    add(tg+timedelta(days=1), "Black Friday",    "retail")
+    add(tg+timedelta(days=3), "Cyber Monday",    "retail")
     easter=get_easter(year)
-    add(easter-timedelta(days=2),"Good Friday",   "holiday",closed=True)
-    add(easter,                  "Easter Sunday", "holiday")
-
+    add(easter-timedelta(days=2),"Good Friday",  "holiday",closed=True)
+    add(easter,                  "Easter Sunday","holiday")
     return events
 
 # ── Fetch ─────────────────────────────────────────────────────────────────────
 
-def fetch_nasdaq(start,end):
+def fetch_nasdaq(start, end):
     out={}
     hdrs={
         "user-agent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36",
@@ -319,10 +298,12 @@ def fetch_yahoo(ticker):
 
 def run_fetch():
     today=datetime.now(ZoneInfo("America/New_York"))
+    days_since_monday=today.weekday()
+    fetch_start=today.date()-timedelta(days=days_since_monday+7)
     end=today+timedelta(days=182)
     print(f"EARNINGS CALENDAR REFRESH — {today.strftime('%B %d, %Y %I:%M %p ET')}")
     print("[1/2] NASDAQ API...")
-    nasdaq=fetch_nasdaq(today,end)
+    nasdaq=fetch_nasdaq(fetch_start,end)
     print(f"[2/2] Yahoo Finance ({len(ALL_TICKERS)} tickers)...")
     yf_data={}
     for i,t in enumerate(ALL_TICKERS):
@@ -349,158 +330,237 @@ def run_fetch():
     print(f"DONE: {df['Earnings Date'].notna().sum()} dates · {df['Earnings Date'].isna().sum()} unannounced · {mismatches} mismatches")
     return df,today
 
+# ── SVG constants ─────────────────────────────────────────────────────────────
+
+# Black sun on chip (contrasts against any coloured chip bg)
+BMO_SVG = (
+    '<svg viewBox="0 0 16 16" width="10" height="10" '
+    'style="vertical-align:middle;flex-shrink:0;margin-right:1px">'
+    '<circle cx="8" cy="8" r="3" fill="#000"/>'
+    '<line x1="8" y1="1"    x2="8"  y2="3.2"  stroke="#000" stroke-width="1.5" stroke-linecap="round"/>'
+    '<line x1="8" y1="12.8" x2="8"  y2="15"   stroke="#000" stroke-width="1.5" stroke-linecap="round"/>'
+    '<line x1="1" y1="8"    x2="3.2" y2="8"   stroke="#000" stroke-width="1.5" stroke-linecap="round"/>'
+    '<line x1="12.8" y1="8" x2="15" y2="8"    stroke="#000" stroke-width="1.5" stroke-linecap="round"/>'
+    '<line x1="3.1" y1="3.1"   x2="4.6" y2="4.6"   stroke="#000" stroke-width="1.3" stroke-linecap="round"/>'
+    '<line x1="11.4" y1="11.4" x2="12.9" y2="12.9" stroke="#000" stroke-width="1.3" stroke-linecap="round"/>'
+    '<line x1="12.9" y1="3.1"  x2="11.4" y2="4.6"  stroke="#000" stroke-width="1.3" stroke-linecap="round"/>'
+    '<line x1="4.6" y1="11.4"  x2="3.1" y2="12.9"  stroke="#000" stroke-width="1.3" stroke-linecap="round"/>'
+    '</svg>'
+)
+
+# Black moon on chip
+AMC_SVG = (
+    '<svg viewBox="0 0 16 16" width="10" height="10" '
+    'style="vertical-align:middle;flex-shrink:0;margin-right:1px">'
+    '<path d="M11.5 8 A5.5 5.5 0 1 1 7.5 3 A4 4 0 0 0 11.5 8Z" fill="#000"/>'
+    '</svg>'
+)
+
+# Coloured sun for key bar (on dark bg)
+BMO_SVG_KEY = (
+    '<svg viewBox="0 0 16 16" width="13" height="13" style="vertical-align:middle">'
+    '<circle cx="8" cy="8" r="3" fill="#ffd95a"/>'
+    '<line x1="8" y1="1"    x2="8"  y2="3.2"  stroke="#ffd95a" stroke-width="1.5" stroke-linecap="round"/>'
+    '<line x1="8" y1="12.8" x2="8"  y2="15"   stroke="#ffd95a" stroke-width="1.5" stroke-linecap="round"/>'
+    '<line x1="1" y1="8"    x2="3.2" y2="8"   stroke="#ffd95a" stroke-width="1.5" stroke-linecap="round"/>'
+    '<line x1="12.8" y1="8" x2="15" y2="8"    stroke="#ffd95a" stroke-width="1.5" stroke-linecap="round"/>'
+    '<line x1="3.1" y1="3.1"   x2="4.6" y2="4.6"   stroke="#ffd95a" stroke-width="1.3" stroke-linecap="round"/>'
+    '<line x1="11.4" y1="11.4" x2="12.9" y2="12.9" stroke="#ffd95a" stroke-width="1.3" stroke-linecap="round"/>'
+    '<line x1="12.9" y1="3.1"  x2="11.4" y2="4.6"  stroke="#ffd95a" stroke-width="1.3" stroke-linecap="round"/>'
+    '<line x1="4.6" y1="11.4"  x2="3.1" y2="12.9"  stroke="#ffd95a" stroke-width="1.3" stroke-linecap="round"/>'
+    '</svg>'
+)
+
+# Coloured moon for key bar
+AMC_SVG_KEY = (
+    '<svg viewBox="0 0 16 16" width="13" height="13" style="vertical-align:middle">'
+    '<path d="M12 8.5 A5.5 5.5 0 1 1 7.5 3 A4 4 0 0 0 12 8.5Z" fill="#c8b8ff"/>'
+    '<circle cx="13" cy="5"   r=".8" fill="#c8b8ff" opacity=".55"/>'
+    '<circle cx="14.5" cy="8" r=".6" fill="#c8b8ff" opacity=".45"/>'
+    '<circle cx="12"   cy="3" r=".6" fill="#c8b8ff" opacity=".4"/>'
+    '</svg>'
+)
+
 # ── Build HTML ────────────────────────────────────────────────────────────────
 
-def build_html(df,generated_at):
-    dated=df[df["Earnings Date"].notna()].copy()
-    dated["dt"]=pd.to_datetime(dated["Earnings Date"])
+def build_html(df, generated_at):
+    dated = df[df["Earnings Date"].notna()].copy()
+    dated["dt"] = pd.to_datetime(dated["Earnings Date"])
+
+    today_dt = generated_at.date()
+    days_since_monday = today_dt.weekday()
+    this_monday  = today_dt - timedelta(days=days_since_monday)
+    prior_monday = this_monday - timedelta(days=7)
+    prior_sunday = this_monday - timedelta(days=1)
 
     if dated.empty:
-        months=[generated_at.replace(day=1)]
+        months = [generated_at.replace(day=1)]
     else:
-        mn=dated["dt"].min().replace(day=1); mx=dated["dt"].max().replace(day=1)
-        months=[]; c=mn
-        while c<=mx:
+        mn = min(dated["dt"].min().replace(day=1),
+                 prior_monday.replace(day=1))
+        mx = dated["dt"].max().replace(day=1)
+        months = []; c = mn
+        while c <= mx:
             months.append(c)
-            c=(c.replace(month=c.month+1) if c.month<12 else c.replace(year=c.year+1,month=1))
+            c = (c.replace(month=c.month+1) if c.month < 12
+                 else c.replace(year=c.year+1, month=1))
 
-    dl={}
-    for _,r in dated.iterrows():
-        dl.setdefault(r["dt"].strftime("%Y-%m-%d"),[]).append((
-            r["Ticker"],r["Sector"],r["Timing"],r["Source"],
+    dl = {}
+    for _, r in dated.iterrows():
+        dl.setdefault(r["dt"].strftime("%Y-%m-%d"), []).append((
+            r["Ticker"], r["Sector"], r["Timing"], r["Source"],
             str(r["Yahoo Date"]) if pd.notna(r["Yahoo Date"]) else "N/A",
-            bool(r["Mismatch"]),bool(r["Confirmed"]),
+            bool(r["Mismatch"]), bool(r["Confirmed"]),
         ))
 
-    all_years=set(m.year for m in months); all_years.add(generated_at.year)
-    event_map={}
+    all_years = set(m.year for m in months); all_years.add(generated_at.year)
+    event_map = {}
     for yr in all_years:
-        for ds,evs in get_us_events(yr).items():
-            event_map.setdefault(ds,[]).extend(evs)
+        for ds, evs in get_us_events(yr).items():
+            event_map.setdefault(ds, []).extend(evs)
 
-    today_str=generated_at.strftime("%Y-%m-%d")
-    DAYS=["MON","TUE","WED","THU","FRI","SAT","SUN"]
-    cal=""
+    today_str   = generated_at.strftime("%Y-%m-%d")
+    prior_mon_s = prior_monday.strftime("%Y-%m-%d")
+    prior_sun_s = prior_sunday.strftime("%Y-%m-%d")
+    DAYS = ["MON","TUE","WED","THU","FRI","SAT","SUN"]
 
-    for ms in months:
-        cal_season_name,cal_season_cls=get_calendar_season(ms)
-        es_name,es_sub,es_color,es_bg=EARNINGS_SEASON_BY_MONTH[ms.month]
+    # ── chip builder (shared) ───────────────────────────────────────────────
+    def build_chips(rpts, ds):
+        chips = ""
+        for ticker, sector, timing, source, yahoo_date, mismatch, confirmed in rpts:
+            col  = SECTOR_COLORS.get(sector, "#666")
+            safe = sector.replace(" ","_").replace("/","_").replace("&","_")
+            cn   = COMPANY_NAMES.get(ticker, ticker).replace("'","\\'").replace('"',"&quot;")
+            st   = sector.replace("'","\\'")
+            yd_safe = yahoo_date.replace("'","\\'") if yahoo_date else "N/A"
+            ir_url  = IR_URLS.get(ticker, f"https://finance.yahoo.com/quote/{ticker}")
+            badge = (f'<span class="bdg bmo" title="Before Market Open">{BMO_SVG}</span>' if timing == "BMO"
+                     else f'<span class="bdg amc" title="After Market Close">{AMC_SVG}</span>' if timing == "AMC"
+                     else "")
+            unconf = ('<span class="bdg-uc" title="Unconfirmed — Yahoo only">?</span>') if not confirmed else ""
+            warn   = ('<span class="bdg-mm" title="Date conflict">!</span>') if mismatch else ""
+            chips += (
+                f'<div class="chip s-{safe}" style="--cc:{col}" data-ticker="{ticker}" '
+                f'onclick="showCard(\'{ticker}\',\'{cn}\',\'{st}\',\'{timing or "TBD"}\','
+                f'\'{ds}\',\'{col}\',\'{source}\',\'{yd_safe}\','
+                f'{str(mismatch).lower()},{str(confirmed).lower()},\'{ir_url}\')">'
+                f'{ticker}{badge}{unconf}{warn}</div>'
+            )
+        return chips
 
-        # season emoji — inline SVG for quality
-        season_svgs = {
-            "cal-winter": '<svg class="szn-icon" viewBox="0 0 20 20"><line x1="10" y1="2" x2="10" y2="18" stroke="#90bfee" stroke-width="1.5" stroke-linecap="round"/><line x1="2" y1="10" x2="18" y2="10" stroke="#90bfee" stroke-width="1.5" stroke-linecap="round"/><line x1="4.4" y1="4.4" x2="15.6" y2="15.6" stroke="#90bfee" stroke-width="1.5" stroke-linecap="round"/><line x1="15.6" y1="4.4" x2="4.4" y2="15.6" stroke="#90bfee" stroke-width="1.5" stroke-linecap="round"/><circle cx="10" cy="10" r="2" fill="#90bfee"/><circle cx="10" cy="2" r="1" fill="#90bfee"/><circle cx="10" cy="18" r="1" fill="#90bfee"/><circle cx="2" cy="10" r="1" fill="#90bfee"/><circle cx="18" cy="10" r="1" fill="#90bfee"/></svg>',
-            "cal-spring": '<svg class="szn-icon" viewBox="0 0 20 20"><circle cx="10" cy="8" r="3" fill="none" stroke="#80e09a" stroke-width="1.4"/><circle cx="10" cy="4" r="1.8" fill="#80e09a" opacity=".7"/><circle cx="14" cy="6" r="1.8" fill="#c96b9e" opacity=".7"/><circle cx="14" cy="10" r="1.8" fill="#80e09a" opacity=".7"/><circle cx="10" cy="12" r="1.8" fill="#c96b9e" opacity=".7"/><circle cx="6" cy="10" r="1.8" fill="#80e09a" opacity=".7"/><circle cx="6" cy="6" r="1.8" fill="#c96b9e" opacity=".7"/><line x1="10" y1="11" x2="10" y2="18" stroke="#80e09a" stroke-width="1.4" stroke-linecap="round"/></svg>',
-            "cal-summer": '<svg class="szn-icon" viewBox="0 0 20 20"><circle cx="10" cy="10" r="4" fill="#e8c860"/><line x1="10" y1="1" x2="10" y2="3.5" stroke="#e8c860" stroke-width="1.6" stroke-linecap="round"/><line x1="10" y1="16.5" x2="10" y2="19" stroke="#e8c860" stroke-width="1.6" stroke-linecap="round"/><line x1="1" y1="10" x2="3.5" y2="10" stroke="#e8c860" stroke-width="1.6" stroke-linecap="round"/><line x1="16.5" y1="10" x2="19" y2="10" stroke="#e8c860" stroke-width="1.6" stroke-linecap="round"/><line x1="3.5" y1="3.5" x2="5.3" y2="5.3" stroke="#e8c860" stroke-width="1.4" stroke-linecap="round"/><line x1="14.7" y1="14.7" x2="16.5" y2="16.5" stroke="#e8c860" stroke-width="1.4" stroke-linecap="round"/><line x1="16.5" y1="3.5" x2="14.7" y2="5.3" stroke="#e8c860" stroke-width="1.4" stroke-linecap="round"/><line x1="5.3" y1="14.7" x2="3.5" y2="16.5" stroke="#e8c860" stroke-width="1.4" stroke-linecap="round"/></svg>',
-            "cal-fall":   '<svg class="szn-icon" viewBox="0 0 20 20"><path d="M10 17 C6 17 3 14 3 10 C3 6 6 4 10 4 C10 4 8 8 10 10 C12 8 14 5 17 4 C17 8 16 12 14 14 C13 15.5 11.5 17 10 17Z" fill="#e09050" opacity=".9"/><line x1="10" y1="17" x2="10" y2="19" stroke="#9e7a55" stroke-width="1.4" stroke-linecap="round"/></svg>',
-        }
-        szn_svg = season_svgs[cal_season_cls]
-
-        lbl=ms.strftime("%B %Y").upper()
-        heads="".join(f'<div class="dname">{d}</div>' for d in DAYS)
-        blank="".join('<div class="dcell empty"></div>' for _ in range(ms.weekday()))
-        nm=(ms.replace(month=ms.month+1) if ms.month<12 else ms.replace(year=ms.year+1,month=1))
-        cells=""
-
-        for day in range(1,(nm-ms).days+1):
-            do=ms.replace(day=day); ds=do.strftime("%Y-%m-%d")
-            cls="dcell"
-            if do.weekday()>=5: cls+=" wknd"
-            if ds==today_str:   cls+=" today"
-            rpts=dl.get(ds,[])
-            if rpts: cls+=" has-e"
-            day_events=event_map.get(ds,[])
-            if any(e["closed"] for e in day_events): cls+=" mkt-closed"
-
-            event_html=""
-            for ev in day_events:
-                ecls=("evbadge-holiday" if ev["type"]=="holiday" else
-                      "evbadge-retail"  if ev["type"]=="retail"  else "evbadge-market")
-                closed_tag=' <span class="ev-closed">CLOSED</span>' if ev["closed"] else ""
-                event_html+=f'<div class="evbadge {ecls}">{ev["label"]}{closed_tag}</div>'
-
-            chips=""
-            for ticker,sector,timing,source,yahoo_date,mismatch,confirmed in rpts:
-                col=SECTOR_COLORS.get(sector,"#666")
-                safe=sector.replace(" ","_").replace("/","_").replace("&","_")
-                cn=COMPANY_NAMES.get(ticker,ticker).replace("'","\\'").replace('"',"&quot;")
-                st=sector.replace("'","\\'")
-                yd_safe=yahoo_date.replace("'","\\'") if yahoo_date else "N/A"
-                ir_url=IR_URLS.get(ticker,f"https://finance.yahoo.com/quote/{ticker}")
-
-                # SVG sun / moon badges
-                if timing=="BMO":
-                    badge=(
-                        '<span class="bdg bmo" title="Before Market Open">'
-                        '<svg viewBox="0 0 16 16" width="11" height="11" style="vertical-align:middle;margin-right:1px">'
-                        '<circle cx="8" cy="8" r="3.2" fill="#ffd95a"/>'
-                        '<line x1="8" y1="1" x2="8" y2="3" stroke="#ffd95a" stroke-width="1.4" stroke-linecap="round"/>'
-                        '<line x1="8" y1="13" x2="8" y2="15" stroke="#ffd95a" stroke-width="1.4" stroke-linecap="round"/>'
-                        '<line x1="1" y1="8" x2="3" y2="8" stroke="#ffd95a" stroke-width="1.4" stroke-linecap="round"/>'
-                        '<line x1="13" y1="8" x2="15" y2="8" stroke="#ffd95a" stroke-width="1.4" stroke-linecap="round"/>'
-                        '<line x1="3.1" y1="3.1" x2="4.5" y2="4.5" stroke="#ffd95a" stroke-width="1.2" stroke-linecap="round"/>'
-                        '<line x1="11.5" y1="11.5" x2="12.9" y2="12.9" stroke="#ffd95a" stroke-width="1.2" stroke-linecap="round"/>'
-                        '<line x1="12.9" y1="3.1" x2="11.5" y2="4.5" stroke="#ffd95a" stroke-width="1.2" stroke-linecap="round"/>'
-                        '<line x1="4.5" y1="11.5" x2="3.1" y2="12.9" stroke="#ffd95a" stroke-width="1.2" stroke-linecap="round"/>'
-                        '</svg></span>'
-                    )
-                elif timing=="AMC":
-                    badge=(
-                        '<span class="bdg amc" title="After Market Close">'
-                        '<svg viewBox="0 0 16 16" width="11" height="11" style="vertical-align:middle;margin-right:1px">'
-                        '<path d="M11.5 8 A5 5 0 1 1 8 2.5 A3.8 3.8 0 0 0 11.5 8Z" fill="#c8b8ff"/>'
-                        '<circle cx="12.5" cy="4.5" r=".7" fill="#c8b8ff" opacity=".6"/>'
-                        '<circle cx="14" cy="7" r=".5" fill="#c8b8ff" opacity=".5"/>'
-                        '<circle cx="11" cy="2.5" r=".5" fill="#c8b8ff" opacity=".4"/>'
-                        '</svg></span>'
-                    )
-                else:
-                    badge=""
-
-                unconf='<span class="bdg unconf" title="Unconfirmed — Yahoo only">?</span>' if not confirmed else ""
-                warn='<span class="bdg mismatch" title="Date conflict">!</span>' if mismatch else ""
-                chips+=(
-                    f'<div class="chip s-{safe}" style="--cc:{col}" data-ticker="{ticker}" '
-                    f'onclick="showCard(\'{ticker}\',\'{cn}\',\'{st}\',\'{timing or "TBD"}\','
-                    f'\'{ds}\',\'{col}\',\'{source}\',\'{yd_safe}\','
-                    f'{str(mismatch).lower()},{str(confirmed).lower()},\'{ir_url}\')">'
-                    f'{ticker}{badge}{unconf}{warn}</div>'
-                )
-
-            cells+=(f'<div class="{cls}"><span class="dno">{day}</span>'
-                    f'{event_html}<div class="chips">{chips}</div></div>')
-
-        cal+=(
-            f'<div class="mblock {cal_season_cls}" style="--es-bg:{es_bg};--es-col:{es_color}">'
+    # ── month renderer ──────────────────────────────────────────────────────
+    def render_month(ms):
+        es_name, es_sub, es_color, es_bg = EARNINGS_SEASON_BY_MONTH[ms.month]
+        lbl  = ms.strftime("%B %Y").upper()
+        heads = "".join(f'<div class="dname">{d}</div>' for d in DAYS)
+        blank = "".join('<div class="dcell empty"></div>' for _ in range(ms.weekday()))
+        nm = (ms.replace(month=ms.month+1) if ms.month < 12
+              else ms.replace(year=ms.year+1, month=1))
+        cells = ""
+        for day in range(1, (nm - ms).days + 1):
+            do = ms.replace(day=day); ds = do.strftime("%Y-%m-%d")
+            cls = "dcell"
+            if do.weekday() >= 5: cls += " wknd"
+            if ds == today_str:   cls += " today"
+            if do.date() < today_dt and ds != today_str: cls += " past"
+            rpts = dl.get(ds, [])
+            if rpts: cls += " has-e"
+            day_events = event_map.get(ds, [])
+            if any(e["closed"] for e in day_events): cls += " mkt-closed"
+            ev_html = "".join(
+                f'<div class="evbadge evbadge-{"holiday" if e["type"]=="holiday" else "retail" if e["type"]=="retail" else "market"}">'
+                f'{e["label"]}{"<span class=ev-closed>CLOSED</span>" if e["closed"] else ""}</div>'
+                for e in day_events
+            )
+            chips = build_chips(rpts, ds)
+            cells += (f'<div class="{cls}"><span class="dno">{day}</span>'
+                      f'{ev_html}<div class="chips">{chips}</div></div>')
+        return (
+            f'<div class="mblock" style="--es-bg:{es_bg};--es-col:{es_color}">'
             f'<div class="mblock-header">'
-            f'<div class="mlabel-group">'
-            f'  <span class="mlabel">{lbl}</span>'
-            f'  <span class="cal-season-badge {cal_season_cls}-badge">{szn_svg}{cal_season_name}</span>'
-            f'</div>'
+            f'<span class="mlabel">{lbl}</span>'
             f'<span class="earn-season-badge" style="--ec:{es_color}">'
-            f'  <svg viewBox="0 0 14 14" width="11" height="11" style="vertical-align:middle;margin-right:4px">'
-            f'  <rect x="1" y="5" width="2" height="7" rx="1" fill="{es_color}"/>'
-            f'  <rect x="4.5" y="3" width="2" height="9" rx="1" fill="{es_color}" opacity=".85"/>'
-            f'  <rect x="8" y="1" width="2" height="11" rx="1" fill="{es_color}" opacity=".7"/>'
-            f'  <rect x="11.5" y="4" width="2" height="8" rx="1" fill="{es_color}" opacity=".6"/>'
-            f'  </svg>'
-            f'  {es_name} <span class="earn-season-sub">{es_sub}</span>'
-            f'</span>'
-            f'</div>'
+            f'<svg viewBox="0 0 14 14" width="10" height="10" style="vertical-align:middle;margin-right:4px">'
+            f'<rect x="1" y="5" width="2" height="7" rx="1" fill="{es_color}"/>'
+            f'<rect x="4.5" y="3" width="2" height="9" rx="1" fill="{es_color}" opacity=".85"/>'
+            f'<rect x="8" y="1" width="2" height="11" rx="1" fill="{es_color}" opacity=".7"/>'
+            f'<rect x="11.5" y="4" width="2" height="8" rx="1" fill="{es_color}" opacity=".6"/>'
+            f'</svg>{es_name}<span class="earn-season-sub">{es_sub}</span>'
+            f'</span></div>'
             f'<div class="cgrid">{heads}{blank}{cells}</div>'
             f'</div>'
         )
 
-    # ── Unannounced ──────────────────────────────────────────────────────────
-    unann=df[df["Earnings Date"].isna()]
-    uhtml=""
+    cal = "".join(render_month(ms) for ms in months)
+
+    # ── Prior-week panel ────────────────────────────────────────────────────
+    pw_dates = [prior_monday + timedelta(days=i) for i in range(7)]
+    pw_label = f"{prior_monday.strftime('%b %d')} – {prior_sunday.strftime('%b %d, %Y')}"
+    has_pw   = any(dl.get(d.strftime("%Y-%m-%d")) for d in pw_dates)
+
+    if has_pw:
+        pw_days_html = ""
+        for d in pw_dates:
+            if d.weekday() >= 5: continue
+            ds = d.strftime("%Y-%m-%d")
+            rpts = dl.get(ds, [])
+            day_events = event_map.get(ds, [])
+            is_closed  = any(e["closed"] for e in day_events)
+            ev_html = "".join(
+                f'<div class="evbadge evbadge-{"holiday" if e["type"]=="holiday" else "retail" if e["type"]=="retail" else "market"}">'
+                f'{e["label"]}{"<span class=ev-closed>CLOSED</span>" if e["closed"] else ""}</div>'
+                for e in day_events
+            )
+            chips = build_chips(rpts, ds)
+            pw_days_html += (
+                f'<div class="pw-day{"  pw-closed" if is_closed else ""}">'
+                f'<div class="pw-day-head">'
+                f'<span class="pw-dname">{d.strftime("%a").upper()}</span>'
+                f'<span class="pw-ddate">{d.strftime("%b %d")}</span>'
+                f'</div>{ev_html}'
+                f'<div class="chips">{chips if chips else "<span class=pw-none>—</span>"}</div>'
+                f'</div>'
+            )
+        pw_html = (
+            f'<div class="pw-panel" id="priorWeekPanel">'
+            f'<div class="pw-header">'
+            f'<div class="pw-title-group">'
+            f'<span class="pw-icon">◷</span>'
+            f'<span class="pw-title">Prior Week</span>'
+            f'<span class="pw-range">{pw_label}</span>'
+            f'</div>'
+            f'<button class="pw-toggle" id="pwToggle" onclick="togglePriorWeek()">'
+            f'<span id="pwToggleLabel">Show</span>'
+            f'<span class="pw-chevron" id="pwChevron">›</span>'
+            f'</button></div>'
+            f'<div class="pw-body" id="pwBody">'
+            f'<div class="pw-grid">{pw_days_html}</div>'
+            f'</div></div>'
+        )
+    else:
+        pw_html = (
+            f'<div class="pw-panel pw-empty">'
+            f'<div class="pw-header">'
+            f'<div class="pw-title-group">'
+            f'<span class="pw-icon">◷</span>'
+            f'<span class="pw-title">Prior Week</span>'
+            f'<span class="pw-range">{pw_label}</span>'
+            f'</div>'
+            f'<span class="pw-none-label">No tracked earnings that week</span>'
+            f'</div></div>'
+        )
+
+    # ── Unannounced ─────────────────────────────────────────────────────────
+    unann = df[df["Earnings Date"].isna()]
+    uhtml = ""
     if not unann.empty:
-        rows_h=""
-        for s,tickers in SECTORS.items():
-            miss=unann[unann["Sector"]==s]["Ticker"].tolist()
+        rows_h = ""
+        for s, tickers in SECTORS.items():
+            miss = unann[unann["Sector"] == s]["Ticker"].tolist()
             if not miss: continue
-            col=SECTOR_COLORS[s]
-            safe=s.replace(" ","_").replace("/","_").replace("&","_")
-            chips_u="".join(
+            col  = SECTOR_COLORS[s]
+            safe = s.replace(" ","_").replace("/","_").replace("&","_")
+            chips_u = "".join(
                 f'<span class="uchip s-{safe}" style="--cc:{col}" data-ticker="{t}" '
                 f'onclick="showCard(\'{t}\','
                 f'\'{COMPANY_NAMES.get(t,t).replace(chr(39),chr(92)+chr(39))}\','
@@ -509,298 +569,879 @@ def build_html(df,generated_at):
                 f'\'{IR_URLS.get(t,f"https://finance.yahoo.com/quote/{t}")}\')">{t}</span>'
                 for t in miss
             )
-            rows_h+=(f'<tr><td><span class="sbadge" style="background:{col}">{s}</span></td>'
-                     f'<td>{chips_u}</td></tr>')
-        uhtml=(f'<div class="ubox"><div class="ubox-head">'
-               f'<span class="ubox-title">NOT YET ANNOUNCED</span>'
-               f'<span class="ubox-sub">Click any ticker for details</span>'
-               f'</div><table class="utable">'
-               f'<thead><tr><th>SECTOR</th><th>TICKERS</th></tr></thead>'
-               f'<tbody>{rows_h}</tbody></table></div>')
+            rows_h += (f'<tr><td><span class="sbadge" style="background:{col}">{s}</span></td>'
+                       f'<td>{chips_u}</td></tr>')
+        uhtml = (
+            f'<div class="ubox"><div class="ubox-head">'
+            f'<span class="ubox-title">NOT YET ANNOUNCED</span>'
+            f'<span class="ubox-sub">Click any ticker for details</span>'
+            f'</div><table class="utable">'
+            f'<thead><tr><th>SECTOR</th><th>TICKERS</th></tr></thead>'
+            f'<tbody>{rows_h}</tbody></table></div>'
+        )
 
-    nf=len(dated); nu=len(unann); nm=int(df["Mismatch"].sum())
-    ts=generated_at.strftime("%d %b %Y, %I:%M %p ET")
-    sj=json.dumps(SECTORS); cj=json.dumps(SECTOR_COLORS); nj=json.dumps(COMPANY_NAMES)
+    nf = len(dated); nu = len(unann); nm = int(df["Mismatch"].sum())
+    ts = generated_at.strftime("%d %b %Y, %I:%M %p ET")
+    sj = json.dumps(SECTORS); cj = json.dumps(SECTOR_COLORS); nj = json.dumps(COMPANY_NAMES)
 
-    sector_legend_chips="".join(
-        f'<div class="sleg-row">'
-        f'<span class="sleg-chip" style="--cc:{SECTOR_COLORS[s]}">{s}</span>'
-        f'<span class="sleg-tickers">'
-        + "".join(f'<span class="sleg-ticker">{t}</span>' for t in SECTORS[s])
-        + f'</span></div>'
-        for s in SECTORS
-    )
+    # ── Sidebar ─────────────────────────────────────────────────────────────
+    sidebar_html = ""
+    for s in SECTORS:
+        col  = SECTOR_COLORS[s]
+        safe = s.replace(" ","_").replace("/","_").replace("&","_")
+        tickers_html = "".join(f'<span class="sleg-ticker">{t}</span>' for t in SECTORS[s])
+        sidebar_html += (
+            f'<div class="sleg-group">'
+            f'<button class="sleg-toggle" onclick="toggleSector(\'{safe}\')" style="--cc:{col}">'
+            f'<span class="sleg-label">{s}</span>'
+            f'<span class="sleg-arrow" id="arrow-{safe}">›</span>'
+            f'</button>'
+            f'<div class="sleg-tickers" id="tickers-{safe}">{tickers_html}</div>'
+            f'</div>'
+        )
 
-    html=f"""<!DOCTYPE html>
+    html = f"""<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<meta http-equiv="refresh" content="21600">
 <title>Earnings Calendar — Consumer &amp; Retail</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
 *,*::before,*::after{{box-sizing:border-box;margin:0;padding:0}}
+
+/* ── Design tokens ── */
 :root{{
-  --bg0:#080a12;--bg1:#0d1020;--bg2:#111525;--bg3:#181d30;
-  --line:rgba(255,255,255,0.08);--line2:rgba(255,255,255,0.15);
-  --t0:#ffffff;--t1:#c8cfe8;--t2:#7a84aa;
-  --accent:#4f8ef7;--warn:#f7a94f;
+  /* Base palette — deep navy with subtle purple undertone */
+  --bg0:#03040d;
+  --bg1:#070a18;
+  --bg2:#0a0e20;
+  --bg3:#0e1228;
+  --bg4:#131830;
+  --bg5:#181e38;
+
+  /* Glass surfaces */
+  --glass-light:rgba(255,255,255,0.04);
+  --glass-mid:rgba(255,255,255,0.07);
+  --glass-heavy:rgba(255,255,255,0.10);
+  --glass-border:rgba(255,255,255,0.08);
+  --glass-border2:rgba(255,255,255,0.14);
+  --glass-border3:rgba(255,255,255,0.22);
+
+  /* Text */
+  --t0:#f2f4ff;
+  --t1:#b4bcd8;
+  --t2:#636b8a;
+  --t3:#363c58;
+
+  /* Accent */
+  --accent:#5b9cf6;
+  --accent2:#7eb8ff;
+  --accent-glow:rgba(91,156,246,0.18);
+
+  /* Status */
+  --bmo:#ffd95a;
+  --amc:#c8b8ff;
+  --unconf:#ff9f43;
+  --conflict:#ff5757;
+
+  /* Misc */
   --mono:'JetBrains Mono',monospace;
   --sans:'Inter',-apple-system,sans-serif;
-  --sidebar:260px;
+  --sidebar-w:256px;
+  --r:10px;
+  --r-lg:16px;
+  --r-xl:20px;
+  --ease:cubic-bezier(0.4,0,0.2,1);
+  --dur:0.22s;
 }}
-body{{font-family:var(--sans);background:var(--bg0);color:var(--t1);min-height:100vh;-webkit-font-smoothing:antialiased;}}
 
-/* ── Layout ── */
+/* ── Scrollbar ── */
+::-webkit-scrollbar{{width:4px;height:4px}}
+::-webkit-scrollbar-track{{background:transparent}}
+::-webkit-scrollbar-thumb{{background:var(--bg5);border-radius:4px}}
+::-webkit-scrollbar-thumb:hover{{background:var(--glass-border2)}}
+
+/* ── Body & layout ── */
+body{{
+  font-family:var(--sans);
+  background:var(--bg0);
+  color:var(--t1);
+  min-height:100vh;
+  -webkit-font-smoothing:antialiased;
+  overflow-x:hidden;
+  /* Subtle radial gradient background glow */
+  background-image:
+    radial-gradient(ellipse 80% 50% at 20% 0%, rgba(59,91,180,0.12) 0%, transparent 60%),
+    radial-gradient(ellipse 60% 40% at 80% 100%, rgba(120,60,180,0.08) 0%, transparent 60%);
+}}
 .page-wrap{{display:flex;min-height:100vh;}}
-.sidebar{{width:var(--sidebar);flex-shrink:0;background:var(--bg1);border-right:1px solid var(--line);position:sticky;top:0;height:100vh;overflow-y:auto;display:flex;flex-direction:column;}}
+
+/* ── Sidebar ── */
+.sidebar{{
+  width:var(--sidebar-w);flex-shrink:0;
+  background:linear-gradient(180deg,
+    rgba(10,14,32,0.95) 0%,
+    rgba(7,10,24,0.98) 100%);
+  border-right:1px solid var(--glass-border);
+  position:sticky;top:0;height:100vh;
+  display:flex;flex-direction:column;
+  transition:width var(--dur) var(--ease);
+  z-index:200;overflow:hidden;
+  backdrop-filter:blur(24px);
+  -webkit-backdrop-filter:blur(24px);
+}}
+.sidebar.collapsed{{width:0;border-right-color:transparent;}}
 .content{{flex:1;min-width:0;display:flex;flex-direction:column;}}
 
-/* ── Topbar ── */
-.topbar{{height:58px;background:var(--bg1);border-bottom:1px solid var(--line2);display:flex;align-items:center;justify-content:space-between;padding:0 24px;position:sticky;top:0;z-index:300;gap:16px;}}
-.topbar-left{{display:flex;align-items:center;gap:14px;}}
-.page-title{{font-size:15px;font-weight:700;color:var(--t0);letter-spacing:-.2px;white-space:nowrap;}}
-.divider{{width:1px;height:22px;background:var(--line2);}}
-.topbar-meta{{font-size:11px;color:var(--t1);white-space:nowrap;}}
-.topbar-right{{display:flex;align-items:center;gap:20px;flex-shrink:0;}}
-.tstat{{display:flex;flex-direction:column;align-items:flex-end;}}
-.tstat-num{{font-family:var(--mono);font-size:17px;font-weight:700;color:var(--t0);line-height:1;}}
-.tstat-lbl{{font-size:9px;color:var(--t2);text-transform:uppercase;letter-spacing:.7px;margin-top:3px;}}
+.sidebar-head{{
+  padding:18px 16px 14px;
+  border-bottom:1px solid var(--glass-border);
+  flex-shrink:0;
+  background:var(--glass-light);
+}}
+.sidebar-title{{
+  font-family:var(--mono);font-size:9px;font-weight:700;
+  color:var(--t3);text-transform:uppercase;letter-spacing:1.4px;
+  white-space:nowrap;
+}}
+.sidebar-body{{overflow-y:auto;flex:1;padding:4px 0 20px;}}
+
+/* Sector accordion */
+.sleg-group{{border-bottom:1px solid var(--glass-border);}}
+.sleg-toggle{{
+  display:flex;align-items:center;justify-content:space-between;
+  width:100%;padding:7px 14px;
+  background:none;border:none;cursor:pointer;
+  transition:background var(--dur);gap:8px;
+}}
+.sleg-toggle:hover{{background:var(--glass-light);}}
+.sleg-label{{
+  font-family:var(--mono);font-size:9px;font-weight:700;
+  color:#fff;background:var(--cc,#444);
+  padding:2px 8px;border-radius:4px;
+  text-shadow:0 1px 4px rgba(0,0,0,.6);
+  white-space:nowrap;flex:1;text-align:left;
+  border:1px solid rgba(255,255,255,0.1);
+}}
+.sleg-arrow{{
+  font-size:12px;color:var(--t3);
+  transition:transform var(--dur) var(--ease);flex-shrink:0;
+}}
+.sleg-arrow.open{{transform:rotate(90deg);color:var(--t2);}}
+.sleg-tickers{{
+  display:flex;flex-wrap:wrap;gap:3px;
+  padding:0 14px;overflow:hidden;
+  max-height:0;
+  transition:max-height 0.3s var(--ease),padding 0.2s;
+}}
+.sleg-tickers.open{{max-height:220px;padding:0 14px 10px;}}
+.sleg-ticker{{
+  font-family:var(--mono);font-size:7.5px;color:var(--t2);
+  background:var(--glass-light);border:1px solid var(--glass-border);
+  border-radius:3px;padding:1px 5px;
+  transition:color var(--dur),border-color var(--dur);
+}}
+.sleg-ticker:hover{{color:var(--t0);border-color:var(--glass-border2);}}
+
+/* ── Topbar — glass ── */
+.topbar{{
+  height:54px;
+  background:rgba(7,10,24,0.7);
+  backdrop-filter:blur(28px) saturate(180%);
+  -webkit-backdrop-filter:blur(28px) saturate(180%);
+  border-bottom:1px solid var(--glass-border);
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 20px;position:sticky;top:0;z-index:300;gap:12px;
+  /* Subtle top highlight line */
+  box-shadow:inset 0 1px 0 rgba(255,255,255,0.06);
+}}
+.topbar-left{{display:flex;align-items:center;gap:12px;}}
+.page-title{{
+  font-size:13.5px;font-weight:700;color:var(--t0);
+  letter-spacing:-.3px;white-space:nowrap;
+}}
+.title-dot{{
+  width:6px;height:6px;border-radius:50%;
+  background:var(--accent);
+  box-shadow:0 0 10px var(--accent),0 0 20px rgba(91,156,246,0.4);
+  flex-shrink:0;
+  animation:dotPulse 3s ease-in-out infinite;
+}}
+@keyframes dotPulse{{
+  0%,100%{{box-shadow:0 0 8px var(--accent),0 0 16px rgba(91,156,246,0.3);}}
+  50%{{box-shadow:0 0 14px var(--accent),0 0 28px rgba(91,156,246,0.5);}}
+}}
+.vdiv{{width:1px;height:18px;background:var(--glass-border2);}}
+.topbar-meta{{font-size:10px;color:var(--t2);white-space:nowrap;}}
+.topbar-right{{display:flex;align-items:center;gap:10px;flex-shrink:0;}}
+
+/* Stat pills */
+.tstat{{
+  display:flex;flex-direction:column;align-items:center;
+  padding:5px 12px;border-radius:10px;
+  background:var(--glass-light);
+  border:1px solid var(--glass-border);
+  backdrop-filter:blur(8px);
+  transition:background var(--dur),border-color var(--dur);
+}}
+.tstat:hover{{background:var(--glass-mid);border-color:var(--glass-border2);}}
+.tstat-num{{
+  font-family:var(--mono);font-size:15px;font-weight:700;
+  color:var(--t0);line-height:1.1;
+}}
+.tstat-lbl{{
+  font-size:7.5px;color:var(--t2);
+  text-transform:uppercase;letter-spacing:.9px;margin-top:2px;
+}}
+
+/* Sidebar toggle */
+.sidebar-toggle{{
+  display:flex;align-items:center;justify-content:center;
+  width:28px;height:28px;border-radius:8px;
+  background:var(--glass-light);border:1px solid var(--glass-border);
+  color:var(--t1);cursor:pointer;font-size:15px;line-height:1;
+  transition:background var(--dur),color var(--dur),transform var(--dur);
+  flex-shrink:0;
+}}
+.sidebar-toggle:hover{{background:var(--glass-mid);color:var(--t0);}}
+.sidebar-toggle.open{{transform:scaleX(-1);}}
 
 /* ── Key bar ── */
-.timingbar{{background:var(--bg0);border-bottom:1px solid var(--line);padding:7px 24px 10px;display:flex;align-items:center;gap:12px;font-size:11.5px;color:var(--t1);flex-wrap:wrap;}}
-.tpill{{display:inline-flex;align-items:center;gap:5px;font-size:10px;font-weight:700;padding:3px 9px;border-radius:5px;font-family:var(--mono);letter-spacing:.3px;white-space:nowrap;}}
-.tpill.pre{{background:rgba(255,217,90,.1);color:#ffd95a;border:1px solid rgba(255,217,90,.3);}}
-.tpill.aft{{background:rgba(200,184,255,.1);color:#c8b8ff;border:1px solid rgba(200,184,255,.3);}}
-.tpill.mis{{background:rgba(220,60,60,.2);color:#ff7070;border:1px solid rgba(220,60,60,.4);}}
-.tpill.unc{{background:rgba(30,30,30,.6);color:#888;border:1px solid rgba(255,255,255,.12);}}
-
-/* BMO sun SVG in pill */
-.tpill-sun{{display:inline-block;vertical-align:middle;}}
-/* AMC moon SVG in pill */
-.tpill-moon{{display:inline-block;vertical-align:middle;}}
-
-/* ── Event legend ── */
-.event-legend{{display:flex;flex-wrap:wrap;align-items:center;gap:6px;width:100%;margin-top:6px;padding-top:6px;border-top:1px solid var(--line);}}
-.evleg-label{{font-family:var(--mono);font-size:9px;font-weight:700;color:var(--t2);text-transform:uppercase;letter-spacing:.8px;margin-right:4px;white-space:nowrap;}}
-.evleg-item{{display:inline-flex;align-items:center;gap:4px;font-size:9px;color:var(--t2);}}
-.evleg-dot{{width:8px;height:8px;border-radius:2px;flex-shrink:0;}}
-.evleg-dot.holiday{{background:#4a6fa8;}}
+.timingbar{{
+  background:rgba(7,10,24,0.6);
+  backdrop-filter:blur(16px);
+  -webkit-backdrop-filter:blur(16px);
+  border-bottom:1px solid var(--glass-border);
+  padding:9px 20px 11px;
+  display:flex;align-items:center;gap:9px;
+  font-size:11px;color:var(--t2);flex-wrap:wrap;
+}}
+.key-label{{
+  font-family:var(--mono);font-size:9px;font-weight:700;
+  color:var(--t2);text-transform:uppercase;letter-spacing:1px;
+}}
+.tpill{{
+  display:inline-flex;align-items:center;gap:5px;
+  font-size:9px;font-weight:700;
+  padding:3px 9px;border-radius:6px;
+  font-family:var(--mono);letter-spacing:.3px;white-space:nowrap;
+  backdrop-filter:blur(8px);
+}}
+.tpill.pre{{
+  background:rgba(255,217,90,.1);color:var(--bmo);
+  border:1px solid rgba(255,217,90,.25);
+}}
+.tpill.aft{{
+  background:rgba(200,184,255,.1);color:var(--amc);
+  border:1px solid rgba(200,184,255,.25);
+}}
+.tpill.unc{{
+  background:rgba(255,159,67,.1);color:var(--unconf);
+  border:1px solid rgba(255,159,67,.25);
+}}
+.tpill.mis{{
+  background:rgba(255,87,87,.12);color:var(--conflict);
+  border:1px solid rgba(255,87,87,.3);
+}}
+.key-sep{{color:var(--t3);}}
+.key-desc{{font-size:10px;color:var(--t2);}}
+.event-legend{{
+  display:flex;flex-wrap:wrap;align-items:center;gap:7px;
+  width:100%;margin-top:8px;padding-top:8px;
+  border-top:1px solid var(--glass-border);
+}}
+.evleg-label{{
+  font-family:var(--mono);font-size:8px;font-weight:700;
+  color:var(--t3);text-transform:uppercase;letter-spacing:1px;
+}}
+.evleg-item{{display:inline-flex;align-items:center;gap:4px;font-size:9.5px;color:var(--t2);}}
+.evleg-dot{{width:7px;height:7px;border-radius:2px;flex-shrink:0;}}
+.evleg-dot.holiday{{background:#3d5f96;}}
 .evleg-dot.retail{{background:#7a5a2a;}}
-.evleg-dot.closed{{background:rgba(220,60,60,.5);border:1px solid rgba(220,60,60,.6);}}
+.evleg-dot.closed{{background:rgba(200,50,50,.6);border:1px solid rgba(200,50,50,.8);}}
 
-/* ── Sidebar sector legend ── */
-.sidebar-head{{padding:14px 16px 10px;border-bottom:1px solid var(--line);}}
-.sidebar-title{{font-family:var(--mono);font-size:10px;font-weight:700;color:var(--t2);text-transform:uppercase;letter-spacing:.8px;}}
-.sleg-row{{padding:5px 12px;border-bottom:1px solid var(--line);}}
-.sleg-row:last-child{{border-bottom:none;}}
-.sleg-chip{{display:block;font-family:var(--mono);font-size:9.5px;font-weight:700;color:#fff;background:var(--cc,#444);padding:2px 8px;border-radius:4px;text-shadow:0 1px 2px rgba(0,0,0,.4);margin-bottom:4px;}}
-.sleg-tickers{{display:flex;flex-wrap:wrap;gap:2px;}}
-.sleg-ticker{{font-family:var(--mono);font-size:8.5px;color:var(--t2);background:var(--bg2);border:1px solid var(--line);border-radius:3px;padding:1px 4px;}}
-
-/* ── Search ── */
-.search-bar{{background:var(--bg1);border-bottom:1px solid var(--line);padding:8px 24px;display:flex;align-items:center;gap:10px;position:sticky;top:58px;z-index:299;}}
-.search-input{{background:var(--bg2);border:1px solid var(--line2);border-radius:7px;padding:6px 12px;font-family:var(--mono);font-size:12px;color:var(--t0);outline:none;width:220px;transition:border-color .15s;}}
-.search-input::placeholder{{color:var(--t2);}}
-.search-input:focus{{border-color:var(--accent);}}
-.search-clear{{background:none;border:none;color:var(--t2);cursor:pointer;font-size:16px;line-height:1;padding:0 4px;display:none;}}
+/* ── Search bar ── */
+.search-bar{{
+  background:rgba(7,10,24,0.55);
+  backdrop-filter:blur(16px);
+  -webkit-backdrop-filter:blur(16px);
+  border-bottom:1px solid var(--glass-border);
+  padding:8px 20px;
+  display:flex;align-items:center;gap:10px;
+  position:sticky;top:54px;z-index:299;
+}}
+.search-wrap{{position:relative;display:flex;align-items:center;}}
+.search-icon{{
+  position:absolute;left:10px;color:var(--t3);
+  font-size:13px;pointer-events:none;
+}}
+.search-input{{
+  background:var(--glass-light);
+  border:1px solid var(--glass-border);
+  border-radius:8px;
+  padding:6px 30px 6px 30px;
+  font-family:var(--mono);font-size:11px;color:var(--t0);
+  outline:none;width:210px;
+  transition:border-color var(--dur),background var(--dur),box-shadow var(--dur);
+}}
+.search-input::placeholder{{color:var(--t3);}}
+.search-input:focus{{
+  border-color:rgba(91,156,246,.5);
+  background:var(--glass-mid);
+  box-shadow:0 0 0 3px rgba(91,156,246,.1),inset 0 1px 0 rgba(255,255,255,.05);
+}}
+.search-clear{{
+  position:absolute;right:8px;
+  background:none;border:none;color:var(--t3);
+  cursor:pointer;font-size:14px;line-height:1;
+  padding:0;display:none;
+  transition:color var(--dur);
+}}
+.search-clear:hover{{color:var(--t1);}}
 .search-clear.on{{display:block;}}
-.search-hint{{font-size:11px;color:var(--t2);}}
+.search-hint{{font-size:10px;color:var(--t2);font-family:var(--mono);}}
 
-/* ── Calendar ── */
-.main{{padding:28px 24px;max-width:1400px;margin:0 auto;}}
-.mblock{{margin-bottom:44px;border-radius:12px;overflow:hidden;border:1px solid var(--line);}}
-.mblock-header{{padding:12px 16px 10px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;background:var(--es-bg,var(--bg1));}}
-.mlabel-group{{display:flex;align-items:center;gap:10px;}}
-.mlabel{{font-family:var(--mono);font-size:13px;font-weight:700;color:var(--t0);letter-spacing:.5px;}}
+/* ── Prior-week panel ── */
+.pw-panel{{
+  margin:18px 20px 0;
+  border-radius:var(--r-lg);
+  border:1px solid var(--glass-border);
+  overflow:hidden;
+  background:rgba(10,14,32,0.6);
+  backdrop-filter:blur(20px);
+  -webkit-backdrop-filter:blur(20px);
+  box-shadow:0 4px 24px rgba(0,0,0,.3),inset 0 1px 0 rgba(255,255,255,.05);
+}}
+.pw-panel.pw-empty{{margin-bottom:8px;}}
+.pw-header{{
+  padding:10px 16px;
+  display:flex;align-items:center;justify-content:space-between;
+  background:linear-gradient(90deg,rgba(91,156,246,0.06) 0%,transparent 70%);
+  border-bottom:1px solid var(--glass-border);
+}}
+.pw-title-group{{display:flex;align-items:center;gap:10px;}}
+.pw-icon{{font-size:13px;color:var(--accent);opacity:.8;}}
+.pw-title{{
+  font-family:var(--mono);font-size:10.5px;font-weight:700;
+  color:var(--t0);letter-spacing:.3px;
+}}
+.pw-range{{
+  font-family:var(--mono);font-size:9px;color:var(--t2);
+  padding:2px 8px;
+  background:var(--glass-light);
+  border:1px solid var(--glass-border);
+  border-radius:4px;
+}}
+.pw-none-label{{font-size:10px;color:var(--t3);font-style:italic;}}
+.pw-toggle{{
+  display:inline-flex;align-items:center;gap:5px;
+  background:var(--glass-light);
+  border:1px solid var(--glass-border);
+  border-radius:7px;padding:4px 11px;
+  font-family:var(--mono);font-size:9.5px;font-weight:700;
+  color:var(--t1);cursor:pointer;
+  transition:background var(--dur),border-color var(--dur),color var(--dur);
+}}
+.pw-toggle:hover{{
+  background:var(--glass-mid);
+  border-color:rgba(91,156,246,.4);
+  color:var(--t0);
+}}
+.pw-chevron{{
+  font-size:13px;line-height:1;
+  transition:transform var(--dur) var(--ease);
+  display:inline-block;
+}}
+.pw-chevron.open{{transform:rotate(90deg);}}
+.pw-body{{
+  max-height:0;overflow:hidden;
+  transition:max-height 0.38s var(--ease);
+}}
+.pw-body.open{{max-height:620px;}}
+.pw-grid{{
+  display:grid;grid-template-columns:repeat(5,1fr);
+  gap:6px;padding:10px;
+}}
+.pw-day{{
+  background:var(--glass-light);
+  border:1px solid var(--glass-border);
+  border-radius:var(--r);
+  padding:9px 8px 8px;min-height:76px;
+  transition:background var(--dur);
+}}
+.pw-day.pw-closed{{
+  background:rgba(30,8,8,0.4);
+  border-color:rgba(180,40,40,.15);
+}}
+.pw-day-head{{
+  display:flex;align-items:baseline;gap:6px;margin-bottom:6px;
+}}
+.pw-dname{{
+  font-family:var(--mono);font-size:8px;font-weight:700;
+  color:var(--t3);letter-spacing:.8px;
+}}
+.pw-ddate{{
+  font-family:var(--mono);font-size:10.5px;font-weight:600;color:var(--t1);
+}}
+.pw-none{{font-family:var(--mono);font-size:8.5px;color:var(--t3);}}
 
-/* Calendar season badge */
-.cal-season-badge{{display:inline-flex;align-items:center;gap:5px;font-family:var(--mono);font-size:10px;font-weight:700;padding:3px 9px;border-radius:5px;white-space:nowrap;}}
-.szn-icon{{display:inline-block;vertical-align:middle;}}
-.cal-winter-badge{{background:rgba(100,160,230,.1);color:#90bfee;border:1px solid rgba(100,160,230,.22);}}
-.cal-spring-badge{{background:rgba(100,200,120,.1);color:#80e09a;border:1px solid rgba(100,200,120,.22);}}
-.cal-summer-badge{{background:rgba(230,180,60,.1);color:#e8c860;border:1px solid rgba(230,180,60,.22);}}
-.cal-fall-badge{{background:rgba(210,120,50,.1);color:#e09050;border:1px solid rgba(210,120,50,.22);}}
+/* ── Calendar main ── */
+.main{{padding:18px 20px 32px;max-width:1440px;margin:0 auto;}}
 
-/* Earnings season badge */
-.earn-season-badge{{display:inline-flex;align-items:center;font-family:var(--mono);font-size:10px;font-weight:700;padding:3px 9px;border-radius:5px;white-space:nowrap;background:color-mix(in srgb,var(--ec) 10%,transparent);color:var(--ec);border:1px solid color-mix(in srgb,var(--ec) 25%,transparent);}}
-.earn-season-sub{{font-size:8.5px;font-weight:400;opacity:.7;margin-left:5px;}}
+.mblock{{
+  margin-bottom:28px;
+  border-radius:var(--r-lg);overflow:hidden;
+  border:1px solid var(--glass-border);
+  background:rgba(10,14,32,0.5);
+  backdrop-filter:blur(16px);
+  -webkit-backdrop-filter:blur(16px);
+  box-shadow:
+    0 8px 32px rgba(0,0,0,.35),
+    inset 0 1px 0 rgba(255,255,255,0.05);
+}}
+.mblock-header{{
+  padding:11px 16px 9px;
+  border-bottom:1px solid var(--glass-border);
+  display:flex;align-items:center;justify-content:space-between;
+  flex-wrap:wrap;gap:8px;
+  background:linear-gradient(90deg,
+    var(--es-bg,rgba(255,255,255,0.02)) 0%,
+    transparent 60%);
+}}
+.mlabel{{
+  font-family:var(--mono);font-size:12.5px;font-weight:700;
+  color:var(--t0);letter-spacing:.5px;
+}}
+.earn-season-badge{{
+  display:inline-flex;align-items:center;
+  font-family:var(--mono);font-size:9px;font-weight:700;
+  padding:3px 10px;border-radius:6px;white-space:nowrap;
+  background:color-mix(in srgb,var(--ec) 8%,transparent);
+  color:var(--ec);
+  border:1px solid color-mix(in srgb,var(--ec) 20%,transparent);
+  backdrop-filter:blur(8px);
+}}
+.earn-season-sub{{
+  font-size:7.5px;font-weight:400;opacity:.6;margin-left:6px;
+}}
 
-/* Season left accent */
-.cal-winter{{border-left:3px solid rgba(100,160,230,.35)!important;}}
-.cal-spring{{border-left:3px solid rgba(100,200,120,.35)!important;}}
-.cal-summer{{border-left:3px solid rgba(230,180,60,.35)!important;}}
-.cal-fall{{border-left:3px solid rgba(210,120,50,.35)!important;}}
+.cgrid{{
+  display:grid;grid-template-columns:repeat(7,1fr);
+  gap:3px;padding:6px;
+  background:rgba(7,10,24,0.4);
+}}
+.dname{{
+  text-align:center;font-family:var(--mono);
+  font-size:8.5px;font-weight:700;
+  color:var(--t3);padding:5px 0;letter-spacing:1px;
+}}
 
-.cgrid{{display:grid;grid-template-columns:repeat(7,1fr);gap:5px;padding:10px;background:var(--bg1);}}
-.dname{{text-align:center;font-family:var(--mono);font-size:10px;font-weight:700;color:var(--t1);padding:6px 0;letter-spacing:.8px;}}
-.dcell{{background:var(--bg2);border:1px solid var(--line);border-radius:8px;min-height:96px;padding:9px 7px 7px;transition:border-color .12s,background .12s;}}
+/* Day cells */
+.dcell{{
+  background:var(--glass-light);
+  border:1px solid var(--glass-border);
+  border-radius:var(--r);
+  min-height:98px;padding:8px 7px 6px;
+  transition:border-color var(--dur),background var(--dur);
+  position:relative;
+}}
 .dcell.empty{{background:transparent;border-color:transparent;pointer-events:none;}}
-.dcell.wknd{{background:#0c0e14;opacity:.4;}}
-.dcell.today{{border-color:var(--accent)!important;background:color-mix(in srgb,var(--accent) 7%,var(--bg2));}}
+.dcell.wknd{{
+  background:rgba(3,4,13,0.5);
+  opacity:.3;
+}}
+.dcell.past{{
+  opacity:.4;
+  filter:saturate(0.6);
+}}
+.dcell.today{{
+  border-color:rgba(91,156,246,.55) !important;
+  background:rgba(91,156,246,0.07);
+  box-shadow:
+    0 0 0 1px rgba(91,156,246,.15),
+    0 4px 16px rgba(91,156,246,.08),
+    inset 0 1px 0 rgba(91,156,246,.12);
+}}
+.dcell.today::before{{
+  content:'';position:absolute;top:0;left:0;right:0;height:2px;
+  background:linear-gradient(90deg,
+    transparent 0%,
+    var(--accent) 30%,
+    var(--accent2) 70%,
+    transparent 100%);
+  border-radius:var(--r) var(--r) 0 0;
+}}
 .dcell.today .dno{{color:var(--accent)!important;font-weight:700;}}
-.dcell.has-e{{border-color:var(--line2);}}
-.dcell.mkt-closed{{background:color-mix(in srgb,#1a0808 80%,var(--bg2));}}
-.dno{{font-family:var(--mono);font-size:11px;font-weight:500;color:var(--t1);margin-bottom:3px;display:block;}}
+.dcell.has-e{{border-color:rgba(255,255,255,0.09);}}
+.dcell.mkt-closed{{
+  background:rgba(28,6,6,0.5);
+  border-color:rgba(160,30,30,.12);
+}}
 
-/* ── Event badges ── */
-.evbadge{{font-family:var(--mono);font-size:8px;font-weight:700;padding:1px 5px;border-radius:3px;margin-bottom:3px;display:inline-block;letter-spacing:.2px;white-space:nowrap;max-width:100%;overflow:hidden;text-overflow:ellipsis;}}
-.evbadge-holiday{{background:rgba(74,111,168,.22);color:#8aabdf;border:1px solid rgba(74,111,168,.35);}}
-.evbadge-retail{{background:rgba(122,90,42,.28);color:#c9a870;border:1px solid rgba(122,90,42,.45);}}
-.evbadge-market{{background:rgba(60,173,168,.13);color:#6dccc8;border:1px solid rgba(60,173,168,.28);}}
-.ev-closed{{font-size:7px;font-weight:900;background:rgba(220,60,60,.7);color:#fff;padding:0 3px;border-radius:2px;margin-left:3px;letter-spacing:.3px;vertical-align:middle;}}
+.dno{{
+  font-family:var(--mono);font-size:10px;font-weight:500;
+  color:var(--t2);margin-bottom:4px;display:block;
+}}
 
-/* ── Ticker chips ── */
-.chips{{display:flex;flex-wrap:wrap;gap:3px;margin-top:2px;}}
-.chip{{display:inline-flex;align-items:center;gap:2px;background:var(--cc,#444);font-family:var(--mono);font-size:10px;font-weight:700;color:#fff;padding:3px 6px;border-radius:5px;cursor:pointer;white-space:nowrap;transition:transform .12s,filter .12s,opacity .15s;letter-spacing:.2px;text-shadow:0 1px 2px rgba(0,0,0,.4);}}
-.chip:hover{{transform:scale(1.08);filter:brightness(1.18);z-index:10;position:relative;}}
-.chip.dimmed{{opacity:.12;pointer-events:none;}}
-.bdg{{display:inline-flex;align-items:center;justify-content:center;line-height:1;}}
-.bdg.bmo,.bdg.amc{{background:transparent;}}
-.bdg.unconf{{font-family:var(--mono);font-size:8px;font-weight:900;background:rgba(255,255,255,.1);color:#888;border-radius:3px;padding:0 3px;}}
-.bdg.mismatch{{font-family:var(--mono);font-size:8px;font-weight:900;background:rgba(220,60,60,.85);color:#fff;border-radius:3px;padding:0 4px;}}
+/* Event badges */
+.evbadge{{
+  font-family:var(--mono);font-size:7px;font-weight:700;
+  padding:1px 5px;border-radius:3px;margin-bottom:2px;
+  display:inline-block;letter-spacing:.2px;
+  white-space:nowrap;max-width:100%;
+  overflow:hidden;text-overflow:ellipsis;
+  backdrop-filter:blur(4px);
+}}
+.evbadge-holiday{{
+  background:rgba(61,95,150,.18);color:#7aa0d4;
+  border:1px solid rgba(61,95,150,.3);
+}}
+.evbadge-retail{{
+  background:rgba(122,90,42,.2);color:#c9a870;
+  border:1px solid rgba(122,90,42,.35);
+}}
+.evbadge-market{{
+  background:rgba(60,173,168,.1);color:#6dccc8;
+  border:1px solid rgba(60,173,168,.22);
+}}
+.ev-closed{{
+  font-size:6px;font-weight:900;
+  background:rgba(200,40,40,.8);color:#fff;
+  padding:0 3px;border-radius:2px;
+  margin-left:3px;letter-spacing:.3px;vertical-align:middle;
+}}
+
+/* ── Chips ── */
+.chips{{display:flex;flex-wrap:wrap;gap:3px;margin-top:3px;}}
+.chip{{
+  display:inline-flex;align-items:center;gap:2px;
+  background:var(--cc,#444);
+  font-family:var(--mono);font-size:9px;font-weight:700;
+  color:#fff;
+  padding:3px 6px;border-radius:6px;
+  cursor:pointer;white-space:nowrap;
+  transition:transform 0.14s,filter 0.14s,box-shadow 0.14s,opacity 0.14s;
+  letter-spacing:.15px;
+  text-shadow:0 1px 4px rgba(0,0,0,.55);
+  border:1px solid rgba(255,255,255,0.1);
+  /* Subtle inner highlight */
+  box-shadow:inset 0 1px 0 rgba(255,255,255,0.15);
+}}
+.chip:hover{{
+  transform:translateY(-2px) scale(1.07);
+  filter:brightness(1.25) saturate(1.1);
+  box-shadow:
+    0 6px 16px rgba(0,0,0,.5),
+    0 0 0 1px rgba(255,255,255,.18),
+    inset 0 1px 0 rgba(255,255,255,.2);
+  z-index:10;position:relative;
+}}
+.chip.dimmed{{opacity:.08;pointer-events:none;}}
+
+/* BMO/AMC icons — black on chip */
+.bdg{{display:inline-flex;align-items:center;line-height:1;}}
+
+/* Unconfirmed / mismatch inline badges */
+.bdg-uc{{
+  font-family:var(--mono);font-size:8px;font-weight:900;
+  background:rgba(255,159,67,.25);color:var(--unconf);
+  border:1px solid rgba(255,159,67,.45);
+  border-radius:3px;padding:0 3px;line-height:1.4;
+}}
+.bdg-mm{{
+  font-family:var(--mono);font-size:8px;font-weight:900;
+  background:rgba(255,87,87,.3);color:var(--conflict);
+  border:1px solid rgba(255,87,87,.5);
+  border-radius:3px;padding:0 3px;line-height:1.4;
+  animation:warnPulse 2s ease-in-out infinite;
+}}
+@keyframes warnPulse{{
+  0%,100%{{box-shadow:0 0 0 0 rgba(255,87,87,0);}}
+  50%{{box-shadow:0 0 0 3px rgba(255,87,87,.2);}}
+}}
 
 /* ── Unannounced ── */
-.ubox{{margin:32px 24px 44px;background:var(--bg2);border:1px solid var(--line);border-radius:12px;overflow:hidden;}}
-.ubox-head{{padding:14px 20px;border-bottom:1px solid var(--line);display:flex;align-items:baseline;gap:14px;}}
-.ubox-title{{font-family:var(--mono);font-size:13px;font-weight:700;color:var(--t0);letter-spacing:.4px;}}
-.ubox-sub{{font-size:11px;color:var(--t1);}}
-.utable{{width:100%;border-collapse:collapse;font-size:12px;}}
-.utable th{{text-align:left;padding:8px 14px;font-family:var(--mono);font-size:9px;font-weight:700;color:var(--t1);border-bottom:1px solid var(--line);text-transform:uppercase;letter-spacing:.6px;}}
-.utable td{{padding:8px 14px;border-bottom:1px solid var(--line);vertical-align:middle;}}
+.ubox{{
+  margin:0 20px 32px;
+  background:rgba(10,14,32,0.55);
+  backdrop-filter:blur(20px);
+  -webkit-backdrop-filter:blur(20px);
+  border:1px solid var(--glass-border);
+  border-radius:var(--r-lg);overflow:hidden;
+  box-shadow:0 8px 32px rgba(0,0,0,.3),inset 0 1px 0 rgba(255,255,255,.04);
+}}
+.ubox-head{{
+  padding:13px 20px;border-bottom:1px solid var(--glass-border);
+  display:flex;align-items:baseline;gap:14px;
+  background:var(--glass-light);
+}}
+.ubox-title{{
+  font-family:var(--mono);font-size:11px;font-weight:700;
+  color:var(--t0);letter-spacing:.5px;
+}}
+.ubox-sub{{font-size:10px;color:var(--t2);}}
+.utable{{width:100%;border-collapse:collapse;}}
+.utable th{{
+  text-align:left;padding:7px 16px;
+  font-family:var(--mono);font-size:8px;font-weight:700;
+  color:var(--t2);border-bottom:1px solid var(--glass-border);
+  text-transform:uppercase;letter-spacing:.8px;
+}}
+.utable td{{
+  padding:8px 16px;border-bottom:1px solid var(--glass-border);
+  vertical-align:middle;
+}}
 .utable tr:last-child td{{border-bottom:none;}}
-.sbadge{{font-family:var(--mono);font-size:10px;font-weight:700;color:#fff;padding:3px 9px;border-radius:4px;white-space:nowrap;text-shadow:0 1px 2px rgba(0,0,0,.4);}}
-.uchip{{display:inline-flex;align-items:center;background:var(--cc,#444);font-family:var(--mono);font-size:10px;font-weight:700;color:#fff;padding:3px 7px;border-radius:5px;margin:2px;cursor:pointer;transition:transform .12s,filter .12s,opacity .15s;text-shadow:0 1px 2px rgba(0,0,0,.4);}}
-.uchip:hover{{transform:scale(1.07);filter:brightness(1.18);}}
-.uchip.dimmed{{opacity:.12;pointer-events:none;}}
+.utable tr:hover td{{background:var(--glass-light);}}
+.sbadge{{
+  font-family:var(--mono);font-size:9px;font-weight:700;color:#fff;
+  padding:2px 8px;border-radius:4px;white-space:nowrap;
+  text-shadow:0 1px 4px rgba(0,0,0,.5);
+  border:1px solid rgba(255,255,255,.1);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.12);
+}}
+.uchip{{
+  display:inline-flex;align-items:center;
+  background:var(--cc,#444);
+  font-family:var(--mono);font-size:9px;font-weight:700;color:#fff;
+  padding:3px 7px;border-radius:5px;margin:2px;cursor:pointer;
+  transition:transform 0.14s,filter 0.14s,opacity 0.14s;
+  text-shadow:0 1px 4px rgba(0,0,0,.5);
+  border:1px solid rgba(255,255,255,.1);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.12);
+}}
+.uchip:hover{{
+  transform:translateY(-1px) scale(1.07);
+  filter:brightness(1.22);
+  box-shadow:0 4px 12px rgba(0,0,0,.4);
+}}
+.uchip.dimmed{{opacity:.08;pointer-events:none;}}
 
 /* ── Footer ── */
-.footer{{border-top:1px solid var(--line);padding:12px 24px;font-family:var(--mono);font-size:10px;color:var(--t2);display:flex;justify-content:space-between;align-items:center;}}
+.footer{{
+  border-top:1px solid var(--glass-border);
+  padding:11px 20px;
+  font-family:var(--mono);font-size:9px;color:var(--t3);
+  display:flex;justify-content:space-between;align-items:center;
+  background:rgba(7,10,24,0.6);
+  backdrop-filter:blur(16px);
+}}
 
-/* ── Modal ── */
-.overlay{{display:none;position:fixed;inset:0;background:rgba(0,0,0,.82);backdrop-filter:blur(10px);z-index:999;align-items:center;justify-content:center;}}
+/* ── Modal — frosted glass ── */
+.overlay{{
+  display:none;position:fixed;inset:0;
+  background:rgba(0,0,0,.72);
+  backdrop-filter:blur(20px) saturate(120%);
+  -webkit-backdrop-filter:blur(20px) saturate(120%);
+  z-index:999;align-items:center;justify-content:center;
+}}
 .overlay.on{{display:flex;}}
-.modal{{background:var(--bg3);border:1px solid var(--line2);border-radius:16px;padding:28px;max-width:440px;width:90%;box-shadow:0 24px 48px rgba(0,0,0,.8);position:relative;animation:popIn .2s cubic-bezier(.34,1.4,.64,1);}}
-@keyframes popIn{{from{{transform:scale(.9);opacity:0}}to{{transform:scale(1);opacity:1}}}}
-.modal-close{{position:absolute;top:12px;right:14px;background:none;border:none;font-size:22px;color:var(--t1);cursor:pointer;line-height:1;}}
-.modal-close:hover{{color:var(--t0);}}
-.modal-ticker{{font-family:var(--mono);font-size:30px;font-weight:700;margin-bottom:4px;line-height:1;}}
-.modal-name{{font-size:13px;color:var(--t1);margin-bottom:20px;}}
-.modal-row{{display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px solid var(--line);font-size:13px;}}
-.modal-row:last-child{{border-bottom:none;}}
-.modal-key{{color:var(--t2);font-size:11px;text-transform:uppercase;letter-spacing:.6px;font-weight:600;}}
-.modal-val{{color:var(--t0);font-family:var(--mono);font-size:12px;font-weight:600;}}
+.modal{{
+  background:linear-gradient(145deg,
+    rgba(18,22,44,0.96) 0%,
+    rgba(12,16,34,0.98) 100%);
+  border:1px solid var(--glass-border2);
+  border-radius:var(--r-xl);
+  padding:28px;max-width:420px;width:90%;
+  box-shadow:
+    0 40px 80px rgba(0,0,0,.9),
+    0 0 0 1px rgba(255,255,255,.04),
+    inset 0 1px 0 rgba(255,255,255,.07);
+  position:relative;
+  animation:popIn .24s cubic-bezier(.34,1.4,.64,1);
+}}
+@keyframes popIn{{
+  from{{transform:scale(.9) translateY(12px);opacity:0}}
+  to{{transform:scale(1) translateY(0);opacity:1}}
+}}
+.modal-close{{
+  position:absolute;top:14px;right:16px;
+  background:var(--glass-light);
+  border:1px solid var(--glass-border);
+  border-radius:7px;width:26px;height:26px;
+  font-size:15px;color:var(--t2);cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  transition:background var(--dur),color var(--dur);
+}}
+.modal-close:hover{{background:var(--glass-mid);color:var(--t0);}}
+
+.modal-ticker{{
+  font-family:var(--mono);font-size:30px;font-weight:700;
+  margin-bottom:3px;line-height:1;
+  /* Subtle glow matching sector color */
+  filter:drop-shadow(0 0 12px currentColor);
+}}
+.modal-name{{font-size:12px;color:var(--t2);margin-bottom:22px;}}
+
+.modal-banner{{
+  border-radius:9px;padding:10px 14px;margin-bottom:14px;
+  font-size:11px;line-height:1.6;display:none;
+  backdrop-filter:blur(8px);
+}}
+.modal-banner.on{{display:block;}}
+.modal-banner.warn{{
+  background:rgba(255,87,87,.08);
+  border:1px solid rgba(255,87,87,.25);color:#ff7575;
+}}
+.modal-banner.info{{
+  background:rgba(255,159,67,.07);
+  border:1px solid rgba(255,159,67,.22);color:#ffb347;
+}}
+
+.modal-row{{
+  display:flex;justify-content:space-between;align-items:center;
+  padding:9px 0;border-bottom:1px solid var(--glass-border);
+  font-size:12px;
+}}
+.modal-row:last-of-type{{border-bottom:none;}}
+.modal-key{{
+  color:var(--t2);font-size:9.5px;
+  text-transform:uppercase;letter-spacing:.7px;font-weight:600;
+}}
+.modal-val{{
+  color:var(--t0);font-family:var(--mono);
+  font-size:11.5px;font-weight:600;
+}}
 .modal-val.secondary{{color:var(--t1);font-size:11px;font-weight:400;}}
-.modal-mismatch-banner{{background:rgba(220,60,60,.12);border:1px solid rgba(220,60,60,.35);border-radius:8px;padding:10px 14px;margin-bottom:16px;font-size:11.5px;color:#ff7070;display:none;line-height:1.5;}}
-.modal-mismatch-banner.on{{display:block;}}
-.modal-unconf-banner{{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.12);border-radius:8px;padding:10px 14px;margin-bottom:16px;font-size:11.5px;color:#aaa;display:none;line-height:1.5;}}
-.modal-unconf-banner.on{{display:block;}}
-.modal-source-row{{display:flex;justify-content:space-between;padding:9px 0;border-bottom:1px solid var(--line);gap:12px;}}
+
+.modal-source-row{{
+  display:flex;justify-content:space-between;
+  padding:9px 0;border-bottom:1px solid var(--glass-border);gap:14px;
+}}
 .modal-source-col{{display:flex;flex-direction:column;gap:4px;flex:1;}}
-.modal-source-label{{color:var(--t2);font-size:10px;text-transform:uppercase;letter-spacing:.6px;font-weight:600;}}
-.modal-source-date{{font-family:var(--mono);font-size:12px;font-weight:600;color:var(--t0);}}
-.modal-source-date.conflict{{color:#ff7070;}}
-.modal-ir-link{{display:inline-flex;align-items:center;gap:6px;margin-top:16px;font-family:var(--mono);font-size:11px;font-weight:600;color:var(--accent);text-decoration:none;border:1px solid rgba(79,142,247,.3);border-radius:6px;padding:6px 12px;transition:background .15s,border-color .15s;}}
-.modal-ir-link:hover{{background:rgba(79,142,247,.1);border-color:rgba(79,142,247,.6);}}
+.modal-source-label{{
+  color:var(--t2);font-size:9px;
+  text-transform:uppercase;letter-spacing:.7px;font-weight:600;
+}}
+.modal-source-date{{
+  font-family:var(--mono);font-size:12px;font-weight:600;color:var(--t0);
+}}
+.modal-source-date.conflict{{color:var(--conflict);}}
+
+.modal-ir-link{{
+  display:inline-flex;align-items:center;gap:7px;
+  margin-top:18px;
+  font-family:var(--mono);font-size:10px;font-weight:600;
+  color:var(--accent);text-decoration:none;
+  border:1px solid rgba(91,156,246,.22);
+  border-radius:9px;padding:9px 14px;width:100%;
+  justify-content:center;
+  background:rgba(91,156,246,.05);
+  backdrop-filter:blur(8px);
+  transition:background var(--dur),border-color var(--dur),box-shadow var(--dur);
+}}
+.modal-ir-link:hover{{
+  background:rgba(91,156,246,.1);
+  border-color:rgba(91,156,246,.45);
+  box-shadow:0 0 20px rgba(91,156,246,.12);
+}}
 </style>
 </head>
 <body>
 <div class="page-wrap">
 
-<!-- ── Sidebar sector legend ── -->
-<aside class="sidebar">
+<!-- Sidebar -->
+<aside class="sidebar" id="sidebar">
   <div class="sidebar-head">
-    <div class="sidebar-title">Sectors</div>
+    <span class="sidebar-title">Sectors</span>
   </div>
-  {sector_legend_chips}
+  <div class="sidebar-body">{sidebar_html}</div>
 </aside>
 
 <div class="content">
+
+<!-- Topbar -->
 <header class="topbar">
   <div class="topbar-left">
+    <button class="sidebar-toggle open" id="sidebarToggle"
+            onclick="toggleSidebar()" title="Toggle sectors">&#8249;</button>
+    <span class="title-dot"></span>
     <span class="page-title">Earnings Calendar</span>
-    <span class="divider"></span>
-    <span class="topbar-meta">Consumer &amp; Retail · Updated {ts}</span>
+    <span class="vdiv"></span>
+    <span class="topbar-meta">Consumer &amp; Retail · {ts}</span>
   </div>
   <div class="topbar-right">
-    <div class="tstat"><span class="tstat-num" style="color:#4f8ef7">{nf}</span><span class="tstat-lbl">Dates Found</span></div>
-    <div class="tstat"><span class="tstat-num" style="color:#9098c0">{nu}</span><span class="tstat-lbl">Unannounced</span></div>
-    <div class="tstat"><span class="tstat-num" style="color:#ff7070">{nm}</span><span class="tstat-lbl">Mismatches</span></div>
+    <div class="tstat">
+      <span class="tstat-num" style="color:var(--accent)">{nf}</span>
+      <span class="tstat-lbl">Dates Found</span>
+    </div>
+    <div class="tstat">
+      <span class="tstat-num" style="color:var(--t2)">{nu}</span>
+      <span class="tstat-lbl">Unannounced</span>
+    </div>
+    <div class="tstat">
+      <span class="tstat-num" style="color:var(--conflict)">{nm}</span>
+      <span class="tstat-lbl">Mismatches</span>
+    </div>
   </div>
 </header>
 
+<!-- Key bar -->
 <div class="timingbar">
-  <span style="color:var(--t0);font-weight:600;font-size:11px;">KEY</span>
-
-  <span class="tpill pre">
-    <svg class="tpill-sun" viewBox="0 0 16 16" width="13" height="13">
-      <circle cx="8" cy="8" r="3.2" fill="#ffd95a"/>
-      <line x1="8" y1="1" x2="8" y2="3.2" stroke="#ffd95a" stroke-width="1.5" stroke-linecap="round"/>
-      <line x1="8" y1="12.8" x2="8" y2="15" stroke="#ffd95a" stroke-width="1.5" stroke-linecap="round"/>
-      <line x1="1" y1="8" x2="3.2" y2="8" stroke="#ffd95a" stroke-width="1.5" stroke-linecap="round"/>
-      <line x1="12.8" y1="8" x2="15" y2="8" stroke="#ffd95a" stroke-width="1.5" stroke-linecap="round"/>
-      <line x1="3.1" y1="3.1" x2="4.6" y2="4.6" stroke="#ffd95a" stroke-width="1.3" stroke-linecap="round"/>
-      <line x1="11.4" y1="11.4" x2="12.9" y2="12.9" stroke="#ffd95a" stroke-width="1.3" stroke-linecap="round"/>
-      <line x1="12.9" y1="3.1" x2="11.4" y2="4.6" stroke="#ffd95a" stroke-width="1.3" stroke-linecap="round"/>
-      <line x1="4.6" y1="11.4" x2="3.1" y2="12.9" stroke="#ffd95a" stroke-width="1.3" stroke-linecap="round"/>
-    </svg>
-    BMO
-  </span>
-  <span style="font-size:11px;">Before market open</span>
-
-  <span class="tpill aft">
-    <svg class="tpill-moon" viewBox="0 0 16 16" width="13" height="13">
-      <path d="M12 8.5 A5.5 5.5 0 1 1 7.5 3 A4 4 0 0 0 12 8.5Z" fill="#c8b8ff"/>
-      <circle cx="13" cy="5" r=".8" fill="#c8b8ff" opacity=".55"/>
-      <circle cx="14.5" cy="8" r=".6" fill="#c8b8ff" opacity=".45"/>
-      <circle cx="12" cy="3" r=".6" fill="#c8b8ff" opacity=".4"/>
-    </svg>
-    AMC
-  </span>
-  <span style="font-size:11px;">After market close</span>
-
+  <span class="key-label">Key</span>
+  <span class="tpill pre">{BMO_SVG_KEY}&nbsp;BMO</span>
+  <span class="key-desc">Before market open</span>
+  <span class="key-sep">·</span>
+  <span class="tpill aft">{AMC_SVG_KEY}&nbsp;AMC</span>
+  <span class="key-desc">After market close</span>
+  <span class="key-sep">·</span>
   <span class="tpill unc">? Unconfirmed</span>
-  <span style="font-size:11px;">Yahoo only, not on NASDAQ</span>
+  <span class="key-desc">Yahoo only</span>
+  <span class="key-sep">·</span>
   <span class="tpill mis">! Conflict</span>
-  <span style="font-size:11px;">NASDAQ &amp; Yahoo dates differ</span>
-  <span style="margin-left:4px;font-size:11px;color:var(--t2);">All times ET · Click any ticker for details</span>
-
+  <span class="key-desc">Sources disagree</span>
+  <span class="key-sep">·</span>
+  <span class="key-desc" style="color:var(--t3)">Click any ticker for details</span>
   <div class="event-legend">
-    <span class="evleg-label">EVENTS</span>
+    <span class="evleg-label">Events</span>
     <span class="evleg-item"><span class="evleg-dot holiday"></span>Federal Holiday</span>
     <span class="evleg-item"><span class="evleg-dot retail"></span>Retail / Consumer Event</span>
     <span class="evleg-item"><span class="evleg-dot closed"></span>Market Closed</span>
   </div>
 </div>
 
+<!-- Search -->
 <div class="search-bar">
-  <input class="search-input" id="searchInput" type="text" placeholder="Search ticker e.g. NKE" autocomplete="off" spellcheck="false">
-  <button class="search-clear" id="searchClear" onclick="clearSearch()">×</button>
+  <div class="search-wrap">
+    <span class="search-icon">⌕</span>
+    <input class="search-input" id="searchInput" type="text"
+           placeholder="Search ticker…" autocomplete="off" spellcheck="false">
+    <button class="search-clear" id="searchClear" onclick="clearSearch()">×</button>
+  </div>
   <span class="search-hint" id="searchHint"></span>
 </div>
 
-<main class="main" id="calMain">{cal}</main>
+<!-- Prior week -->
+{pw_html}
+
+<!-- Calendar -->
+<main class="main">{cal}</main>
+
+<!-- Unannounced -->
 {uhtml}
 
+<!-- Footer -->
 <footer class="footer">
-  <span>Neil J Kanatt · Data: NASDAQ API + Yahoo Finance cross-check</span>
-  <span>Auto-refreshes every 6 hours · Generated {ts}</span>
+  <span>Neil J Kanatt · NASDAQ API + Yahoo Finance</span>
+  <span id="refreshLabel">Next refresh at 4 AM &amp; 10 PM ET · {ts}</span>
 </footer>
-</div><!-- end .content -->
-</div><!-- end .page-wrap -->
 
+</div><!-- .content -->
+</div><!-- .page-wrap -->
+
+<!-- Modal -->
 <div class="overlay" id="overlay" onclick="closeModal(event)">
   <div class="modal" id="modal">
     <button class="modal-close" onclick="closeModal()">×</button>
     <div class="modal-ticker" id="mTicker"></div>
     <div class="modal-name"   id="mName"></div>
-    <div class="modal-mismatch-banner" id="mMismatch">
-      ⚠ Date conflict — NASDAQ and Yahoo Finance show different dates. Verify before acting.
+    <div class="modal-banner warn" id="mMismatch">
+      ⚠ Date conflict — NASDAQ and Yahoo show different dates. Verify before acting.
     </div>
-    <div class="modal-unconf-banner" id="mUnconf">
-      ❗ Unconfirmed — date sourced from Yahoo Finance only. Not yet listed on NASDAQ.
+    <div class="modal-banner info" id="mUnconf">
+      ❗ Unconfirmed — sourced from Yahoo Finance only. Not yet on NASDAQ.
     </div>
     <div class="modal-row">
       <span class="modal-key">Sector</span>
@@ -834,69 +1475,125 @@ body{{font-family:var(--sans);background:var(--bg0);color:var(--t1);min-height:1
 const SECTORS       = {sj};
 const SECTOR_COLORS = {cj};
 const COMPANY_NAMES = {nj};
-setTimeout(function(){{ location.reload(); }}, 6*60*60*1000);
 
+// ── Sidebar ───────────────────────────────────────────────────────────────────
+let sidebarOpen = true;
+function toggleSidebar() {{
+  sidebarOpen = !sidebarOpen;
+  document.getElementById('sidebar').classList.toggle('collapsed', !sidebarOpen);
+  document.getElementById('sidebarToggle').classList.toggle('open', sidebarOpen);
+}}
+
+// ── Sector accordion ──────────────────────────────────────────────────────────
+function toggleSector(safe) {{
+  const t = document.getElementById('tickers-' + safe);
+  const a = document.getElementById('arrow-'   + safe);
+  const open = t.classList.contains('open');
+  t.classList.toggle('open', !open);
+  a.classList.toggle('open', !open);
+}}
+
+// ── Prior week ────────────────────────────────────────────────────────────────
+let pwOpen = false;
+function togglePriorWeek() {{
+  pwOpen = !pwOpen;
+  document.getElementById('pwBody').classList.toggle('open', pwOpen);
+  document.getElementById('pwChevron').classList.toggle('open', pwOpen);
+  document.getElementById('pwToggleLabel').textContent = pwOpen ? 'Hide' : 'Show';
+}}
+
+// ── Smart refresh: 4 AM or 10 PM ET ──────────────────────────────────────────
+function scheduleSmartRefresh() {{
+  const now = new Date();
+  const fmt = new Intl.DateTimeFormat('en-US', {{
+    timeZone:'America/New_York',
+    hour:'numeric', minute:'numeric', second:'numeric', hour12:false
+  }});
+  const p   = fmt.formatToParts(now);
+  const h   = parseInt(p.find(x => x.type==='hour').value);
+  const m   = parseInt(p.find(x => x.type==='minute').value);
+  const s   = parseInt(p.find(x => x.type==='second').value);
+  const sec = h*3600 + m*60 + s;
+  let minDiff = Infinity;
+  for (const t of [4*3600, 22*3600]) {{
+    let d = t - sec; if (d <= 0) d += 86400;
+    if (d < minDiff) minDiff = d;
+  }}
+  const next = new Date(now.getTime() + minDiff*1000);
+  const lbl  = next.toLocaleTimeString('en-US', {{
+    timeZone:'America/New_York', hour:'numeric', minute:'2-digit', hour12:true
+  }});
+  const el = document.getElementById('refreshLabel');
+  if (el) el.textContent = 'Next refresh at ' + lbl + ' ET · {ts}';
+  setTimeout(() => location.reload(), minDiff*1000);
+}}
+scheduleSmartRefresh();
+
+// ── Search ────────────────────────────────────────────────────────────────────
 const searchInput = document.getElementById('searchInput');
 const searchClear = document.getElementById('searchClear');
 const searchHint  = document.getElementById('searchHint');
-
-searchInput.addEventListener('input', function(){{
+searchInput.addEventListener('input', function() {{
   const q = this.value.trim().toUpperCase();
   searchClear.classList.toggle('on', q.length > 0);
   applySearch(q);
 }});
-
-function clearSearch(){{
-  searchInput.value=''; searchClear.classList.remove('on');
-  searchHint.textContent=''; applySearch('');
+function clearSearch() {{
+  searchInput.value = '';
+  searchClear.classList.remove('on');
+  searchHint.textContent = '';
+  applySearch('');
 }}
-
-function applySearch(q){{
-  const chips=document.querySelectorAll('.chip');
-  const uchips=document.querySelectorAll('.uchip');
-  if(!q){{
-    chips.forEach(c=>c.classList.remove('dimmed'));
-    uchips.forEach(c=>c.classList.remove('dimmed'));
-    searchHint.textContent=''; return;
+function applySearch(q) {{
+  const chips  = document.querySelectorAll('.chip');
+  const uchips = document.querySelectorAll('.uchip');
+  if (!q) {{
+    chips.forEach(c  => c.classList.remove('dimmed'));
+    uchips.forEach(c => c.classList.remove('dimmed'));
+    searchHint.textContent = ''; return;
   }}
-  let found=0;
-  chips.forEach(c=>{{
-    const match=c.dataset.ticker&&c.dataset.ticker.toUpperCase().includes(q);
-    c.classList.toggle('dimmed',!match); if(match) found++;
+  let found = 0;
+  chips.forEach(c => {{
+    const match = c.dataset.ticker && c.dataset.ticker.toUpperCase().includes(q);
+    c.classList.toggle('dimmed', !match); if (match) found++;
   }});
-  uchips.forEach(c=>{{
-    const match=c.dataset.ticker&&c.dataset.ticker.toUpperCase().includes(q);
-    c.classList.toggle('dimmed',!match); if(match) found++;
+  uchips.forEach(c => {{
+    const match = c.dataset.ticker && c.dataset.ticker.toUpperCase().includes(q);
+    c.classList.toggle('dimmed', !match); if (match) found++;
   }});
-  searchHint.textContent=found>0?found+' result'+(found>1?'s':''):'No results';
+  searchHint.textContent = found
+    ? found + ' result' + (found > 1 ? 's' : '')
+    : 'No results';
 }}
 
-function showCard(ticker,name,sector,timing,nasdaqDate,color,source,yahooDate,mismatch,confirmed,irUrl){{
-  document.getElementById('mTicker').textContent=ticker;
-  document.getElementById('mTicker').style.color=color;
-  document.getElementById('mName').textContent=name;
-  document.getElementById('mSector').textContent=sector;
-  document.getElementById('mNasdaqDate').textContent=(nasdaqDate==='TBD'||!confirmed)?'Not on NASDAQ':nasdaqDate;
-  document.getElementById('mYahooDate').textContent=yahooDate&&yahooDate!=='N/A'?yahooDate:'Not available';
-  document.getElementById('mYahooDate').classList.toggle('conflict',mismatch);
-  document.getElementById('mNasdaqDate').classList.toggle('conflict',mismatch);
-  document.getElementById('mTiming').textContent=
-    timing==='BMO'?'Before Market Open (SVG sun shown on chip)':
-    timing==='AMC'?'After Market Close (SVG moon shown on chip)':
-    timing==='TBD'?'Not yet confirmed':'Unconfirmed';
-  document.getElementById('mSource').textContent=source;
-  document.getElementById('mMismatch').classList.toggle('on',mismatch);
-  document.getElementById('mUnconf').classList.toggle('on',!confirmed&&nasdaqDate!=='TBD');
-  document.getElementById('mIRLink').href=irUrl||('https://finance.yahoo.com/quote/'+ticker);
+// ── Modal ─────────────────────────────────────────────────────────────────────
+function showCard(ticker,name,sector,timing,nasdaqDate,color,source,yahooDate,mismatch,confirmed,irUrl) {{
+  document.getElementById('mTicker').textContent = ticker;
+  document.getElementById('mTicker').style.color = color;
+  document.getElementById('mName').textContent   = name;
+  document.getElementById('mSector').textContent = sector;
+  const nd = document.getElementById('mNasdaqDate');
+  const yd = document.getElementById('mYahooDate');
+  nd.textContent = (!confirmed || nasdaqDate === 'TBD') ? 'Not on NASDAQ' : nasdaqDate;
+  yd.textContent = (yahooDate && yahooDate !== 'N/A')   ? yahooDate       : 'Not available';
+  nd.classList.toggle('conflict', mismatch);
+  yd.classList.toggle('conflict', mismatch);
+  document.getElementById('mTiming').textContent =
+    timing === 'BMO' ? 'Before Market Open' :
+    timing === 'AMC' ? 'After Market Close'  :
+    timing === 'TBD' ? 'Not yet confirmed'   : 'Unconfirmed';
+  document.getElementById('mSource').textContent = source;
+  document.getElementById('mMismatch').classList.toggle('on', mismatch);
+  document.getElementById('mUnconf').classList.toggle('on', !confirmed && nasdaqDate !== 'TBD');
+  document.getElementById('mIRLink').href = irUrl || ('https://finance.yahoo.com/quote/' + ticker);
   document.getElementById('overlay').classList.add('on');
 }}
-
-function closeModal(e){{
-  if(!e||e.target===document.getElementById('overlay'))
+function closeModal(e) {{
+  if (!e || e.target === document.getElementById('overlay'))
     document.getElementById('overlay').classList.remove('on');
 }}
-document.addEventListener('keydown',e=>{{
-  if(e.key==='Escape') document.getElementById('overlay').classList.remove('on');
+document.addEventListener('keydown', e => {{
+  if (e.key === 'Escape') document.getElementById('overlay').classList.remove('on');
 }});
 </script>
 </body>
@@ -906,6 +1603,6 @@ document.addEventListener('keydown',e=>{{
 # ── RUN ──
 df, generated_at = run_fetch()
 html = build_html(df, generated_at)
-with open("index.html","w",encoding="utf-8") as f:
+with open("index.html", "w", encoding="utf-8") as f:
     f.write(html)
 print("Done — index.html written")
