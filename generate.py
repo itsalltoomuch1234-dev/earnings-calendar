@@ -1,3 +1,6 @@
+# -*- coding: utf-8 -*-
+import yfinance as yf
+import requests
 import yfinance as yf
 import requests
 import pandas as pd
@@ -333,11 +336,11 @@ def run_fetch():
 # - Timing badges - text-only, no SVG --------------------
 # Replaced broken SVG sun/moon with clean CSS-only pill badges
 
-BMO_BADGE  = '<span class="tbadge tbadge-bmo">▲ BMO</span>'
-AMC_BADGE  = '<span class="tbadge tbadge-amc">▼ AMC</span>'
+BMO_BADGE  = '<span class="tbadge tbadge-bmo">&#9650; BMO</span>'
+AMC_BADGE  = '<span class="tbadge tbadge-amc">&#9660; AMC</span>'
 
-BMO_KEY_BADGE = '<span class="tbadge tbadge-bmo" style="font-size:10px;padding:3px 9px">▲ BMO</span>'
-AMC_KEY_BADGE = '<span class="tbadge tbadge-amc" style="font-size:10px;padding:3px 9px">▼ AMC</span>'
+BMO_KEY_BADGE = '<span class="tbadge tbadge-bmo" style="font-size:10px;padding:3px 9px">&#9650; BMO</span>'
+AMC_KEY_BADGE = '<span class="tbadge tbadge-amc" style="font-size:10px;padding:3px 9px">&#9660; AMC</span>'
 
 # - Build HTML --------------------------------
 
