@@ -854,7 +854,7 @@ body{{
   color:var(--t2);padding:5px 0;letter-spacing:1.2px;
 }}
 
-/* Calendar cells — brighter base */
+/* Calendar cells - brighter base */
 .dcell{{
   background:linear-gradient(145deg,rgba(20,27,58,0.92) 0%,rgba(14,19,44,0.96) 100%);
   border:1px solid rgba(255,255,255,0.08);
@@ -870,7 +870,7 @@ body{{
 .dcell.empty{{background:transparent;border-color:transparent;pointer-events:none;}}
 .dcell.wknd{{background:rgba(8,10,24,0.75);opacity:0.45;}}
 .dcell.past{{opacity:0.40;filter:saturate(0.45) brightness(0.82);}}
-/* Today — toned-down glow */
+/* Today - toned-down glow */
 .dcell.today{{
   border-color:rgba(106,171,255,0.65)!important;
   background:linear-gradient(145deg,rgba(106,171,255,0.10) 0%,rgba(40,70,160,0.16) 100%)!important;
@@ -907,7 +907,7 @@ body{{
 }}
 .chips{{display:flex;flex-wrap:wrap;gap:3px;margin-top:3px;}}
 
-/* ========== CHIPS — vivid but less glow ========== */
+/* ========== CHIPS - vivid but less glow ========== */
 .chip{{
   display:inline-flex;align-items:center;gap:2px;
   background:linear-gradient(135deg,color-mix(in srgb,var(--cc) 88%,#fff 12%) 0%,var(--cc) 100%);
@@ -1200,10 +1200,10 @@ body{{
     <div class="modal-ticker" id="mTicker"></div>
     <div class="modal-name"   id="mName"></div>
     <div class="modal-banner warn" id="mMismatch">
-      ⚠ Date conflict — NASDAQ and Yahoo show different dates.
+      ⚠ Date conflict - NASDAQ and Yahoo show different dates.
     </div>
     <div class="modal-banner info" id="mUnconf">
-      ❗ Unconfirmed — sourced from Yahoo Finance only.
+      ❗ Unconfirmed - sourced from Yahoo Finance only.
     </div>
     <div class="modal-row">
       <span class="modal-key">Sector</span>
@@ -1359,7 +1359,7 @@ document.addEventListener('keydown',e=>{{
   if(e.key==='Escape')document.getElementById('overlay').classList.remove('on');
 }});
 
-// -- NOTES — Firestore real-time -----------------------------------------------
+// -- NOTES - Firestore real-time -----------------------------------------------
 function escHtml(s) {{
   return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
           .replace(/"/g,'&quot;').replace(/'/g,'&#39;');
@@ -1430,7 +1430,7 @@ function renderNotes(notes) {{
   }});
 }}
 
-// Real-time listener — fires instantly whenever Firestore changes
+// Real-time listener - fires instantly whenever Firestore changes
 const q = query(notesCol, orderBy('ts', 'desc'));
 onSnapshot(q, snapshot => {{
   const notes = snapshot.docs.map(d => ({{ id: d.id, ...d.data() }}));
