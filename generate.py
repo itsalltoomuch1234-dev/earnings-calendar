@@ -338,10 +338,7 @@ def build_html(df, generated_at):
 
     today_dt = generated_at.date()
     days_since_monday = today_dt.weekday()
-    this_monday  = today_dt - timedelta(days=days_since_monday)
-    prior_monday = this_monday - timedelta(days=7)
-    prior_sunday = this_monday - timedelta(days=1)
-
+    
     if dated.empty:
         months = [today_dt.replace(day=1)]
     else:
@@ -437,62 +434,6 @@ def build_html(df, generated_at):
         )
 
     cal = "".join(render_month(ms) for ms in months)
-
-    pw_dates = [prior_monday + timedelta(days=i) for i in range(7)]
-    pw_label = f"{prior_monday.strftime('%b %d')} – {prior_sunday.strftime('%b %d, %Y')}"
-    has_pw   = any(dl.get(d.strftime("%Y-%m-%d")) for d in pw_dates)
-
-    if has_pw:
-        pw_days_html = ""
-        for d in pw_dates:
-            if d.weekday() >= 5: continue
-            ds   = d.strftime("%Y-%m-%d")
-            rpts = dl.get(ds, [])
-            day_events = event_map.get(ds, [])
-            is_closed  = any(e["closed"] for e in day_events)
-            ev_html = "".join(
-                f'<div class="evbadge evbadge-{"holiday" if e["type"]=="holiday" else "retail"}">'
-                f'{e["label"]}{"<span class=ev-closed>CLOSED</span>" if e["closed"] else ""}</div>'
-                for e in day_events
-            )
-            chips = build_chips(rpts, ds)
-            pw_days_html += (
-                f'<div class="pw-day{"  pw-closed" if is_closed else ""}">'
-                f'<div class="pw-day-head">'
-                f'<span class="pw-dname">{d.strftime("%a").upper()}</span>'
-                f'<span class="pw-ddate">{d.strftime("%b %d")}</span>'
-                f'</div>{ev_html}'
-                f'<div class="chips">{chips if chips else "<span class=pw-none>-</span>"}</div>'
-                f'</div>'
-            )
-        pw_html = (
-            f'<div class="pw-panel" id="priorWeekPanel">'
-            f'<div class="pw-header">'
-            f'<div class="pw-title-group">'
-            f'<span class="pw-icon">◷</span>'
-            f'<span class="pw-title">Prior Week</span>'
-            f'<span class="pw-range">{pw_label}</span>'
-            f'</div>'
-            f'<button class="pw-toggle" id="pwToggle" onclick="togglePriorWeek()">'
-            f'<span id="pwToggleLabel">Show</span>'
-            f'<span class="pw-chevron" id="pwChevron">›</span>'
-            f'</button></div>'
-            f'<div class="pw-body" id="pwBody">'
-            f'<div class="pw-grid">{pw_days_html}</div>'
-            f'</div></div>'
-        )
-    else:
-        pw_html = (
-            f'<div class="pw-panel pw-empty">'
-            f'<div class="pw-header">'
-            f'<div class="pw-title-group">'
-            f'<span class="pw-icon">◷</span>'
-            f'<span class="pw-title">Prior Week</span>'
-            f'<span class="pw-range">{pw_label}</span>'
-            f'</div>'
-            f'<span class="pw-none-label">No tracked earnings that week</span>'
-            f'</div></div>'
-        )
 
     unann = df[df["Earnings Date"].isna()]
     uhtml = ""
@@ -837,52 +778,6 @@ body{{
 .search-clear:hover{{color:#fff;}}
 .search-clear.on{{display:block;}}
 .search-hint{{font-size:10px;color:var(--t1);font-family:var(--mono);}}
-
-/* ========== PRIOR WEEK ========== */
-.pw-panel{{
-  margin:16px 18px 0;border-radius:var(--r-lg);
-  border:1px solid rgba(255,255,255,0.1);overflow:hidden;
-  background:rgba(10,13,31,0.8);
-  box-shadow:0 4px 24px rgba(0,0,0,0.5),inset 0 1px 0 rgba(255,255,255,0.06);
-}}
-.pw-panel.pw-empty{{margin-bottom:6px;}}
-.pw-header{{
-  padding:9px 14px;display:flex;align-items:center;justify-content:space-between;
-  background:linear-gradient(90deg,rgba(91,159,255,0.1) 0%,transparent 60%);
-  border-bottom:1px solid rgba(255,255,255,0.08);
-}}
-.pw-title-group{{display:flex;align-items:center;gap:8px;}}
-.pw-icon{{font-size:12px;color:var(--accent);}}
-.pw-title{{font-family:var(--mono);font-size:10px;font-weight:700;color:#fff;letter-spacing:.3px;}}
-.pw-range{{
-  font-family:var(--mono);font-size:8.5px;color:var(--t1);
-  padding:2px 7px;background:rgba(255,255,255,0.07);
-  border:1px solid rgba(255,255,255,0.1);border-radius:4px;
-}}
-.pw-none-label{{font-size:9.5px;color:var(--t2);font-style:italic;}}
-.pw-toggle{{
-  display:inline-flex;align-items:center;gap:4px;
-  background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.12);
-  border-radius:6px;padding:4px 10px;
-  font-family:var(--mono);font-size:9px;font-weight:700;color:var(--t1);cursor:pointer;
-  transition:background var(--dur),border-color var(--dur),color var(--dur);
-}}
-.pw-toggle:hover{{background:rgba(255,255,255,0.12);border-color:rgba(91,159,255,0.4);color:#fff;}}
-.pw-chevron{{font-size:12px;line-height:1;transition:transform var(--dur) var(--ease);display:inline-block;}}
-.pw-chevron.open{{transform:rotate(90deg);}}
-.pw-body{{max-height:0;overflow:hidden;transition:max-height 0.35s var(--ease);}}
-.pw-body.open{{max-height:600px;}}
-.pw-grid{{display:grid;grid-template-columns:repeat(5,1fr);gap:5px;padding:8px;}}
-.pw-day{{
-  background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);
-  border-radius:var(--r);padding:8px 7px 7px;min-height:72px;
-  transition:background var(--dur);
-}}
-.pw-day.pw-closed{{background:rgba(40,8,8,0.6);border-color:rgba(200,50,50,.18);}}
-.pw-day-head{{display:flex;align-items:baseline;gap:5px;margin-bottom:5px;}}
-.pw-dname{{font-family:var(--mono);font-size:7.5px;font-weight:700;color:var(--t2);letter-spacing:.8px;}}
-.pw-ddate{{font-family:var(--mono);font-size:10px;font-weight:600;color:#fff;}}
-.pw-none{{font-family:var(--mono);font-size:8px;color:var(--t3);}}
 
 /* ========== CALENDAR ========== */
 .main{{padding:16px 18px 32px;max-width:1440px;margin:0 auto;}}
@@ -1249,7 +1144,6 @@ body{{
   <span class="search-hint" id="searchHint"></span>
 </div>
 
-{pw_html}
 <main class="main">{cal}</main>
 {uhtml}
 
@@ -1318,15 +1212,6 @@ function toggleSector(safe) {{
   const open = t.classList.contains('open');
   t.classList.toggle('open', !open);
   a.classList.toggle('open', !open);
-}}
-
-// Prior week
-let pwOpen = false;
-function togglePriorWeek() {{
-  pwOpen = !pwOpen;
-  document.getElementById('pwBody').classList.toggle('open', pwOpen);
-  document.getElementById('pwChevron').classList.toggle('open', pwOpen);
-  document.getElementById('pwToggleLabel').textContent = pwOpen ? 'Hide' : 'Show';
 }}
 
 // Auto-refresh
