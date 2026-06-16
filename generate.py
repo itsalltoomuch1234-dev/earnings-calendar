@@ -1362,7 +1362,7 @@ document.addEventListener('keydown',e=>{{
 // -- NOTES - Firestore real-time -----------------------------------------------
 function escHtml(s) {{
   return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
-          .replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+          .replace(/"/g,\'&quot;\').replace(/\'/g,\'&#39;\');
 }}
 
 function formatText(raw) {{
