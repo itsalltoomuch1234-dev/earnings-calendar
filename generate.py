@@ -136,38 +136,38 @@ IR_URLS = {
 
 SECTORS = {
     "APPAREL & FOOTWEAR":  ["UAA","AEO","ANF","VFC","GAP","BIRK","LEVI","ONON","LULU","DECK","NKE"],
-    "OFF-PRICE / DOLLAR":  ["DLTR","DG","ROST","TJX"],
+    "DOLLAR STORES":       ["DLTR","DG","ROST","TJX"],
     "LUXURY & BEAUTY":     ["GOOS","COTY","CPRI","ELF","ULTA","RL","TPR","EL"],
     "RETAILERS":           ["KSS","BBWI","M","ACI","BBY","KR","TGT","LOW","HD","COST","WMT"],
     "CRUISES":             ["NCLH","RCL","CCL"],
     "BEVERAGES & ALCOHOL": ["TAP","BF-B","STZ","KDP","PEP","KO"],
     "PACKAGED FOOD":       ["BYND","LW","CAG","CPB","SJM","MKC","HRL","GIS","IFF","KHC","HSY","MDLZ"],
     "CONSUMER GOODS":      ["NWL","CLX","CHD","KMB","CL","PG"],
-    "CIGARS":              ["MO","PM"],
+    "CIGARETTES":          ["MO","PM"],
     "TOYMAKERS":           ["MAT","HAS"],
     "RESTAURANTS":         ["DPZ","DRI","QSR","CMG","YUM","SBUX","MCD"],
     "MEAT COS":            ["SFD","TSN","SYY"],
     "DELIVERY":            ["CART","DASH"],
     "REAL ESTATE":         ["FRT","REG","KIM","SPG"],
-    "RANDOS":              ["MAS","BALL","TSCO","AMCR","ROL","CTAS","IP"],
+    "OTHERS":              ["MAS","BALL","TSCO","AMCR","ROL","CTAS","IP"],
 }
 
 SECTOR_COLORS = {
     "APPAREL & FOOTWEAR":  "#4f8ef7",
-    "OFF-PRICE / DOLLAR":  "#9b78d4",
+    "DOLLAR STORES":       "#9b78d4",
     "LUXURY & BEAUTY":     "#c96b9e",
     "RETAILERS":           "#e07d45",
     "CRUISES":             "#3aada8",
     "BEVERAGES & ALCOHOL": "#5fa85a",
     "PACKAGED FOOD":       "#c9a84c",
     "CONSUMER GOODS":      "#4a9e8a",
-    "CIGARS":              "#9e7a55",
+    "CIGARETTES":          "#9e7a55",
     "TOYMAKERS":           "#d45f5f",
     "RESTAURANTS":         "#d47a3a",
     "MEAT COS":            "#9a66c0",
     "DELIVERY":            "#5580d4",
     "REAL ESTATE":         "#6a8fa8",
-    "RANDOS":              "#7a8fa0",
+    "OTHERS":              "#7a8fa0",
 }
 
 ALL_TICKERS = [t for v in SECTORS.values() for t in v]
@@ -252,7 +252,7 @@ def fetch_nasdaq(start, end):
         "sec-fetch-dest":"empty","sec-fetch-mode":"cors","sec-fetch-site":"same-site",
     }
     cur=start
-    while cur<=end:
+    while cur.date()<=end:
         if cur.weekday()>=5: cur+=timedelta(days=1); continue
         ds=cur.strftime("%Y-%m-%d")
         for _ in range(3):
@@ -332,7 +332,6 @@ def run_fetch():
 
 # ── SVG constants ─────────────────────────────────────────────────────────────
 
-# Black sun on chip (contrasts against any coloured chip bg)
 BMO_SVG = (
     '<svg viewBox="0 0 16 16" width="10" height="10" '
     'style="vertical-align:middle;flex-shrink:0;margin-right:1px">'
@@ -348,7 +347,6 @@ BMO_SVG = (
     '</svg>'
 )
 
-# Black moon on chip
 AMC_SVG = (
     '<svg viewBox="0 0 16 16" width="10" height="10" '
     'style="vertical-align:middle;flex-shrink:0;margin-right:1px">'
@@ -356,7 +354,6 @@ AMC_SVG = (
     '</svg>'
 )
 
-# Coloured sun for key bar (on dark bg)
 BMO_SVG_KEY = (
     '<svg viewBox="0 0 16 16" width="13" height="13" style="vertical-align:middle">'
     '<circle cx="8" cy="8" r="3" fill="#ffd95a"/>'
@@ -371,7 +368,6 @@ BMO_SVG_KEY = (
     '</svg>'
 )
 
-# Coloured moon for key bar
 AMC_SVG_KEY = (
     '<svg viewBox="0 0 16 16" width="13" height="13" style="vertical-align:middle">'
     '<path d="M12 8.5 A5.5 5.5 0 1 1 7.5 3 A4 4 0 0 0 12 8.5Z" fill="#c8b8ff"/>'
@@ -424,7 +420,6 @@ def build_html(df, generated_at):
     prior_sun_s = prior_sunday.strftime("%Y-%m-%d")
     DAYS = ["MON","TUE","WED","THU","FRI","SAT","SUN"]
 
-    # ── chip builder (shared) ───────────────────────────────────────────────
     def build_chips(rpts, ds):
         chips = ""
         for ticker, sector, timing, source, yahoo_date, mismatch, confirmed in rpts:
@@ -448,7 +443,6 @@ def build_html(df, generated_at):
             )
         return chips
 
-    # ── month renderer ──────────────────────────────────────────────────────
     def render_month(ms):
         es_name, es_sub, es_color, es_bg = EARNINGS_SEASON_BY_MONTH[ms.month]
         lbl  = ms.strftime("%B %Y").upper()
@@ -493,7 +487,6 @@ def build_html(df, generated_at):
 
     cal = "".join(render_month(ms) for ms in months)
 
-    # ── Prior-week panel ────────────────────────────────────────────────────
     pw_dates = [prior_monday + timedelta(days=i) for i in range(7)]
     pw_label = f"{prior_monday.strftime('%b %d')} – {prior_sunday.strftime('%b %d, %Y')}"
     has_pw   = any(dl.get(d.strftime("%Y-%m-%d")) for d in pw_dates)
@@ -550,7 +543,6 @@ def build_html(df, generated_at):
             f'</div></div>'
         )
 
-    # ── Unannounced ─────────────────────────────────────────────────────────
     unann = df[df["Earnings Date"].isna()]
     uhtml = ""
     if not unann.empty:
@@ -584,7 +576,6 @@ def build_html(df, generated_at):
     ts = generated_at.strftime("%d %b %Y, %I:%M %p ET")
     sj = json.dumps(SECTORS); cj = json.dumps(SECTOR_COLORS); nj = json.dumps(COMPANY_NAMES)
 
-    # ── Sidebar ─────────────────────────────────────────────────────────────
     sidebar_html = ""
     for s in SECTORS:
         col  = SECTOR_COLORS[s]
@@ -611,42 +602,30 @@ def build_html(df, generated_at):
 <style>
 *,*::before,*::after{{box-sizing:border-box;margin:0;padding:0}}
 
-/* ── Design tokens ── */
 :root{{
-  /* Base palette — deep navy with subtle purple undertone */
   --bg0:#03040d;
   --bg1:#070a18;
   --bg2:#0a0e20;
   --bg3:#0e1228;
   --bg4:#131830;
   --bg5:#181e38;
-
-  /* Glass surfaces */
   --glass-light:rgba(255,255,255,0.04);
   --glass-mid:rgba(255,255,255,0.07);
   --glass-heavy:rgba(255,255,255,0.10);
   --glass-border:rgba(255,255,255,0.08);
   --glass-border2:rgba(255,255,255,0.14);
   --glass-border3:rgba(255,255,255,0.22);
-
-  /* Text */
   --t0:#f2f4ff;
   --t1:#b4bcd8;
   --t2:#636b8a;
   --t3:#363c58;
-
-  /* Accent */
   --accent:#5b9cf6;
   --accent2:#7eb8ff;
   --accent-glow:rgba(91,156,246,0.18);
-
-  /* Status */
   --bmo:#ffd95a;
   --amc:#c8b8ff;
   --unconf:#ff9f43;
   --conflict:#ff5757;
-
-  /* Misc */
   --mono:'JetBrains Mono',monospace;
   --sans:'Inter',-apple-system,sans-serif;
   --sidebar-w:256px;
@@ -657,13 +636,11 @@ def build_html(df, generated_at):
   --dur:0.22s;
 }}
 
-/* ── Scrollbar ── */
 ::-webkit-scrollbar{{width:4px;height:4px}}
 ::-webkit-scrollbar-track{{background:transparent}}
 ::-webkit-scrollbar-thumb{{background:var(--bg5);border-radius:4px}}
 ::-webkit-scrollbar-thumb:hover{{background:var(--glass-border2)}}
 
-/* ── Body & layout ── */
 body{{
   font-family:var(--sans);
   background:var(--bg0);
@@ -671,19 +648,15 @@ body{{
   min-height:100vh;
   -webkit-font-smoothing:antialiased;
   overflow-x:hidden;
-  /* Subtle radial gradient background glow */
   background-image:
     radial-gradient(ellipse 80% 50% at 20% 0%, rgba(59,91,180,0.12) 0%, transparent 60%),
     radial-gradient(ellipse 60% 40% at 80% 100%, rgba(120,60,180,0.08) 0%, transparent 60%);
 }}
 .page-wrap{{display:flex;min-height:100vh;}}
 
-/* ── Sidebar ── */
 .sidebar{{
   width:var(--sidebar-w);flex-shrink:0;
-  background:linear-gradient(180deg,
-    rgba(10,14,32,0.95) 0%,
-    rgba(7,10,24,0.98) 100%);
+  background:linear-gradient(180deg,rgba(10,14,32,0.95) 0%,rgba(7,10,24,0.98) 100%);
   border-right:1px solid var(--glass-border);
   position:sticky;top:0;height:100vh;
   display:flex;flex-direction:column;
@@ -708,7 +681,6 @@ body{{
 }}
 .sidebar-body{{overflow-y:auto;flex:1;padding:4px 0 20px;}}
 
-/* Sector accordion */
 .sleg-group{{border-bottom:1px solid var(--glass-border);}}
 .sleg-toggle{{
   display:flex;align-items:center;justify-content:space-between;
@@ -745,7 +717,6 @@ body{{
 }}
 .sleg-ticker:hover{{color:var(--t0);border-color:var(--glass-border2);}}
 
-/* ── Topbar — glass ── */
 .topbar{{
   height:54px;
   background:rgba(7,10,24,0.7);
@@ -754,7 +725,6 @@ body{{
   border-bottom:1px solid var(--glass-border);
   display:flex;align-items:center;justify-content:space-between;
   padding:0 20px;position:sticky;top:0;z-index:300;gap:12px;
-  /* Subtle top highlight line */
   box-shadow:inset 0 1px 0 rgba(255,255,255,0.06);
 }}
 .topbar-left{{display:flex;align-items:center;gap:12px;}}
@@ -777,7 +747,6 @@ body{{
 .topbar-meta{{font-size:10px;color:var(--t2);white-space:nowrap;}}
 .topbar-right{{display:flex;align-items:center;gap:10px;flex-shrink:0;}}
 
-/* Stat pills */
 .tstat{{
   display:flex;flex-direction:column;align-items:center;
   padding:5px 12px;border-radius:10px;
@@ -796,7 +765,6 @@ body{{
   text-transform:uppercase;letter-spacing:.9px;margin-top:2px;
 }}
 
-/* Sidebar toggle */
 .sidebar-toggle{{
   display:flex;align-items:center;justify-content:center;
   width:28px;height:28px;border-radius:8px;
@@ -808,7 +776,6 @@ body{{
 .sidebar-toggle:hover{{background:var(--glass-mid);color:var(--t0);}}
 .sidebar-toggle.open{{transform:scaleX(-1);}}
 
-/* ── Key bar ── */
 .timingbar{{
   background:rgba(7,10,24,0.6);
   backdrop-filter:blur(16px);
@@ -862,7 +829,6 @@ body{{
 .evleg-dot.retail{{background:#7a5a2a;}}
 .evleg-dot.closed{{background:rgba(200,50,50,.6);border:1px solid rgba(200,50,50,.8);}}
 
-/* ── Search bar ── */
 .search-bar{{
   background:rgba(7,10,24,0.55);
   backdrop-filter:blur(16px);
@@ -903,7 +869,6 @@ body{{
 .search-clear.on{{display:block;}}
 .search-hint{{font-size:10px;color:var(--t2);font-family:var(--mono);}}
 
-/* ── Prior-week panel ── */
 .pw-panel{{
   margin:18px 20px 0;
   border-radius:var(--r-lg);
@@ -987,7 +952,6 @@ body{{
 }}
 .pw-none{{font-family:var(--mono);font-size:8.5px;color:var(--t3);}}
 
-/* ── Calendar main ── */
 .main{{padding:18px 20px 32px;max-width:1440px;margin:0 auto;}}
 
 .mblock{{
@@ -997,18 +961,14 @@ body{{
   background:rgba(10,14,32,0.5);
   backdrop-filter:blur(16px);
   -webkit-backdrop-filter:blur(16px);
-  box-shadow:
-    0 8px 32px rgba(0,0,0,.35),
-    inset 0 1px 0 rgba(255,255,255,0.05);
+  box-shadow:0 8px 32px rgba(0,0,0,.35),inset 0 1px 0 rgba(255,255,255,0.05);
 }}
 .mblock-header{{
   padding:11px 16px 9px;
   border-bottom:1px solid var(--glass-border);
   display:flex;align-items:center;justify-content:space-between;
   flex-wrap:wrap;gap:8px;
-  background:linear-gradient(90deg,
-    var(--es-bg,rgba(255,255,255,0.02)) 0%,
-    transparent 60%);
+  background:linear-gradient(90deg,var(--es-bg,rgba(255,255,255,0.02)) 0%,transparent 60%);
 }}
 .mlabel{{
   font-family:var(--mono);font-size:12.5px;font-weight:700;
@@ -1038,7 +998,6 @@ body{{
   color:var(--t3);padding:5px 0;letter-spacing:1px;
 }}
 
-/* Day cells */
 .dcell{{
   background:var(--glass-light);
   border:1px solid var(--glass-border);
@@ -1048,44 +1007,27 @@ body{{
   position:relative;
 }}
 .dcell.empty{{background:transparent;border-color:transparent;pointer-events:none;}}
-.dcell.wknd{{
-  background:rgba(3,4,13,0.5);
-  opacity:.3;
-}}
-.dcell.past{{
-  opacity:.4;
-  filter:saturate(0.6);
-}}
+.dcell.wknd{{background:rgba(3,4,13,0.5);opacity:.3;}}
+.dcell.past{{opacity:.4;filter:saturate(0.6);}}
 .dcell.today{{
   border-color:rgba(91,156,246,.55) !important;
   background:rgba(91,156,246,0.07);
-  box-shadow:
-    0 0 0 1px rgba(91,156,246,.15),
-    0 4px 16px rgba(91,156,246,.08),
-    inset 0 1px 0 rgba(91,156,246,.12);
+  box-shadow:0 0 0 1px rgba(91,156,246,.15),0 4px 16px rgba(91,156,246,.08),inset 0 1px 0 rgba(91,156,246,.12);
 }}
 .dcell.today::before{{
   content:'';position:absolute;top:0;left:0;right:0;height:2px;
-  background:linear-gradient(90deg,
-    transparent 0%,
-    var(--accent) 30%,
-    var(--accent2) 70%,
-    transparent 100%);
+  background:linear-gradient(90deg,transparent 0%,var(--accent) 30%,var(--accent2) 70%,transparent 100%);
   border-radius:var(--r) var(--r) 0 0;
 }}
 .dcell.today .dno{{color:var(--accent)!important;font-weight:700;}}
 .dcell.has-e{{border-color:rgba(255,255,255,0.09);}}
-.dcell.mkt-closed{{
-  background:rgba(28,6,6,0.5);
-  border-color:rgba(160,30,30,.12);
-}}
+.dcell.mkt-closed{{background:rgba(28,6,6,0.5);border-color:rgba(160,30,30,.12);}}
 
 .dno{{
   font-family:var(--mono);font-size:10px;font-weight:500;
   color:var(--t2);margin-bottom:4px;display:block;
 }}
 
-/* Event badges */
 .evbadge{{
   font-family:var(--mono);font-size:7px;font-weight:700;
   padding:1px 5px;border-radius:3px;margin-bottom:2px;
@@ -1113,7 +1055,6 @@ body{{
   margin-left:3px;letter-spacing:.3px;vertical-align:middle;
 }}
 
-/* ── Chips ── */
 .chips{{display:flex;flex-wrap:wrap;gap:3px;margin-top:3px;}}
 .chip{{
   display:inline-flex;align-items:center;gap:2px;
@@ -1126,24 +1067,17 @@ body{{
   letter-spacing:.15px;
   text-shadow:0 1px 4px rgba(0,0,0,.55);
   border:1px solid rgba(255,255,255,0.1);
-  /* Subtle inner highlight */
   box-shadow:inset 0 1px 0 rgba(255,255,255,0.15);
 }}
 .chip:hover{{
   transform:translateY(-2px) scale(1.07);
   filter:brightness(1.25) saturate(1.1);
-  box-shadow:
-    0 6px 16px rgba(0,0,0,.5),
-    0 0 0 1px rgba(255,255,255,.18),
-    inset 0 1px 0 rgba(255,255,255,.2);
+  box-shadow:0 6px 16px rgba(0,0,0,.5),0 0 0 1px rgba(255,255,255,.18),inset 0 1px 0 rgba(255,255,255,.2);
   z-index:10;position:relative;
 }}
 .chip.dimmed{{opacity:.08;pointer-events:none;}}
 
-/* BMO/AMC icons — black on chip */
 .bdg{{display:inline-flex;align-items:center;line-height:1;}}
-
-/* Unconfirmed / mismatch inline badges */
 .bdg-uc{{
   font-family:var(--mono);font-size:8px;font-weight:900;
   background:rgba(255,159,67,.25);color:var(--unconf);
@@ -1162,7 +1096,6 @@ body{{
   50%{{box-shadow:0 0 0 3px rgba(255,87,87,.2);}}
 }}
 
-/* ── Unannounced ── */
 .ubox{{
   margin:0 20px 32px;
   background:rgba(10,14,32,0.55);
@@ -1219,7 +1152,6 @@ body{{
 }}
 .uchip.dimmed{{opacity:.08;pointer-events:none;}}
 
-/* ── Footer ── */
 .footer{{
   border-top:1px solid var(--glass-border);
   padding:11px 20px;
@@ -1229,7 +1161,6 @@ body{{
   backdrop-filter:blur(16px);
 }}
 
-/* ── Modal — frosted glass ── */
 .overlay{{
   display:none;position:fixed;inset:0;
   background:rgba(0,0,0,.72);
@@ -1239,16 +1170,11 @@ body{{
 }}
 .overlay.on{{display:flex;}}
 .modal{{
-  background:linear-gradient(145deg,
-    rgba(18,22,44,0.96) 0%,
-    rgba(12,16,34,0.98) 100%);
+  background:linear-gradient(145deg,rgba(18,22,44,0.96) 0%,rgba(12,16,34,0.98) 100%);
   border:1px solid var(--glass-border2);
   border-radius:var(--r-xl);
   padding:28px;max-width:420px;width:90%;
-  box-shadow:
-    0 40px 80px rgba(0,0,0,.9),
-    0 0 0 1px rgba(255,255,255,.04),
-    inset 0 1px 0 rgba(255,255,255,.07);
+  box-shadow:0 40px 80px rgba(0,0,0,.9),0 0 0 1px rgba(255,255,255,.04),inset 0 1px 0 rgba(255,255,255,.07);
   position:relative;
   animation:popIn .24s cubic-bezier(.34,1.4,.64,1);
 }}
@@ -1266,15 +1192,12 @@ body{{
   transition:background var(--dur),color var(--dur);
 }}
 .modal-close:hover{{background:var(--glass-mid);color:var(--t0);}}
-
 .modal-ticker{{
   font-family:var(--mono);font-size:30px;font-weight:700;
   margin-bottom:3px;line-height:1;
-  /* Subtle glow matching sector color */
   filter:drop-shadow(0 0 12px currentColor);
 }}
 .modal-name{{font-size:12px;color:var(--t2);margin-bottom:22px;}}
-
 .modal-banner{{
   border-radius:9px;padding:10px 14px;margin-bottom:14px;
   font-size:11px;line-height:1.6;display:none;
@@ -1289,7 +1212,6 @@ body{{
   background:rgba(255,159,67,.07);
   border:1px solid rgba(255,159,67,.22);color:#ffb347;
 }}
-
 .modal-row{{
   display:flex;justify-content:space-between;align-items:center;
   padding:9px 0;border-bottom:1px solid var(--glass-border);
@@ -1305,7 +1227,6 @@ body{{
   font-size:11.5px;font-weight:600;
 }}
 .modal-val.secondary{{color:var(--t1);font-size:11px;font-weight:400;}}
-
 .modal-source-row{{
   display:flex;justify-content:space-between;
   padding:9px 0;border-bottom:1px solid var(--glass-border);gap:14px;
@@ -1319,7 +1240,6 @@ body{{
   font-family:var(--mono);font-size:12px;font-weight:600;color:var(--t0);
 }}
 .modal-source-date.conflict{{color:var(--conflict);}}
-
 .modal-ir-link{{
   display:inline-flex;align-items:center;gap:7px;
   margin-top:18px;
@@ -1337,12 +1257,57 @@ body{{
   border-color:rgba(91,156,246,.45);
   box-shadow:0 0 20px rgba(91,156,246,.12);
 }}
+
+/* ── Mobile ── */
+@media (max-width: 768px) {{
+  .sidebar {{ width: 0; border-right-color: transparent; }}
+  .sidebar-toggle {{ }}
+  .topbar {{ padding: 0 12px; height: 48px; gap: 8px; }}
+  .page-title {{ font-size: 11.5px; }}
+  .topbar-meta {{ display: none; }}
+  .vdiv {{ display: none; }}
+  .tstat {{ padding: 4px 8px; }}
+  .tstat-num {{ font-size: 12px; }}
+  .tstat-lbl {{ font-size: 6.5px; }}
+  .timingbar {{ flex-direction: column; align-items: flex-start; gap: 6px; padding: 8px 12px; }}
+  .search-bar {{ padding: 7px 12px; }}
+  .search-input {{ width: 160px; }}
+  .cgrid {{
+    grid-template-columns: repeat(7, minmax(0, 1fr));
+    gap: 2px;
+    padding: 3px;
+  }}
+  .dcell {{ min-height: 64px; padding: 5px 3px 4px; }}
+  .dno {{ font-size: 8px; }}
+  .chip {{
+    font-size: 7.5px;
+    padding: 2px 4px;
+    border-radius: 4px;
+  }}
+  .evbadge {{ font-size: 6px; padding: 1px 3px; }}
+  .dname {{ font-size: 7px; padding: 3px 0; }}
+  .pw-grid {{ grid-template-columns: 1fr; gap: 4px; }}
+  .pw-panel {{ margin: 12px 10px 0; }}
+  .main {{ padding: 12px 10px 24px; }}
+  .mblock {{ margin-bottom: 18px; }}
+  .ubox {{ margin: 0 10px 24px; }}
+  .modal {{ padding: 20px 16px; }}
+  .modal-ticker {{ font-size: 24px; }}
+  .search-bar {{ top: 48px; }}
+}}
+
+@media (max-width: 480px) {{
+  .cgrid {{ grid-template-columns: 1fr; }}
+  .dcell.empty {{ display: none; }}
+  .dcell.wknd:not(.has-e) {{ display: none; }}
+  .topbar-right {{ gap: 6px; }}
+  .tstat-lbl {{ display: none; }}
+}}
 </style>
 </head>
 <body>
 <div class="page-wrap">
 
-<!-- Sidebar -->
 <aside class="sidebar" id="sidebar">
   <div class="sidebar-head">
     <span class="sidebar-title">Sectors</span>
@@ -1352,7 +1317,6 @@ body{{
 
 <div class="content">
 
-<!-- Topbar -->
 <header class="topbar">
   <div class="topbar-left">
     <button class="sidebar-toggle open" id="sidebarToggle"
@@ -1378,7 +1342,6 @@ body{{
   </div>
 </header>
 
-<!-- Key bar -->
 <div class="timingbar">
   <span class="key-label">Key</span>
   <span class="tpill pre">{BMO_SVG_KEY}&nbsp;BMO</span>
@@ -1402,7 +1365,6 @@ body{{
   </div>
 </div>
 
-<!-- Search -->
 <div class="search-bar">
   <div class="search-wrap">
     <span class="search-icon">⌕</span>
@@ -1413,25 +1375,20 @@ body{{
   <span class="search-hint" id="searchHint"></span>
 </div>
 
-<!-- Prior week -->
 {pw_html}
 
-<!-- Calendar -->
 <main class="main">{cal}</main>
 
-<!-- Unannounced -->
 {uhtml}
 
-<!-- Footer -->
 <footer class="footer">
   <span>Neil J Kanatt · NASDAQ API + Yahoo Finance</span>
   <span id="refreshLabel">Next refresh at 4 AM &amp; 10 PM ET · {ts}</span>
 </footer>
 
-</div><!-- .content -->
-</div><!-- .page-wrap -->
+</div>
+</div>
 
-<!-- Modal -->
 <div class="overlay" id="overlay" onclick="closeModal(event)">
   <div class="modal" id="modal">
     <button class="modal-close" onclick="closeModal()">×</button>
@@ -1476,7 +1433,6 @@ const SECTORS       = {sj};
 const SECTOR_COLORS = {cj};
 const COMPANY_NAMES = {nj};
 
-// ── Sidebar ───────────────────────────────────────────────────────────────────
 let sidebarOpen = true;
 function toggleSidebar() {{
   sidebarOpen = !sidebarOpen;
@@ -1484,7 +1440,6 @@ function toggleSidebar() {{
   document.getElementById('sidebarToggle').classList.toggle('open', sidebarOpen);
 }}
 
-// ── Sector accordion ──────────────────────────────────────────────────────────
 function toggleSector(safe) {{
   const t = document.getElementById('tickers-' + safe);
   const a = document.getElementById('arrow-'   + safe);
@@ -1493,7 +1448,6 @@ function toggleSector(safe) {{
   a.classList.toggle('open', !open);
 }}
 
-// ── Prior week ────────────────────────────────────────────────────────────────
 let pwOpen = false;
 function togglePriorWeek() {{
   pwOpen = !pwOpen;
@@ -1502,7 +1456,6 @@ function togglePriorWeek() {{
   document.getElementById('pwToggleLabel').textContent = pwOpen ? 'Hide' : 'Show';
 }}
 
-// ── Smart refresh: 4 AM or 10 PM ET ──────────────────────────────────────────
 function scheduleSmartRefresh() {{
   const now = new Date();
   const fmt = new Intl.DateTimeFormat('en-US', {{
@@ -1529,7 +1482,6 @@ function scheduleSmartRefresh() {{
 }}
 scheduleSmartRefresh();
 
-// ── Search ────────────────────────────────────────────────────────────────────
 const searchInput = document.getElementById('searchInput');
 const searchClear = document.getElementById('searchClear');
 const searchHint  = document.getElementById('searchHint');
@@ -1566,7 +1518,6 @@ function applySearch(q) {{
     : 'No results';
 }}
 
-// ── Modal ─────────────────────────────────────────────────────────────────────
 function showCard(ticker,name,sector,timing,nasdaqDate,color,source,yahooDate,mismatch,confirmed,irUrl) {{
   document.getElementById('mTicker').textContent = ticker;
   document.getElementById('mTicker').style.color = color;
