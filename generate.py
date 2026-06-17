@@ -470,7 +470,6 @@ def build_html(df, generated_at):
     sj = json.dumps(SECTORS); cj = json.dumps(SECTOR_COLORS); nj = json.dumps(COMPANY_NAMES)
     ir_json = json.dumps(IR_URLS)
 
-    # ── Sidebar: each ticker is a link to its IR page ──────────────────────
     sidebar_html = ""
     for s in SECTORS:
         col  = SECTOR_COLORS[s]
@@ -493,116 +492,75 @@ def build_html(df, generated_at):
             f'</div>'
         )
 
-    # ── Build the JS notes logic as a plain string (no f-string) ──────────
-    # This avoids ALL brace-escaping issues with template literals
+    # ── Notes JS (plain raw string — no f-string brace conflicts) ──────────
     notes_js = r"""
 const STORAGE_KEY = 'earnings_cal_private_notes_v1';
-let notes = [];
 
 function loadNotes() {
-  try { notes = JSON.parse(localStorage.getItem(STORAGE_KEY)) || []; }
-  catch(e) { notes = []; }
-  renderNotes();
+  try {
+    const saved = localStorage.getItem(STORAGE_KEY) || '';
+    const box = document.getElementById('notesBox');
+    if (box) box.value = saved;
+  } catch(e) {}
 }
 
-function saveNotes() {
-  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(notes)); }
-  catch(e) {}
-}
-
-function genId() {
-  return Date.now().toString(36) + Math.random().toString(36).slice(2,6);
-}
-
-function renderNotes() {
-  const list = document.getElementById('notesList');
-  if (!list) return;
-  const val = document.getElementById('notesBox');
-  if (notes.length > 0 && val) {
-    // notes stored but we show them inline in the textarea on load
-  }
-  // We use a simple single textarea approach - load last note into box
-  if (notes.length > 0 && val && val.value === '') {
-    val.value = notes[0].text;
-  }
-}
-
-function saveNote() {
-  const box = document.getElementById('notesBox');
-  if (!box) return;
-  const text = box.value;
-  if (text.trim() === '') {
-    notes = [];
-  } else {
-    notes = [{ id: genId(), text: text, ts: Date.now() }];
-  }
-  saveNotes();
-  // Flash the border briefly to confirm save
-  box.style.borderColor = 'rgba(106,171,255,0.9)';
-  setTimeout(function() { box.style.borderColor = ''; }, 600);
-}
-
-// Auto-save on every keystroke (debounced)
-let saveTimer = null;
 function onNotesInput() {
-  clearTimeout(saveTimer);
-  saveTimer = setTimeout(saveNote, 800);
+  clearTimeout(window._saveTimer);
+  window._saveTimer = setTimeout(function() {
+    try {
+      const box = document.getElementById('notesBox');
+      if (box) localStorage.setItem(STORAGE_KEY, box.value);
+      // brief border flash to confirm save
+      if (box) {
+        box.style.borderColor = 'rgba(106,171,255,0.75)';
+        setTimeout(function(){ box.style.borderColor = ''; }, 500);
+      }
+    } catch(e) {}
+  }, 800);
 }
 
 loadNotes();
 """
 
-    # ── Auto-refresh JS (plain string, no f-string) ─────────────────────
+    # ── Auto-refresh JS — 4 AM ET only, tick-based (no drift) ──────────────
     refresh_js = r"""
 function scheduleSmartRefresh() {
-  const targets = [4 * 3600, 22 * 3600]; // 4 AM and 10 PM ET in seconds-since-midnight
-  const now = new Date();
+  const TARGET_SEC = 4 * 3600; // 4:00:00 AM ET
 
-  // Get current ET time components
-  const etParts = new Intl.DateTimeFormat('en-US', {
-    timeZone: 'America/New_York',
-    hour: 'numeric', minute: 'numeric', second: 'numeric', hour12: false
-  }).formatToParts(now);
-
-  const h = parseInt(etParts.find(x => x.type === 'hour').value);
-  const m = parseInt(etParts.find(x => x.type === 'minute').value);
-  const s = parseInt(etParts.find(x => x.type === 'second').value);
-  const nowSec = h * 3600 + m * 60 + s;
-
-  // Find the next target that hasn't passed yet today
-  let minDiff = Infinity;
-  for (const t of targets) {
-    let diff = t - nowSec;
-    if (diff <= 0) diff += 86400; // wrap to next day
-    if (diff < minDiff) minDiff = diff;
+  function getETSeconds() {
+    const now = new Date();
+    const parts = new Intl.DateTimeFormat('en-US', {
+      timeZone: 'America/New_York',
+      hour: 'numeric', minute: 'numeric', second: 'numeric', hour12: false
+    }).formatToParts(now);
+    const h = parseInt(parts.find(x => x.type === 'hour').value);
+    const m = parseInt(parts.find(x => x.type === 'minute').value);
+    const s = parseInt(parts.find(x => x.type === 'second').value);
+    return h * 3600 + m * 60 + s;
   }
 
   // Update footer label
-  const nextTime = new Date(now.getTime() + minDiff * 1000);
-  const lbl = nextTime.toLocaleTimeString('en-US', {
-    timeZone: 'America/New_York', hour: 'numeric', minute: '2-digit', hour12: true
+  const now = new Date();
+  const curSec = getETSeconds();
+  let secsUntil = TARGET_SEC - curSec;
+  if (secsUntil <= 0) secsUntil += 86400; // wrap to next day
+  const nextTime = new Date(now.getTime() + secsUntil * 1000);
+  const lbl = nextTime.toLocaleString('en-US', {
+    timeZone: 'America/New_York',
+    weekday: 'short', hour: 'numeric', minute: '2-digit', hour12: true
   });
   const el = document.getElementById('refreshLabel');
-  if (el) el.textContent = 'Next refresh at ' + lbl + ' ET';
+  if (el) el.textContent = 'Next refresh: ' + lbl + ' ET';
 
-  // Use a precise countdown that re-checks every second to avoid drift
+  // Tick every second — fire within 2-second window of 4:00:00 AM ET
+  let fired = false;
   function tick() {
-    const n = new Date();
-    const ep = new Intl.DateTimeFormat('en-US', {
-      timeZone: 'America/New_York',
-      hour: 'numeric', minute: 'numeric', second: 'numeric', hour12: false
-    }).formatToParts(n);
-    const ch = parseInt(ep.find(x => x.type === 'hour').value);
-    const cm = parseInt(ep.find(x => x.type === 'minute').value);
-    const cs = parseInt(ep.find(x => x.type === 'second').value);
-    const curSec = ch * 3600 + cm * 60 + cs;
-
-    for (const t of targets) {
-      // Fire if we are within 2 seconds of target (handles any drift)
-      if (Math.abs(curSec - t) <= 2) {
-        location.reload();
-        return;
-      }
+    if (fired) return;
+    const s = getETSeconds();
+    if (Math.abs(s - TARGET_SEC) <= 2) {
+      fired = true;
+      location.reload();
+      return;
     }
     setTimeout(tick, 1000);
   }
@@ -622,228 +580,224 @@ scheduleSmartRefresh();
 <style>
 *,*::before,*::after{{box-sizing:border-box;margin:0;padding:0}}
 :root{{
-  --bg0:#080b18;--bg1:#0d1120;--bg2:#111628;--bg3:#151c30;--bg4:#1a2238;--bg5:#1f2942;
-  /* Glass palette — brighter, more vivid */
-  --glass-light:rgba(255,255,255,0.07);
-  --glass-mid:rgba(255,255,255,0.12);
-  --glass-heavy:rgba(255,255,255,0.20);
-  --glass-border:rgba(255,255,255,0.14);
-  --glass-border2:rgba(255,255,255,0.24);
-  --glass-border3:rgba(255,255,255,0.38);
-  --glass-shine:rgba(255,255,255,0.55);
-  --t0:#ffffff;--t1:#dde6ff;--t2:#9aadd4;--t3:#4e5f88;
-  --accent:#6aabff;--accent2:#93c8ff;--accent-glow:rgba(106,171,255,0.35);
-  --bmo:#ffd740;--amc:#b8a4ff;--unconf:#ffaa33;--conflict:#ff5252;
+  --bg0:#060810;--bg1:#080b18;--bg2:#0b0f20;
+  /* Glass tokens — translucent, almost see-through */
+  --glass-bg:rgba(255,255,255,0.055);
+  --glass-bg-hover:rgba(255,255,255,0.09);
+  --glass-border:rgba(255,255,255,0.11);
+  --glass-border-hover:rgba(255,255,255,0.20);
+  --glass-shine:rgba(255,255,255,0.18);
+  --glass-blur:blur(28px) saturate(170%);
+  /* Text */
+  --t0:#ffffff;--t1:#dde6ff;--t2:#8a9ec4;--t3:#3e4f72;
+  /* Accent */
+  --accent:#6aabff;--accent2:#93c8ff;
+  /* Badges */
+  --bmo:#ffd740;--amc:#b8a4ff;
+  --conflict:#ff5252;--unconf:#ffaa33;
+  /* Layout */
+  --sidebar-w:240px;
+  --r:8px;--r-lg:12px;--r-xl:16px;
+  --ease:cubic-bezier(0.4,0,0.2,1);--dur:0.18s;
   --mono:'JetBrains Mono',monospace;
   --sans:'Inter',-apple-system,sans-serif;
-  --sidebar-w:240px;
-  --r:10px;--r-lg:14px;--r-xl:18px;
-  --ease:cubic-bezier(0.4,0,0.2,1);--dur:0.2s;
 }}
 ::-webkit-scrollbar{{width:3px;height:3px}}
 ::-webkit-scrollbar-track{{background:transparent}}
-::-webkit-scrollbar-thumb{{background:rgba(255,255,255,0.18);border-radius:3px}}
-::-webkit-scrollbar-thumb:hover{{background:rgba(255,255,255,0.32)}}
+::-webkit-scrollbar-thumb{{background:rgba(255,255,255,0.14);border-radius:3px}}
 
+/* ── Body & background ─────────────────────────────────────────────────── */
 body{{
   font-family:var(--sans);background:var(--bg0);color:var(--t1);
   min-height:100vh;-webkit-font-smoothing:antialiased;overflow-x:hidden;
+  /* Rich layered gradient so glass has something to refract */
   background-image:
-    radial-gradient(ellipse 90% 60% at 15% -10%,rgba(80,130,255,0.18) 0%,transparent 55%),
-    radial-gradient(ellipse 70% 50% at 85% 110%,rgba(160,60,220,0.13) 0%,transparent 55%),
-    radial-gradient(ellipse 50% 40% at 50% 50%,rgba(20,30,80,0.35) 0%,transparent 70%);
+    radial-gradient(ellipse 100% 65% at 10% -5%,  rgba(60,110,255,0.22) 0%,transparent 55%),
+    radial-gradient(ellipse 80%  55% at 90% 105%,  rgba(140,50,220,0.16) 0%,transparent 55%),
+    radial-gradient(ellipse 60%  45% at 55%  50%,  rgba(10,20,70,0.40)  0%,transparent 70%),
+    radial-gradient(ellipse 40%  30% at 30%  80%,  rgba(30,80,180,0.10) 0%,transparent 50%);
 }}
 .page-wrap{{display:flex;min-height:100vh;}}
 
-/* ========== GLASS MIXIN (applied via classes) ========== */
-.glass{{
-  background:linear-gradient(135deg,rgba(255,255,255,0.10) 0%,rgba(255,255,255,0.04) 100%);
-  backdrop-filter:blur(24px) saturate(160%);-webkit-backdrop-filter:blur(24px) saturate(160%);
-  border:1px solid rgba(255,255,255,0.18);
+/* ── Shared glass surface mixin (applied via inline style or class) ──────
+   Key recipe: very low rgba fill + strong blur + thin bright border + top-shine inset */
+.glass-surface{{
+  background:var(--glass-bg);
+  backdrop-filter:var(--glass-blur);
+  -webkit-backdrop-filter:var(--glass-blur);
+  border:1px solid var(--glass-border);
   box-shadow:
-    inset 0 1px 0 rgba(255,255,255,0.22),
-    inset 0 -1px 0 rgba(0,0,0,0.15),
-    0 8px 32px rgba(0,0,0,0.45),
-    0 2px 8px rgba(0,0,0,0.25);
+    inset 0 1px 0 var(--glass-shine),
+    inset 0 -1px 0 rgba(0,0,0,0.12),
+    0 4px 24px rgba(0,0,0,0.40);
 }}
 
-/* ========== SIDEBAR ========== */
+/* ── SIDEBAR ──────────────────────────────────────────────────────────── */
 .sidebar{{
   width:var(--sidebar-w);flex-shrink:0;
-  background:linear-gradient(180deg,
-    rgba(12,16,36,0.97) 0%,
-    rgba(8,11,24,1) 100%);
-  border-right:1px solid rgba(255,255,255,0.14);
+  /* Almost-transparent glass panel */
+  background:rgba(8,10,22,0.55);
+  backdrop-filter:blur(32px) saturate(160%);
+  -webkit-backdrop-filter:blur(32px) saturate(160%);
+  border-right:1px solid rgba(255,255,255,0.09);
+  box-shadow:inset -1px 0 0 rgba(255,255,255,0.05),2px 0 20px rgba(0,0,0,0.35);
   position:sticky;top:0;height:100vh;
   display:flex;flex-direction:column;
   transition:width var(--dur) var(--ease);
   z-index:200;overflow:hidden;
-  box-shadow:2px 0 24px rgba(0,0,0,0.5),inset -1px 0 0 rgba(255,255,255,0.06);
 }}
 .sidebar.collapsed{{width:0;border-right-color:transparent;}}
 .content{{flex:1;min-width:0;display:flex;flex-direction:column;}}
 
 .sidebar-head{{
   padding:14px 14px 10px;
-  border-bottom:1px solid rgba(255,255,255,0.10);
+  border-bottom:1px solid rgba(255,255,255,0.08);
   flex-shrink:0;
-  background:linear-gradient(180deg,rgba(106,171,255,0.12) 0%,transparent 100%);
 }}
 .sidebar-title{{
   font-family:var(--mono);font-size:8.5px;font-weight:700;
   color:var(--accent);text-transform:uppercase;letter-spacing:2px;white-space:nowrap;
 }}
-
 .sidebar-sectors{{overflow-y:auto;flex:1;padding:4px 0;min-height:0;}}
 
-.sleg-group{{border-bottom:1px solid rgba(255,255,255,0.06);}}
+.sleg-group{{border-bottom:1px solid rgba(255,255,255,0.05);}}
 .sleg-toggle{{
   display:flex;align-items:center;gap:8px;
   width:100%;padding:7px 12px;background:none;border:none;cursor:pointer;
   transition:background var(--dur);
 }}
-.sleg-toggle:hover{{background:rgba(255,255,255,0.08);}}
-.sleg-dot{{
-  width:8px;height:8px;border-radius:50%;flex-shrink:0;
-  box-shadow:0 0 6px currentColor;
-}}
+.sleg-toggle:hover{{background:rgba(255,255,255,0.06);}}
+.sleg-dot{{width:7px;height:7px;border-radius:50%;flex-shrink:0;opacity:0.85;}}
 .sleg-label{{
   font-family:var(--mono);font-size:8.5px;font-weight:700;
   color:var(--t0);flex:1;text-align:left;letter-spacing:.3px;white-space:nowrap;
   overflow:hidden;text-overflow:ellipsis;
 }}
-.sleg-arrow{{font-size:11px;color:var(--t3);transition:transform var(--dur) var(--ease);flex-shrink:0;}}
+.sleg-arrow{{font-size:13px;color:var(--t3);transition:transform var(--dur) var(--ease);flex-shrink:0;line-height:1;}}
 .sleg-arrow.open{{transform:rotate(90deg);color:var(--t2);}}
 .sleg-tickers{{
   display:flex;flex-wrap:wrap;gap:3px;padding:0 12px;
   overflow:hidden;max-height:0;transition:max-height 0.3s var(--ease),padding 0.2s;
 }}
 .sleg-tickers.open{{max-height:200px;padding:0 12px 8px;}}
-
 .sleg-ticker{{
   font-family:var(--mono);font-size:7.5px;color:var(--t1);
-  background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.12);
+  background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.10);
   border-radius:3px;padding:1px 5px;cursor:pointer;
   transition:color var(--dur),background var(--dur),border-color var(--dur);
   text-decoration:none;display:inline-block;
 }}
 .sleg-ticker:hover{{
-  color:#fff;background:rgba(106,171,255,0.20);
-  border-color:rgba(106,171,255,0.50);
+  color:#fff;background:rgba(106,171,255,0.18);
+  border-color:rgba(106,171,255,0.40);
 }}
 
-/* ========== NOTES PANEL ========== */
+/* ── NOTES PANEL ─────────────────────────────────────────────────────── */
 .notes-panel{{
   flex-shrink:0;
-  display:flex;flex-direction:column;
-  background:linear-gradient(180deg,rgba(10,13,30,0.98) 0%,rgba(6,8,20,1) 100%);
-  border-top:1px solid rgba(255,255,255,0.12);
+  background:rgba(6,8,18,0.55);
+  border-top:1px solid rgba(255,255,255,0.08);
   padding:8px;
-  gap:6px;
 }}
 .notes-box{{
-  background:rgba(255,255,255,0.06);
-  border:1px solid rgba(255,255,255,0.14);
-  border-radius:8px;
+  width:100%;height:110px;
+  background:rgba(255,255,255,0.04);
+  border:1px solid rgba(255,255,255,0.10);
+  border-radius:7px;
   padding:7px 9px;
   font-family:var(--sans);font-size:10px;color:#fff;
-  outline:none;resize:none;
-  height:110px;
-  line-height:1.5;
-  transition:border-color var(--dur),background var(--dur),box-shadow var(--dur);
-  width:100%;
+  outline:none;resize:none;line-height:1.55;
+  transition:border-color var(--dur),background var(--dur);
 }}
 .notes-box::placeholder{{color:var(--t3);font-style:italic;}}
 .notes-box:focus{{
-  border-color:rgba(106,171,255,0.55);
-  background:rgba(255,255,255,0.09);
-  box-shadow:0 0 0 3px rgba(106,171,255,0.10),inset 0 1px 0 rgba(255,255,255,0.08);
+  border-color:rgba(106,171,255,0.45);
+  background:rgba(255,255,255,0.07);
 }}
 
-/* ========== TOPBAR ========== */
+/* ── TOPBAR ───────────────────────────────────────────────────────────── */
 .topbar{{
   height:52px;
-  background:linear-gradient(90deg,rgba(12,16,34,0.96) 0%,rgba(8,11,26,0.96) 100%);
-  backdrop-filter:blur(40px) saturate(200%);-webkit-backdrop-filter:blur(40px) saturate(200%);
-  border-bottom:1px solid rgba(255,255,255,0.14);
+  /* Translucent glass strip */
+  background:rgba(6,8,18,0.50);
+  backdrop-filter:blur(36px) saturate(180%);
+  -webkit-backdrop-filter:blur(36px) saturate(180%);
+  border-bottom:1px solid rgba(255,255,255,0.10);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,0.10),0 2px 16px rgba(0,0,0,0.45);
   display:flex;align-items:center;justify-content:space-between;
   padding:0 18px;position:sticky;top:0;z-index:300;gap:12px;
-  box-shadow:
-    0 1px 0 rgba(255,255,255,0.08),
-    0 4px 24px rgba(0,0,0,0.6),
-    inset 0 1px 0 rgba(255,255,255,0.10);
 }}
 .topbar-left{{display:flex;align-items:center;gap:10px;}}
 .page-title{{font-size:13px;font-weight:700;color:#fff;letter-spacing:-.3px;white-space:nowrap;}}
 .title-dot{{
-  width:8px;height:8px;border-radius:50%;background:var(--accent);
-  box-shadow:0 0 0 2px rgba(106,171,255,0.30),0 0 14px rgba(106,171,255,0.65);
-  flex-shrink:0;animation:dotPulse 2.5s ease-in-out infinite;
+  width:7px;height:7px;border-radius:50%;background:var(--accent);flex-shrink:0;
+  box-shadow:0 0 0 2px rgba(106,171,255,0.22),0 0 10px rgba(106,171,255,0.55);
+  animation:dotPulse 2.8s ease-in-out infinite;
 }}
 @keyframes dotPulse{{
-  0%,100%{{box-shadow:0 0 0 2px rgba(106,171,255,0.18),0 0 8px rgba(106,171,255,0.45);}}
-  50%{{box-shadow:0 0 0 4px rgba(106,171,255,0.32),0 0 22px rgba(106,171,255,0.80);}}
+  0%,100%{{box-shadow:0 0 0 2px rgba(106,171,255,0.15),0 0 6px rgba(106,171,255,0.40);}}
+  50%{{box-shadow:0 0 0 4px rgba(106,171,255,0.28),0 0 18px rgba(106,171,255,0.70);}}
 }}
-.vdiv{{width:1px;height:16px;background:rgba(255,255,255,0.14);}}
+.vdiv{{width:1px;height:16px;background:rgba(255,255,255,0.12);}}
 .topbar-meta{{font-size:10px;color:var(--t2);white-space:nowrap;}}
 .topbar-right{{display:flex;align-items:center;gap:8px;flex-shrink:0;}}
 
 /* Glass stat pills */
 .tstat{{
-  display:flex;flex-direction:column;align-items:center;
-  padding:5px 12px;border-radius:10px;
-  background:linear-gradient(135deg,rgba(255,255,255,0.10) 0%,rgba(255,255,255,0.04) 100%);
-  border:1px solid rgba(255,255,255,0.16);
-  backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
-  box-shadow:inset 0 1px 0 rgba(255,255,255,0.18),0 2px 8px rgba(0,0,0,0.35);
-  transition:background var(--dur),border-color var(--dur),box-shadow var(--dur);
+  display:flex;flex-direction:column;align-items:center;padding:5px 12px;
+  border-radius:9px;
+  background:rgba(255,255,255,0.055);
+  backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);
+  border:1px solid rgba(255,255,255,0.11);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,0.14);
+  transition:background var(--dur),border-color var(--dur);
 }}
-.tstat:hover{{
-  background:linear-gradient(135deg,rgba(255,255,255,0.16) 0%,rgba(255,255,255,0.08) 100%);
-  border-color:rgba(255,255,255,0.28);
-  box-shadow:inset 0 1px 0 rgba(255,255,255,0.28),0 4px 16px rgba(0,0,0,0.4);
-}}
+.tstat:hover{{background:rgba(255,255,255,0.09);border-color:rgba(255,255,255,0.18);}}
 .tstat-num{{font-family:var(--mono);font-size:15px;font-weight:700;color:#fff;line-height:1.1;}}
 .tstat-lbl{{font-size:7px;color:var(--t2);text-transform:uppercase;letter-spacing:.9px;margin-top:2px;}}
+
+/* Arrow sidebar toggle */
 .sidebar-toggle{{
   display:flex;align-items:center;justify-content:center;
-  width:28px;height:28px;border-radius:8px;
-  background:linear-gradient(135deg,rgba(255,255,255,0.12) 0%,rgba(255,255,255,0.05) 100%);
-  border:1px solid rgba(255,255,255,0.18);
-  box-shadow:inset 0 1px 0 rgba(255,255,255,0.22),0 2px 6px rgba(0,0,0,0.3);
-  color:var(--t1);cursor:pointer;font-size:16px;line-height:1;
-  transition:background var(--dur),color var(--dur),box-shadow var(--dur);flex-shrink:0;
+  width:28px;height:28px;border-radius:7px;
+  background:rgba(255,255,255,0.07);
+  border:1px solid rgba(255,255,255,0.12);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,0.14);
+  color:var(--t1);cursor:pointer;
+  font-size:20px;font-weight:700;line-height:1;
+  /* Use a real left-arrow character */
+  transition:background var(--dur),color var(--dur),transform var(--dur);
+  flex-shrink:0;
 }}
-.sidebar-toggle:hover{{
-  background:linear-gradient(135deg,rgba(255,255,255,0.22) 0%,rgba(255,255,255,0.10) 100%);
-  color:#fff;box-shadow:inset 0 1px 0 rgba(255,255,255,0.35),0 4px 12px rgba(0,0,0,0.4);
-}}
+.sidebar-toggle:hover{{background:rgba(255,255,255,0.13);color:#fff;}}
+/* When sidebar is collapsed the arrow flips to point right */
+.sidebar-toggle.flipped{{transform:scaleX(-1);}}
 
-/* ========== KEY BAR ========== */
+/* ── TIMING / KEY BAR ─────────────────────────────────────────────────── */
 .timingbar{{
-  background:linear-gradient(90deg,rgba(10,13,30,0.92) 0%,rgba(8,11,24,0.92) 100%);
-  backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
-  border-bottom:1px solid rgba(255,255,255,0.10);
+  background:rgba(6,8,18,0.45);
+  backdrop-filter:blur(24px) saturate(160%);
+  -webkit-backdrop-filter:blur(24px) saturate(160%);
+  border-bottom:1px solid rgba(255,255,255,0.08);
   padding:8px 18px 10px;
   display:flex;align-items:center;gap:8px;
   font-size:11px;color:var(--t2);flex-wrap:wrap;
-  box-shadow:0 2px 12px rgba(0,0,0,0.3);
 }}
 .key-label{{font-family:var(--mono);font-size:8.5px;font-weight:700;color:var(--t0);text-transform:uppercase;letter-spacing:1px;}}
 .tpill{{
   display:inline-flex;align-items:center;gap:4px;font-size:9px;font-weight:700;
-  padding:3px 9px;border-radius:6px;font-family:var(--mono);letter-spacing:.3px;white-space:nowrap;
+  padding:3px 9px;border-radius:5px;font-family:var(--mono);letter-spacing:.3px;white-space:nowrap;
   backdrop-filter:blur(8px);
 }}
-.tpill.pre{{background:rgba(255,215,64,.18);color:#ffd740;border:1px solid rgba(255,215,64,.40);box-shadow:0 0 8px rgba(255,215,64,.15);}}
-.tpill.aft{{background:rgba(184,164,255,.18);color:#b8a4ff;border:1px solid rgba(184,164,255,.40);box-shadow:0 0 8px rgba(184,164,255,.15);}}
-.tpill.unc{{background:rgba(255,170,51,.18);color:#ffaa33;border:1px solid rgba(255,170,51,.40);}}
-.tpill.mis{{background:rgba(255,82,82,.18);color:#ff5252;border:1px solid rgba(255,82,82,.40);}}
+.tpill.pre{{background:rgba(255,215,64,.12);color:#ffd740;border:1px solid rgba(255,215,64,.30);}}
+.tpill.aft{{background:rgba(184,164,255,.12);color:#b8a4ff;border:1px solid rgba(184,164,255,.30);}}
+.tpill.unc{{background:rgba(255,170,51,.12);color:#ffaa33;border:1px solid rgba(255,170,51,.30);}}
+.tpill.mis{{background:rgba(255,82,82,.12);color:#ff5252;border:1px solid rgba(255,82,82,.30);}}
 .key-sep{{color:var(--t3);}}
 .key-desc{{font-size:9.5px;color:var(--t1);}}
 .event-legend{{
   display:flex;flex-wrap:wrap;align-items:center;gap:6px;
-  width:100%;margin-top:7px;padding-top:7px;border-top:1px solid rgba(255,255,255,0.08);
+  width:100%;margin-top:7px;padding-top:7px;border-top:1px solid rgba(255,255,255,0.07);
 }}
 .evleg-label{{font-family:var(--mono);font-size:8px;font-weight:700;color:var(--t2);text-transform:uppercase;letter-spacing:1px;}}
 .evleg-item{{display:inline-flex;align-items:center;gap:4px;font-size:9px;color:var(--t1);}}
@@ -852,29 +806,33 @@ body{{
 .evleg-dot.retail{{background:#a07030;}}
 .evleg-dot.closed{{background:rgba(220,60,60,.9);}}
 
-/* ========== SEARCH ========== */
+/* ── SEARCH BAR ───────────────────────────────────────────────────────── */
 .search-bar{{
-  background:linear-gradient(90deg,rgba(10,13,30,0.88) 0%,rgba(8,11,24,0.88) 100%);
-  backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
-  border-bottom:1px solid rgba(255,255,255,0.10);padding:7px 18px;
-  display:flex;align-items:center;gap:10px;position:sticky;top:52px;z-index:299;
+  background:rgba(6,8,18,0.42);
+  backdrop-filter:blur(24px) saturate(160%);
+  -webkit-backdrop-filter:blur(24px) saturate(160%);
+  border-bottom:1px solid rgba(255,255,255,0.07);
+  padding:7px 18px;
+  display:flex;align-items:center;gap:10px;
+  position:sticky;top:52px;z-index:299;
 }}
 .search-wrap{{position:relative;display:flex;align-items:center;}}
 .search-icon{{position:absolute;left:9px;color:var(--t2);font-size:13px;pointer-events:none;}}
 .search-input{{
-  background:linear-gradient(135deg,rgba(255,255,255,0.09) 0%,rgba(255,255,255,0.04) 100%);
-  border:1px solid rgba(255,255,255,0.16);border-radius:8px;
-  padding:5px 28px 5px 28px;font-family:var(--mono);font-size:11px;color:#fff;
+  background:rgba(255,255,255,0.06);
+  border:1px solid rgba(255,255,255,0.11);
+  border-radius:7px;
+  padding:5px 28px 5px 28px;
+  font-family:var(--mono);font-size:11px;color:#fff;
   outline:none;width:200px;
   backdrop-filter:blur(12px);
-  transition:border-color var(--dur),background var(--dur),box-shadow var(--dur);
-  box-shadow:inset 0 1px 0 rgba(255,255,255,0.12);
+  transition:border-color var(--dur),background var(--dur);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,0.08);
 }}
 .search-input::placeholder{{color:var(--t3);}}
 .search-input:focus{{
-  border-color:rgba(106,171,255,0.65);
-  background:linear-gradient(135deg,rgba(106,171,255,0.12) 0%,rgba(255,255,255,0.06) 100%);
-  box-shadow:0 0 0 3px rgba(106,171,255,0.14),inset 0 1px 0 rgba(255,255,255,0.18);
+  border-color:rgba(106,171,255,0.50);
+  background:rgba(106,171,255,0.08);
 }}
 .search-clear{{
   position:absolute;right:7px;background:none;border:none;color:var(--t2);
@@ -884,127 +842,124 @@ body{{
 .search-clear.on{{display:block;}}
 .search-hint{{font-size:10px;color:var(--t1);font-family:var(--mono);}}
 
-/* ========== CALENDAR ========== */
+/* ── CALENDAR ─────────────────────────────────────────────────────────── */
 .main{{padding:16px 18px 32px;max-width:1440px;margin:0 auto;}}
 .mblock{{
-  margin-bottom:24px;border-radius:var(--r-lg);overflow:hidden;
-  border:1px solid rgba(255,255,255,0.13);
-  background:linear-gradient(145deg,rgba(16,21,46,0.92) 0%,rgba(10,14,32,0.96) 100%);
-  backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);
+  margin-bottom:22px;border-radius:var(--r-lg);overflow:hidden;
+  /* Very translucent glass month block */
+  background:rgba(255,255,255,0.035);
+  backdrop-filter:blur(20px) saturate(150%);
+  -webkit-backdrop-filter:blur(20px) saturate(150%);
+  border:1px solid rgba(255,255,255,0.10);
   box-shadow:
-    0 8px 32px rgba(0,0,0,0.55),
-    0 2px 8px rgba(0,0,0,0.35),
     inset 0 1px 0 rgba(255,255,255,0.10),
-    inset 0 -1px 0 rgba(0,0,0,0.20);
+    0 6px 28px rgba(0,0,0,0.45);
 }}
 .mblock-header{{
-  padding:10px 14px 8px;border-bottom:1px solid rgba(255,255,255,0.10);
+  padding:10px 14px 8px;border-bottom:1px solid rgba(255,255,255,0.08);
   display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;
-  background:linear-gradient(90deg,var(--es-bg,rgba(255,255,255,0.03)) 0%,transparent 55%);
+  background:linear-gradient(90deg,var(--es-bg,rgba(255,255,255,0.02)) 0%,transparent 60%);
 }}
 .mlabel{{font-family:var(--mono);font-size:12px;font-weight:700;color:#fff;letter-spacing:.5px;}}
 .earn-season-badge{{
   display:inline-flex;align-items:center;font-family:var(--mono);font-size:8.5px;font-weight:700;
-  padding:3px 9px;border-radius:6px;white-space:nowrap;
-  background:color-mix(in srgb,var(--ec) 16%,transparent);
-  color:var(--ec);border:1px solid color-mix(in srgb,var(--ec) 36%,transparent);
-  box-shadow:0 0 10px color-mix(in srgb,var(--ec) 20%,transparent);
+  padding:3px 9px;border-radius:5px;white-space:nowrap;
+  background:color-mix(in srgb,var(--ec) 12%,transparent);
+  color:var(--ec);border:1px solid color-mix(in srgb,var(--ec) 28%,transparent);
 }}
-.earn-season-sub{{font-size:7px;font-weight:400;opacity:0.65;margin-left:5px;}}
+.earn-season-sub{{font-size:7px;font-weight:400;opacity:0.60;margin-left:5px;}}
 
 .cgrid{{
   display:grid;grid-template-columns:repeat(7,1fr);gap:2px;padding:4px;
-  background:rgba(4,6,16,0.75);
+  background:rgba(2,4,12,0.60);
 }}
 .dname{{
   text-align:center;font-family:var(--mono);font-size:8px;font-weight:700;
   color:var(--t2);padding:5px 0;letter-spacing:1.2px;
 }}
 
-/* Calendar cells — glass effect */
+/* Calendar cells — translucent glass */
 .dcell{{
-  background:linear-gradient(145deg,rgba(22,30,64,0.85) 0%,rgba(14,20,48,0.92) 100%);
-  border:1px solid rgba(255,255,255,0.09);
-  border-radius:8px;min-height:100px;padding:7px 6px 5px;
-  transition:border-color 0.15s,background 0.15s,box-shadow 0.15s;
+  background:rgba(255,255,255,0.028);
+  border:1px solid rgba(255,255,255,0.07);
+  border-radius:7px;min-height:100px;padding:7px 6px 5px;
+  transition:border-color 0.15s,background 0.15s;
   position:relative;overflow:hidden;
-  backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
 }}
-/* Subtle top-shine on each cell */
+/* Faint top-shine */
 .dcell::before{{
   content:'';position:absolute;inset:0;
-  background:linear-gradient(160deg,rgba(255,255,255,0.06) 0%,transparent 40%);
-  pointer-events:none;border-radius:8px;
+  background:linear-gradient(160deg,rgba(255,255,255,0.045) 0%,transparent 38%);
+  pointer-events:none;border-radius:7px;
 }}
-.dcell.empty{{background:transparent;border-color:transparent;pointer-events:none;backdrop-filter:none;}}
-.dcell.wknd{{background:rgba(6,8,20,0.72);opacity:0.42;}}
-.dcell.past{{opacity:0.38;filter:saturate(0.40) brightness(0.78);}}
-/* Today — vivid glass highlight */
+.dcell.empty{{background:transparent;border-color:transparent;pointer-events:none;}}
+.dcell.wknd{{background:rgba(0,0,0,0.25);opacity:0.38;}}
+.dcell.past{{opacity:0.32;filter:saturate(0.35) brightness(0.75);}}
+/* Today — accent glass */
 .dcell.today{{
-  border-color:rgba(106,171,255,0.75)!important;
-  background:linear-gradient(145deg,rgba(106,171,255,0.14) 0%,rgba(40,70,180,0.20) 100%)!important;
+  border-color:rgba(106,171,255,0.60)!important;
+  background:rgba(106,171,255,0.08)!important;
   box-shadow:
-    0 0 0 1px rgba(106,171,255,0.25),
-    0 4px 20px rgba(106,171,255,0.18),
-    inset 0 1px 0 rgba(106,171,255,0.30),
-    inset 0 0 20px rgba(106,171,255,0.06)!important;
+    0 0 0 1px rgba(106,171,255,0.18),
+    inset 0 1px 0 rgba(106,171,255,0.22)!important;
 }}
 .dcell.today::after{{
   content:'';position:absolute;top:0;left:0;right:0;height:2px;
   background:linear-gradient(90deg,transparent,var(--accent),var(--accent2),transparent);
-  border-radius:8px 8px 0 0;opacity:0.9;
+  border-radius:7px 7px 0 0;opacity:0.80;
 }}
-.dcell.today .dno{{color:var(--accent)!important;font-weight:700;text-shadow:0 0 8px rgba(106,171,255,0.6);}}
+.dcell.today .dno{{color:var(--accent)!important;font-weight:700;}}
 .dcell.has-e{{
-  border-color:rgba(255,255,255,0.15);
-  background:linear-gradient(145deg,rgba(26,36,76,0.92) 0%,rgba(16,24,58,0.97) 100%);
+  border-color:rgba(255,255,255,0.11);
+  background:rgba(255,255,255,0.048);
 }}
 .dcell.mkt-closed{{
-  background:linear-gradient(145deg,rgba(50,12,12,0.85) 0%,rgba(30,6,6,0.95) 100%);
-  border-color:rgba(200,50,50,.25);
+  background:rgba(80,8,8,0.35);
+  border-color:rgba(200,50,50,.18);
 }}
 .dno{{
   font-family:var(--mono);font-size:10.5px;font-weight:600;
-  color:rgba(220,230,255,0.82);margin-bottom:3px;display:block;
+  color:rgba(210,225,255,0.75);margin-bottom:3px;display:block;
 }}
 .evbadge{{
   font-family:var(--mono);font-size:6.5px;font-weight:700;padding:1px 4px;border-radius:3px;
   margin-bottom:2px;display:inline-block;letter-spacing:.2px;white-space:nowrap;
   max-width:100%;overflow:hidden;text-overflow:ellipsis;
 }}
-.evbadge-holiday{{background:rgba(74,122,200,.35);color:#a0c4f8;border:1px solid rgba(74,122,200,.60);}}
-.evbadge-retail{{background:rgba(160,112,48,.35);color:#f0c878;border:1px solid rgba(160,112,48,.60);}}
+.evbadge-holiday{{background:rgba(74,122,200,.28);color:#a0c4f8;border:1px solid rgba(74,122,200,.45);}}
+.evbadge-retail{{background:rgba(160,112,48,.28);color:#f0c878;border:1px solid rgba(160,112,48,.45);}}
 .ev-closed{{
-  font-size:6px;font-weight:900;background:rgba(220,40,40,.92);color:#fff;
+  font-size:6px;font-weight:900;background:rgba(200,30,30,.85);color:#fff;
   padding:0 3px;border-radius:2px;margin-left:2px;letter-spacing:.3px;vertical-align:middle;
 }}
 .chips{{display:flex;flex-wrap:wrap;gap:3px;margin-top:3px;}}
 
-/* ========== CHIPS — black text, vivid glass ========== */
+/* ── CHIPS — black text, vivid color, toned-down glow ──────────────── */
 .chip{{
   display:inline-flex;align-items:center;gap:2px;
+  /* Bright, saturated fill — lightened so black text reads well */
   background:linear-gradient(135deg,
-    color-mix(in srgb,var(--cc) 75%,#fff 25%) 0%,
-    color-mix(in srgb,var(--cc) 90%,#fff 10%) 60%,
-    var(--cc) 100%);
+    color-mix(in srgb,var(--cc) 70%,#fff 30%) 0%,
+    color-mix(in srgb,var(--cc) 88%,#fff 12%) 100%);
   font-family:var(--mono);font-size:9px;font-weight:800;
   color:#000;
-  padding:4px 7px;border-radius:6px;cursor:pointer;white-space:nowrap;
-  transition:transform 0.13s,filter 0.13s,box-shadow 0.13s,opacity 0.13s;
-  letter-spacing:.2px;
-  border:1px solid rgba(255,255,255,0.35);
+  padding:4px 7px;border-radius:5px;cursor:pointer;white-space:nowrap;
+  /* Subtle border + top-shine only — no ambient glow */
+  border:1px solid rgba(255,255,255,0.28);
   box-shadow:
-    inset 0 1px 0 rgba(255,255,255,0.55),
-    inset 0 -1px 0 rgba(0,0,0,0.15),
-    0 2px 6px rgba(0,0,0,0.40);
+    inset 0 1px 0 rgba(255,255,255,0.45),
+    inset 0 -1px 0 rgba(0,0,0,0.10),
+    0 1px 4px rgba(0,0,0,0.35);
+  transition:transform 0.12s,filter 0.12s,box-shadow 0.12s,opacity 0.12s;
+  letter-spacing:.2px;
 }}
 .chip:hover{{
-  transform:translateY(-2px) scale(1.09);
-  filter:brightness(1.20) saturate(1.10);
+  transform:translateY(-2px) scale(1.08);
+  filter:brightness(1.15) saturate(1.08);
+  /* Lift shadow only — no color glow spread */
   box-shadow:
-    0 6px 18px rgba(0,0,0,0.55),
-    0 0 14px color-mix(in srgb,var(--cc) 50%,transparent),
-    inset 0 1px 0 rgba(255,255,255,0.60);
+    inset 0 1px 0 rgba(255,255,255,0.50),
+    0 5px 14px rgba(0,0,0,0.50);
   z-index:10;position:relative;
 }}
 .chip.dimmed{{opacity:0.06;pointer-events:none;}}
@@ -1014,127 +969,125 @@ body{{
   padding:1px 3px;border-radius:3px;letter-spacing:.2px;line-height:1.4;
   vertical-align:middle;display:inline-block;
 }}
-.tbadge-bmo{{background:rgba(0,0,0,0.35);color:#ffd740;border:1px solid rgba(255,215,64,.55);}}
-.tbadge-amc{{background:rgba(0,0,0,0.35);color:#b8a4ff;border:1px solid rgba(184,164,255,.55);}}
+.tbadge-bmo{{background:rgba(0,0,0,0.30);color:#ffd740;border:1px solid rgba(255,215,64,.45);}}
+.tbadge-amc{{background:rgba(0,0,0,0.30);color:#b8a4ff;border:1px solid rgba(184,164,255,.45);}}
 .bdg-uc{{
   font-family:var(--mono);font-size:7.5px;font-weight:900;
-  background:rgba(255,170,51,.40);color:#ffaa33;border:1px solid rgba(255,170,51,.65);
+  background:rgba(255,170,51,.35);color:#ffaa33;border:1px solid rgba(255,170,51,.55);
   border-radius:3px;padding:0 3px;line-height:1.4;
 }}
 .bdg-mm{{
   font-family:var(--mono);font-size:7.5px;font-weight:900;
-  background:rgba(255,82,82,.45);color:#ff5252;border:1px solid rgba(255,82,82,.75);
+  background:rgba(255,82,82,.40);color:#ff5252;border:1px solid rgba(255,82,82,.65);
   border-radius:3px;padding:0 3px;line-height:1.4;
-  animation:warnPulse 2s ease-in-out infinite;
+  animation:warnPulse 2.2s ease-in-out infinite;
 }}
 @keyframes warnPulse{{
-  0%,100%{{box-shadow:0 0 0 0 rgba(255,82,82,0);}}
-  50%{{box-shadow:0 0 0 3px rgba(255,82,82,.35);}}
+  0%,100%{{box-shadow:none;}}
+  50%{{box-shadow:0 0 0 2px rgba(255,82,82,.28);}}
 }}
 
-/* ========== UNANNOUNCED ========== */
+/* ── UNANNOUNCED ──────────────────────────────────────────────────────── */
 .ubox{{
   margin:0 18px 32px;
-  background:linear-gradient(145deg,rgba(16,21,46,0.92) 0%,rgba(10,14,32,0.96) 100%);
-  border:1px solid rgba(255,255,255,0.13);
+  background:rgba(255,255,255,0.032);
+  backdrop-filter:blur(20px) saturate(150%);
+  -webkit-backdrop-filter:blur(20px) saturate(150%);
+  border:1px solid rgba(255,255,255,0.09);
   border-radius:var(--r-lg);overflow:hidden;
-  backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);
-  box-shadow:0 8px 32px rgba(0,0,0,0.50),inset 0 1px 0 rgba(255,255,255,0.08);
+  box-shadow:0 6px 24px rgba(0,0,0,0.40),inset 0 1px 0 rgba(255,255,255,0.08);
 }}
 .ubox-head{{
-  padding:12px 18px;border-bottom:1px solid rgba(255,255,255,0.10);
+  padding:12px 18px;border-bottom:1px solid rgba(255,255,255,0.08);
   display:flex;align-items:baseline;gap:12px;
-  background:rgba(255,255,255,0.04);
+  background:rgba(255,255,255,0.02);
 }}
 .ubox-title{{font-family:var(--mono);font-size:10.5px;font-weight:700;color:#fff;letter-spacing:.5px;}}
 .ubox-sub{{font-size:9.5px;color:var(--t1);}}
 .utable{{width:100%;border-collapse:collapse;}}
 .utable th{{
   text-align:left;padding:6px 14px;font-family:var(--mono);font-size:7.5px;font-weight:700;
-  color:var(--t1);border-bottom:1px solid rgba(255,255,255,0.09);text-transform:uppercase;letter-spacing:.8px;
+  color:var(--t1);border-bottom:1px solid rgba(255,255,255,0.07);text-transform:uppercase;letter-spacing:.8px;
 }}
-.utable td{{padding:7px 14px;border-bottom:1px solid rgba(255,255,255,0.06);vertical-align:middle;}}
+.utable td{{padding:7px 14px;border-bottom:1px solid rgba(255,255,255,0.05);vertical-align:middle;}}
 .utable tr:last-child td{{border-bottom:none;}}
-.utable tr:hover td{{background:rgba(255,255,255,0.04);}}
+.utable tr:hover td{{background:rgba(255,255,255,0.03);}}
 .sbadge{{
   font-family:var(--mono);font-size:8.5px;font-weight:700;color:#000;
   padding:3px 8px;border-radius:5px;white-space:nowrap;
-  border:1px solid rgba(255,255,255,.22);
-  box-shadow:inset 0 1px 0 rgba(255,255,255,.35),0 0 6px rgba(0,0,0,.4);
+  border:1px solid rgba(255,255,255,0.18);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,0.28);
 }}
-/* Unannounced chips — also black text */
 .uchip{{
   display:inline-flex;align-items:center;
   background:linear-gradient(135deg,
-    color-mix(in srgb,var(--cc) 75%,#fff 25%) 0%,
+    color-mix(in srgb,var(--cc) 70%,#fff 30%) 0%,
     var(--cc) 100%);
   font-family:var(--mono);font-size:9px;font-weight:800;color:#000;
-  padding:3px 7px;border-radius:5px;margin:2px;cursor:pointer;
-  transition:transform 0.13s,filter 0.13s,opacity 0.13s;
-  border:1px solid rgba(255,255,255,.28);
-  box-shadow:inset 0 1px 0 rgba(255,255,255,.40);
+  padding:3px 7px;border-radius:4px;margin:2px;cursor:pointer;
+  transition:transform 0.12s,filter 0.12s,opacity 0.12s;
+  border:1px solid rgba(255,255,255,0.22);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,0.35);
 }}
-.uchip:hover{{transform:translateY(-1px) scale(1.08);filter:brightness(1.18);}}
+.uchip:hover{{transform:translateY(-1px) scale(1.07);filter:brightness(1.14);}}
 .uchip.dimmed{{opacity:0.06;pointer-events:none;}}
 
-/* ========== FOOTER ========== */
+/* ── FOOTER ───────────────────────────────────────────────────────────── */
 .footer{{
-  border-top:1px solid rgba(255,255,255,0.10);padding:10px 18px;
+  border-top:1px solid rgba(255,255,255,0.08);padding:10px 18px;
   font-family:var(--mono);font-size:8.5px;color:var(--t2);
   display:flex;justify-content:space-between;align-items:center;
-  background:linear-gradient(90deg,rgba(8,10,24,0.92) 0%,rgba(6,8,18,0.92) 100%);
-  backdrop-filter:blur(12px);
+  /* Translucent glass strip */
+  background:rgba(4,6,14,0.55);
+  backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);
 }}
 
-/* ========== MODAL ========== */
+/* ── MODAL ────────────────────────────────────────────────────────────── */
 .overlay{{
   display:none;position:fixed;inset:0;
-  background:rgba(0,0,0,0.85);
-  backdrop-filter:blur(28px) saturate(130%);-webkit-backdrop-filter:blur(28px) saturate(130%);
+  background:rgba(0,0,0,0.78);
+  backdrop-filter:blur(32px) saturate(140%);
+  -webkit-backdrop-filter:blur(32px) saturate(140%);
   z-index:999;align-items:center;justify-content:center;
 }}
 .overlay.on{{display:flex;}}
 .modal{{
-  background:linear-gradient(145deg,rgba(22,30,64,0.98) 0%,rgba(14,18,48,0.99) 100%);
-  border:1px solid rgba(255,255,255,0.22);border-radius:var(--r-xl);
-  padding:26px;max-width:400px;width:90%;
-  backdrop-filter:blur(40px) saturate(180%);-webkit-backdrop-filter:blur(40px) saturate(180%);
+  /* Deep translucent glass card */
+  background:rgba(14,18,42,0.72);
+  backdrop-filter:blur(40px) saturate(180%);
+  -webkit-backdrop-filter:blur(40px) saturate(180%);
+  border:1px solid rgba(255,255,255,0.18);
+  border-radius:var(--r-xl);padding:26px;max-width:400px;width:90%;
   box-shadow:
-    0 40px 80px rgba(0,0,0,0.90),
-    0 0 0 1px rgba(255,255,255,0.06),
     inset 0 1px 0 rgba(255,255,255,0.14),
-    inset 0 -1px 0 rgba(0,0,0,0.20);
-  position:relative;animation:popIn .22s cubic-bezier(.34,1.4,.64,1);
+    0 32px 72px rgba(0,0,0,0.85);
+  position:relative;animation:popIn .20s cubic-bezier(.34,1.4,.64,1);
 }}
-@keyframes popIn{{from{{transform:scale(.88) translateY(14px);opacity:0}}to{{transform:scale(1) translateY(0);opacity:1}}}}
+@keyframes popIn{{from{{transform:scale(.88) translateY(12px);opacity:0}}to{{transform:scale(1) translateY(0);opacity:1}}}}
 .modal-close{{
   position:absolute;top:12px;right:14px;
-  background:linear-gradient(135deg,rgba(255,255,255,0.12) 0%,rgba(255,255,255,0.05) 100%);
-  border:1px solid rgba(255,255,255,0.18);
+  background:rgba(255,255,255,0.07);
+  border:1px solid rgba(255,255,255,0.13);
   border-radius:6px;width:24px;height:24px;font-size:14px;color:var(--t1);cursor:pointer;
   display:flex;align-items:center;justify-content:center;
-  box-shadow:inset 0 1px 0 rgba(255,255,255,0.20);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,0.14);
   transition:background var(--dur),color var(--dur);
 }}
-.modal-close:hover{{
-  background:linear-gradient(135deg,rgba(255,255,255,0.22) 0%,rgba(255,255,255,0.10) 100%);
-  color:#fff;
-}}
+.modal-close:hover{{background:rgba(255,255,255,0.14);color:#fff;}}
 .modal-ticker{{
   font-family:var(--mono);font-size:28px;font-weight:700;margin-bottom:3px;line-height:1;
-  filter:drop-shadow(0 0 12px currentColor);
 }}
 .modal-name{{font-size:11.5px;color:var(--t1);margin-bottom:20px;}}
-.modal-banner{{border-radius:8px;padding:9px 12px;margin-bottom:12px;font-size:10.5px;line-height:1.5;display:none;}}
+.modal-banner{{border-radius:7px;padding:9px 12px;margin-bottom:12px;font-size:10.5px;line-height:1.5;display:none;}}
 .modal-banner.on{{display:block;}}
-.modal-banner.warn{{background:rgba(255,82,82,.12);border:1px solid rgba(255,82,82,.32);color:#ff8080;}}
-.modal-banner.info{{background:rgba(255,170,51,.10);border:1px solid rgba(255,170,51,.30);color:#ffaa33;}}
-.modal-row{{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.08);font-size:11.5px;}}
+.modal-banner.warn{{background:rgba(255,82,82,.10);border:1px solid rgba(255,82,82,.28);color:#ff8080;}}
+.modal-banner.info{{background:rgba(255,170,51,.09);border:1px solid rgba(255,170,51,.26);color:#ffaa33;}}
+.modal-row{{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.07);font-size:11.5px;}}
 .modal-row:last-of-type{{border-bottom:none;}}
 .modal-key{{color:var(--t2);font-size:9px;text-transform:uppercase;letter-spacing:.7px;font-weight:600;}}
 .modal-val{{color:#fff;font-family:var(--mono);font-size:11px;font-weight:600;}}
 .modal-val.secondary{{color:var(--t1);font-size:10.5px;font-weight:400;}}
-.modal-source-row{{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.08);gap:12px;}}
+.modal-source-row{{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.07);gap:12px;}}
 .modal-source-col{{display:flex;flex-direction:column;gap:3px;flex:1;}}
 .modal-source-label{{color:var(--t2);font-size:8.5px;text-transform:uppercase;letter-spacing:.7px;font-weight:600;}}
 .modal-source-date{{font-family:var(--mono);font-size:11.5px;font-weight:600;color:#fff;}}
@@ -1142,20 +1095,19 @@ body{{
 .modal-ir-link{{
   display:inline-flex;align-items:center;gap:6px;margin-top:16px;
   font-family:var(--mono);font-size:9.5px;font-weight:600;color:var(--accent);text-decoration:none;
-  border:1px solid rgba(106,171,255,.36);border-radius:9px;padding:9px 14px;width:100%;
+  border:1px solid rgba(106,171,255,.28);border-radius:8px;padding:9px 14px;width:100%;
   justify-content:center;
-  background:linear-gradient(135deg,rgba(106,171,255,0.12) 0%,rgba(106,171,255,0.05) 100%);
+  background:rgba(106,171,255,0.07);
   backdrop-filter:blur(8px);
-  box-shadow:inset 0 1px 0 rgba(106,171,255,0.20);
-  transition:background var(--dur),border-color var(--dur),box-shadow var(--dur);
+  box-shadow:inset 0 1px 0 rgba(106,171,255,0.14);
+  transition:background var(--dur),border-color var(--dur);
 }}
 .modal-ir-link:hover{{
-  background:linear-gradient(135deg,rgba(106,171,255,0.22) 0%,rgba(106,171,255,0.10) 100%);
-  border-color:rgba(106,171,255,.65);
-  box-shadow:0 0 20px rgba(106,171,255,.22),inset 0 1px 0 rgba(106,171,255,0.35);
+  background:rgba(106,171,255,0.14);
+  border-color:rgba(106,171,255,.50);
 }}
 
-/* ========== MOBILE ========== */
+/* ── MOBILE ───────────────────────────────────────────────────────────── */
 @media(max-width:768px){{
   .sidebar{{width:0;border-right-color:transparent;}}
   .topbar{{padding:0 10px;height:46px;gap:6px;}}
@@ -1190,8 +1142,6 @@ body{{
     <span class="sidebar-title">&#11041; Sectors</span>
   </div>
   <div class="sidebar-sectors">{sidebar_html}</div>
-
-  <!-- PLAIN NOTES BOX pinned to bottom -->
   <div class="notes-panel">
     <textarea class="notes-box" id="notesBox"
               placeholder="Private notes&#10;Auto-saved locally…"
@@ -1201,10 +1151,12 @@ body{{
 
 <div class="content">
 
+<!-- ===== TOPBAR ===== -->
 <header class="topbar">
   <div class="topbar-left">
+    <!-- Left-arrow toggle; flips to right-arrow when collapsed -->
     <button class="sidebar-toggle" id="sidebarToggle"
-            onclick="toggleSidebar()" title="Toggle sidebar">&#8801;</button>
+            onclick="toggleSidebar()" title="Toggle sidebar">&#8249;</button>
     <span class="title-dot"></span>
     <span class="page-title">Earnings Calendar</span>
     <span class="vdiv"></span>
@@ -1226,6 +1178,7 @@ body{{
   </div>
 </header>
 
+<!-- ===== KEY BAR ===== -->
 <div class="timingbar">
   <span class="key-label">Key</span>
   {BMO_KEY_BADGE}
@@ -1249,6 +1202,7 @@ body{{
   </div>
 </div>
 
+<!-- ===== SEARCH ===== -->
 <div class="search-bar">
   <div class="search-wrap">
     <span class="search-icon">&#8981;</span>
@@ -1266,10 +1220,10 @@ body{{
   <span>Neil J Kanatt &middot; NASDAQ API + Yahoo Finance</span>
   <span id="refreshLabel">Next refresh calculating&hellip;</span>
 </footer>
-</div>
-</div>
+</div><!-- .content -->
+</div><!-- .page-wrap -->
 
-<!-- MODAL -->
+<!-- ===== MODAL ===== -->
 <div class="overlay" id="overlay" onclick="closeModal(event)">
   <div class="modal" id="modal">
     <button class="modal-close" onclick="closeModal()">&times;</button>
@@ -1315,11 +1269,13 @@ const SECTOR_COLORS = {cj};
 const COMPANY_NAMES = {nj};
 const IR_URLS_JS    = {ir_json};
 
-// ── Sidebar toggle ──────────────────────────────────────────────────────────
+// ── Sidebar toggle (arrow flips direction) ──────────────────────────────
 let sidebarOpen = true;
 function toggleSidebar() {{
   sidebarOpen = !sidebarOpen;
   document.getElementById('sidebar').classList.toggle('collapsed', !sidebarOpen);
+  // Flip the arrow: ‹ when open (click to close), › when closed (click to open)
+  document.getElementById('sidebarToggle').classList.toggle('flipped', !sidebarOpen);
 }}
 
 function toggleSector(safe) {{
@@ -1330,7 +1286,7 @@ function toggleSector(safe) {{
   a.classList.toggle('open', !open);
 }}
 
-// ── Search ──────────────────────────────────────────────────────────────────
+// ── Search ──────────────────────────────────────────────────────────────
 const searchInput = document.getElementById('searchInput');
 const searchClear = document.getElementById('searchClear');
 const searchHint  = document.getElementById('searchHint');
@@ -1368,7 +1324,7 @@ function applySearch(q) {{
   searchHint.textContent = found ? found + ' result' + (found > 1 ? 's' : '') : 'No results';
 }}
 
-// ── Modal ───────────────────────────────────────────────────────────────────
+// ── Modal ───────────────────────────────────────────────────────────────
 function showCard(ticker, name, sector, timing, nasdaqDate, color, source, yahooDate, mismatch, confirmed, irUrl) {{
   document.getElementById('mTicker').textContent = ticker;
   document.getElementById('mTicker').style.color  = color;
@@ -1399,10 +1355,12 @@ document.addEventListener('keydown', e => {{
 }});
 </script>
 
-<!-- Notes + Refresh JS injected as plain strings (no f-string brace conflicts) -->
+<!-- Notes JS (raw string, no f-string brace issues) -->
 <script>
 {notes_js}
 </script>
+
+<!-- Auto-refresh JS — 4 AM ET only -->
 <script>
 {refresh_js}
 </script>
