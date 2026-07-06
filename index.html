@@ -9,22 +9,17 @@
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
-  --bg0:#060810;--bg1:#080b18;--bg2:#0b0f20;
-  /* Glass tokens — translucent, almost see-through */
-  --glass-bg:rgba(255,255,255,0.055);
-  --glass-bg-hover:rgba(255,255,255,0.09);
-  --glass-border:rgba(255,255,255,0.11);
-  --glass-border-hover:rgba(255,255,255,0.20);
-  --glass-shine:rgba(255,255,255,0.18);
-  --glass-blur:blur(28px) saturate(170%);
-  /* Text */
-  --t0:#ffffff;--t1:#dde6ff;--t2:#8a9ec4;--t3:#3e4f72;
-  /* Accent */
-  --accent:#6aabff;--accent2:#93c8ff;
-  /* Badges */
-  --bmo:#ffd740;--amc:#b8a4ff;
-  --conflict:#ff5252;--unconf:#ffaa33;
-  /* Layout */
+  --bg0:#07091a;--bg1:#090c1e;--bg2:#0c1025;
+  --glass-bg:rgba(255,255,255,0.07);
+  --glass-bg-hover:rgba(255,255,255,0.11);
+  --glass-border:rgba(255,255,255,0.14);
+  --glass-border-hover:rgba(255,255,255,0.24);
+  --glass-shine:rgba(255,255,255,0.22);
+  --glass-blur:blur(28px) saturate(180%);
+  --t0:#ffffff;--t1:#e4eeff;--t2:#96aed4;--t3:#4a5f88;
+  --accent:#6aabff;--accent2:#a0d4ff;
+  --bmo:#ffd740;--amc:#c4b0ff;
+  --conflict:#ff5f5f;--unconf:#ffb347;
   --sidebar-w:240px;
   --r:8px;--r-lg:12px;--r-xl:16px;
   --ease:cubic-bezier(0.4,0,0.2,1);--dur:0.18s;
@@ -33,43 +28,27 @@
 }
 ::-webkit-scrollbar{width:3px;height:3px}
 ::-webkit-scrollbar-track{background:transparent}
-::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.14);border-radius:3px}
-
-/* ── Body & background ─────────────────────────────────────────────────── */
+::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.18);border-radius:3px}
 body{
   font-family:var(--sans);background:var(--bg0);color:var(--t1);
   min-height:100vh;-webkit-font-smoothing:antialiased;overflow-x:hidden;
-  /* Rich layered gradient so glass has something to refract */
   background-image:
-    radial-gradient(ellipse 100% 65% at 10% -5%,  rgba(60,110,255,0.22) 0%,transparent 55%),
-    radial-gradient(ellipse 80%  55% at 90% 105%,  rgba(140,50,220,0.16) 0%,transparent 55%),
-    radial-gradient(ellipse 60%  45% at 55%  50%,  rgba(10,20,70,0.40)  0%,transparent 70%),
-    radial-gradient(ellipse 40%  30% at 30%  80%,  rgba(30,80,180,0.10) 0%,transparent 50%);
+    radial-gradient(ellipse 110% 70% at 8%  -8%,  rgba(60,120,255,0.32) 0%,transparent 52%),
+    radial-gradient(ellipse 85%  60% at 92% 108%,  rgba(160,60,240,0.22) 0%,transparent 52%),
+    radial-gradient(ellipse 55%  45% at 52%  48%,  rgba(10,22,80,0.35)  0%,transparent 65%),
+    radial-gradient(ellipse 45%  35% at 28%  82%,  rgba(30,90,200,0.14) 0%,transparent 50%),
+    radial-gradient(ellipse 40%  30% at 75%  20%,  rgba(100,40,200,0.10) 0%,transparent 45%);
 }
 .page-wrap{display:flex;min-height:100vh;}
 
-/* ── Shared glass surface mixin (applied via inline style or class) ──────
-   Key recipe: very low rgba fill + strong blur + thin bright border + top-shine inset */
-.glass-surface{
-  background:var(--glass-bg);
-  backdrop-filter:var(--glass-blur);
-  -webkit-backdrop-filter:var(--glass-blur);
-  border:1px solid var(--glass-border);
-  box-shadow:
-    inset 0 1px 0 var(--glass-shine),
-    inset 0 -1px 0 rgba(0,0,0,0.12),
-    0 4px 24px rgba(0,0,0,0.40);
-}
-
-/* ── SIDEBAR ──────────────────────────────────────────────────────────── */
+/* ── SIDEBAR ── */
 .sidebar{
   width:var(--sidebar-w);flex-shrink:0;
-  /* Almost-transparent glass panel */
-  background:rgba(8,10,22,0.55);
-  backdrop-filter:blur(32px) saturate(160%);
-  -webkit-backdrop-filter:blur(32px) saturate(160%);
-  border-right:1px solid rgba(255,255,255,0.09);
-  box-shadow:inset -1px 0 0 rgba(255,255,255,0.05),2px 0 20px rgba(0,0,0,0.35);
+  background:rgba(7,9,24,0.60);
+  backdrop-filter:blur(32px) saturate(170%);
+  -webkit-backdrop-filter:blur(32px) saturate(170%);
+  border-right:1px solid rgba(255,255,255,0.11);
+  box-shadow:inset -1px 0 0 rgba(255,255,255,0.06),2px 0 24px rgba(0,0,0,0.40);
   position:sticky;top:0;height:100vh;
   display:flex;flex-direction:column;
   transition:width var(--dur) var(--ease);
@@ -77,157 +56,67 @@ body{
 }
 .sidebar.collapsed{width:0;border-right-color:transparent;}
 .content{flex:1;min-width:0;display:flex;flex-direction:column;}
-
-.sidebar-head{
-  padding:14px 14px 10px;
-  border-bottom:1px solid rgba(255,255,255,0.08);
-  flex-shrink:0;
-}
-.sidebar-title{
-  font-family:var(--mono);font-size:8.5px;font-weight:700;
-  color:var(--accent);text-transform:uppercase;letter-spacing:2px;white-space:nowrap;
-}
+.sidebar-head{padding:14px 14px 10px;border-bottom:1px solid rgba(255,255,255,0.09);flex-shrink:0;}
+.sidebar-title{font-family:var(--mono);font-size:8.5px;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:2px;white-space:nowrap;}
 .sidebar-sectors{overflow-y:auto;flex:1;padding:4px 0;min-height:0;}
-
-.sleg-group{border-bottom:1px solid rgba(255,255,255,0.05);}
-.sleg-toggle{
-  display:flex;align-items:center;gap:8px;
-  width:100%;padding:7px 12px;background:none;border:none;cursor:pointer;
-  transition:background var(--dur);
-}
-.sleg-toggle:hover{background:rgba(255,255,255,0.06);}
-.sleg-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;opacity:0.85;}
-.sleg-label{
-  font-family:var(--mono);font-size:8.5px;font-weight:700;
-  color:var(--t0);flex:1;text-align:left;letter-spacing:.3px;white-space:nowrap;
-  overflow:hidden;text-overflow:ellipsis;
-}
+.sleg-group{border-bottom:1px solid rgba(255,255,255,0.06);}
+.sleg-toggle{display:flex;align-items:center;gap:8px;width:100%;padding:7px 12px;background:none;border:none;cursor:pointer;transition:background var(--dur);}
+.sleg-toggle:hover{background:rgba(255,255,255,0.07);}
+.sleg-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;opacity:0.9;}
+.sleg-label{font-family:var(--mono);font-size:8.5px;font-weight:700;color:var(--t0);flex:1;text-align:left;letter-spacing:.3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 .sleg-arrow{font-size:13px;color:var(--t3);transition:transform var(--dur) var(--ease);flex-shrink:0;line-height:1;}
 .sleg-arrow.open{transform:rotate(90deg);color:var(--t2);}
-.sleg-tickers{
-  display:flex;flex-wrap:wrap;gap:3px;padding:0 12px;
-  overflow:hidden;max-height:0;transition:max-height 0.3s var(--ease),padding 0.2s;
-}
+.sleg-tickers{display:flex;flex-wrap:wrap;gap:3px;padding:0 12px;overflow:hidden;max-height:0;transition:max-height 0.3s var(--ease),padding 0.2s;}
 .sleg-tickers.open{max-height:200px;padding:0 12px 8px;}
-.sleg-ticker{
-  font-family:var(--mono);font-size:7.5px;color:var(--t1);
-  background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.10);
-  border-radius:3px;padding:1px 5px;cursor:pointer;
-  transition:color var(--dur),background var(--dur),border-color var(--dur);
-  text-decoration:none;display:inline-block;
-}
-.sleg-ticker:hover{
-  color:#fff;background:rgba(106,171,255,0.18);
-  border-color:rgba(106,171,255,0.40);
-}
+.sleg-ticker{font-family:var(--mono);font-size:7.5px;color:var(--t1);background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.12);border-radius:3px;padding:1px 5px;cursor:pointer;transition:color var(--dur),background var(--dur),border-color var(--dur);text-decoration:none;display:inline-block;}
+.sleg-ticker:hover{color:#fff;background:rgba(106,171,255,0.20);border-color:rgba(106,171,255,0.45);}
 
-/* ── NOTES PANEL ─────────────────────────────────────────────────────── */
-.notes-panel{
-  flex-shrink:0;
-  background:rgba(6,8,18,0.55);
-  border-top:1px solid rgba(255,255,255,0.08);
-  padding:8px;
-}
-.notes-box{
-  width:100%;height:110px;
-  background:rgba(255,255,255,0.04);
-  border:1px solid rgba(255,255,255,0.10);
-  border-radius:7px;
-  padding:7px 9px;
-  font-family:var(--sans);font-size:10px;color:#fff;
-  outline:none;resize:none;line-height:1.55;
-  transition:border-color var(--dur),background var(--dur);
-}
+/* ── NOTES ── */
+.notes-panel{flex-shrink:0;background:rgba(6,8,20,0.55);border-top:1px solid rgba(255,255,255,0.09);padding:8px;}
+.notes-box{width:100%;height:110px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.12);border-radius:7px;padding:7px 9px;font-family:var(--sans);font-size:10px;color:#fff;outline:none;resize:none;line-height:1.55;transition:border-color var(--dur),background var(--dur);}
 .notes-box::placeholder{color:var(--t3);font-style:italic;}
-.notes-box:focus{
-  border-color:rgba(106,171,255,0.45);
-  background:rgba(255,255,255,0.07);
-}
+.notes-box:focus{border-color:rgba(106,171,255,0.50);background:rgba(255,255,255,0.08);}
 
-/* ── TOPBAR ───────────────────────────────────────────────────────────── */
+/* ── TOPBAR ── */
 .topbar{
   height:52px;
-  /* Translucent glass strip */
-  background:rgba(6,8,18,0.50);
-  backdrop-filter:blur(36px) saturate(180%);
-  -webkit-backdrop-filter:blur(36px) saturate(180%);
-  border-bottom:1px solid rgba(255,255,255,0.10);
-  box-shadow:inset 0 1px 0 rgba(255,255,255,0.10),0 2px 16px rgba(0,0,0,0.45);
+  background:rgba(5,7,20,0.55);
+  backdrop-filter:blur(36px) saturate(190%);
+  -webkit-backdrop-filter:blur(36px) saturate(190%);
+  border-bottom:1px solid rgba(255,255,255,0.12);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,0.12),0 2px 20px rgba(0,0,0,0.50);
   display:flex;align-items:center;justify-content:space-between;
   padding:0 18px;position:sticky;top:0;z-index:300;gap:12px;
 }
 .topbar-left{display:flex;align-items:center;gap:10px;}
 .page-title{font-size:13px;font-weight:700;color:#fff;letter-spacing:-.3px;white-space:nowrap;}
-.title-dot{
-  width:7px;height:7px;border-radius:50%;background:var(--accent);flex-shrink:0;
-  box-shadow:0 0 0 2px rgba(106,171,255,0.22),0 0 10px rgba(106,171,255,0.55);
-  animation:dotPulse 2.8s ease-in-out infinite;
-}
+.title-dot{width:8px;height:8px;border-radius:50%;background:var(--accent);flex-shrink:0;box-shadow:0 0 0 2px rgba(106,171,255,0.28),0 0 14px rgba(106,171,255,0.70);animation:dotPulse 2.8s ease-in-out infinite;}
 @keyframes dotPulse{
-  0%,100%{box-shadow:0 0 0 2px rgba(106,171,255,0.15),0 0 6px rgba(106,171,255,0.40);}
-  50%{box-shadow:0 0 0 4px rgba(106,171,255,0.28),0 0 18px rgba(106,171,255,0.70);}
+  0%,100%{box-shadow:0 0 0 2px rgba(106,171,255,0.18),0 0 8px rgba(106,171,255,0.50);}
+  50%{box-shadow:0 0 0 5px rgba(106,171,255,0.32),0 0 22px rgba(106,171,255,0.85);}
 }
-.vdiv{width:1px;height:16px;background:rgba(255,255,255,0.12);}
+.vdiv{width:1px;height:16px;background:rgba(255,255,255,0.14);}
 .topbar-meta{font-size:10px;color:var(--t2);white-space:nowrap;}
 .topbar-right{display:flex;align-items:center;gap:8px;flex-shrink:0;}
-
-/* Glass stat pills */
-.tstat{
-  display:flex;flex-direction:column;align-items:center;padding:5px 12px;
-  border-radius:9px;
-  background:rgba(255,255,255,0.055);
-  backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);
-  border:1px solid rgba(255,255,255,0.11);
-  box-shadow:inset 0 1px 0 rgba(255,255,255,0.14);
-  transition:background var(--dur),border-color var(--dur);
-}
-.tstat:hover{background:rgba(255,255,255,0.09);border-color:rgba(255,255,255,0.18);}
+.tstat{display:flex;flex-direction:column;align-items:center;padding:5px 12px;border-radius:9px;background:rgba(255,255,255,0.07);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border:1px solid rgba(255,255,255,0.14);box-shadow:inset 0 1px 0 rgba(255,255,255,0.18);transition:background var(--dur),border-color var(--dur);}
+.tstat:hover{background:rgba(255,255,255,0.12);border-color:rgba(255,255,255,0.22);}
 .tstat-num{font-family:var(--mono);font-size:15px;font-weight:700;color:#fff;line-height:1.1;}
 .tstat-lbl{font-size:7px;color:var(--t2);text-transform:uppercase;letter-spacing:.9px;margin-top:2px;}
-
-/* Arrow sidebar toggle */
-.sidebar-toggle{
-  display:flex;align-items:center;justify-content:center;
-  width:28px;height:28px;border-radius:7px;
-  background:rgba(255,255,255,0.07);
-  border:1px solid rgba(255,255,255,0.12);
-  box-shadow:inset 0 1px 0 rgba(255,255,255,0.14);
-  color:var(--t1);cursor:pointer;
-  font-size:20px;font-weight:700;line-height:1;
-  /* Use a real left-arrow character */
-  transition:background var(--dur),color var(--dur),transform var(--dur);
-  flex-shrink:0;
-}
-.sidebar-toggle:hover{background:rgba(255,255,255,0.13);color:#fff;}
-/* When sidebar is collapsed the arrow flips to point right */
+.sidebar-toggle{display:flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:7px;background:rgba(255,255,255,0.09);border:1px solid rgba(255,255,255,0.15);box-shadow:inset 0 1px 0 rgba(255,255,255,0.18);color:var(--t1);cursor:pointer;font-size:20px;font-weight:700;line-height:1;transition:background var(--dur),color var(--dur),transform var(--dur);flex-shrink:0;}
+.sidebar-toggle:hover{background:rgba(255,255,255,0.16);color:#fff;}
 .sidebar-toggle.flipped{transform:scaleX(-1);}
 
-/* ── TIMING / KEY BAR ─────────────────────────────────────────────────── */
-.timingbar{
-  background:rgba(6,8,18,0.45);
-  backdrop-filter:blur(24px) saturate(160%);
-  -webkit-backdrop-filter:blur(24px) saturate(160%);
-  border-bottom:1px solid rgba(255,255,255,0.08);
-  padding:8px 18px 10px;
-  display:flex;align-items:center;gap:8px;
-  font-size:11px;color:var(--t2);flex-wrap:wrap;
-}
+/* ── KEY BAR ── */
+.timingbar{background:rgba(5,7,20,0.50);backdrop-filter:blur(24px) saturate(170%);-webkit-backdrop-filter:blur(24px) saturate(170%);border-bottom:1px solid rgba(255,255,255,0.09);padding:8px 18px 10px;display:flex;align-items:center;gap:8px;font-size:11px;color:var(--t2);flex-wrap:wrap;}
 .key-label{font-family:var(--mono);font-size:8.5px;font-weight:700;color:var(--t0);text-transform:uppercase;letter-spacing:1px;}
-.tpill{
-  display:inline-flex;align-items:center;gap:4px;font-size:9px;font-weight:700;
-  padding:3px 9px;border-radius:5px;font-family:var(--mono);letter-spacing:.3px;white-space:nowrap;
-  backdrop-filter:blur(8px);
-}
-.tpill.pre{background:rgba(255,215,64,.12);color:#ffd740;border:1px solid rgba(255,215,64,.30);}
-.tpill.aft{background:rgba(184,164,255,.12);color:#b8a4ff;border:1px solid rgba(184,164,255,.30);}
-.tpill.unc{background:rgba(255,170,51,.12);color:#ffaa33;border:1px solid rgba(255,170,51,.30);}
-.tpill.mis{background:rgba(255,82,82,.12);color:#ff5252;border:1px solid rgba(255,82,82,.30);}
+.tpill{display:inline-flex;align-items:center;gap:4px;font-size:9px;font-weight:700;padding:3px 9px;border-radius:5px;font-family:var(--mono);letter-spacing:.3px;white-space:nowrap;backdrop-filter:blur(8px);}
+.tpill.pre{background:rgba(255,215,64,.15);color:#ffd740;border:1px solid rgba(255,215,64,.38);}
+.tpill.aft{background:rgba(196,176,255,.15);color:#c4b0ff;border:1px solid rgba(196,176,255,.38);}
+.tpill.unc{background:rgba(255,179,71,.15);color:#ffb347;border:1px solid rgba(255,179,71,.38);}
+.tpill.mis{background:rgba(255,95,95,.15);color:#ff5f5f;border:1px solid rgba(255,95,95,.38);}
 .key-sep{color:var(--t3);}
 .key-desc{font-size:9.5px;color:var(--t1);}
-.event-legend{
-  display:flex;flex-wrap:wrap;align-items:center;gap:6px;
-  width:100%;margin-top:7px;padding-top:7px;border-top:1px solid rgba(255,255,255,0.07);
-}
+.event-legend{display:flex;flex-wrap:wrap;align-items:center;gap:6px;width:100%;margin-top:7px;padding-top:7px;border-top:1px solid rgba(255,255,255,0.08);}
 .evleg-label{font-family:var(--mono);font-size:8px;font-weight:700;color:var(--t2);text-transform:uppercase;letter-spacing:1px;}
 .evleg-item{display:inline-flex;align-items:center;gap:4px;font-size:9px;color:var(--t1);}
 .evleg-dot{width:7px;height:7px;border-radius:2px;flex-shrink:0;}
@@ -235,308 +124,137 @@ body{
 .evleg-dot.retail{background:#a07030;}
 .evleg-dot.closed{background:rgba(220,60,60,.9);}
 
-/* ── SEARCH BAR ───────────────────────────────────────────────────────── */
-.search-bar{
-  background:rgba(6,8,18,0.42);
-  backdrop-filter:blur(24px) saturate(160%);
-  -webkit-backdrop-filter:blur(24px) saturate(160%);
-  border-bottom:1px solid rgba(255,255,255,0.07);
-  padding:7px 18px;
-  display:flex;align-items:center;gap:10px;
-  position:sticky;top:52px;z-index:299;
-}
+/* ── SEARCH ── */
+.search-bar{background:rgba(5,7,20,0.48);backdrop-filter:blur(24px) saturate(170%);-webkit-backdrop-filter:blur(24px) saturate(170%);border-bottom:1px solid rgba(255,255,255,0.08);padding:7px 18px;display:flex;align-items:center;gap:10px;position:sticky;top:52px;z-index:299;}
 .search-wrap{position:relative;display:flex;align-items:center;}
 .search-icon{position:absolute;left:9px;color:var(--t2);font-size:13px;pointer-events:none;}
-.search-input{
-  background:rgba(255,255,255,0.06);
-  border:1px solid rgba(255,255,255,0.11);
-  border-radius:7px;
-  padding:5px 28px 5px 28px;
-  font-family:var(--mono);font-size:11px;color:#fff;
-  outline:none;width:200px;
-  backdrop-filter:blur(12px);
-  transition:border-color var(--dur),background var(--dur);
-  box-shadow:inset 0 1px 0 rgba(255,255,255,0.08);
-}
+.search-input{background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.14);border-radius:7px;padding:5px 28px 5px 28px;font-family:var(--mono);font-size:11px;color:#fff;outline:none;width:200px;backdrop-filter:blur(12px);transition:border-color var(--dur),background var(--dur);box-shadow:inset 0 1px 0 rgba(255,255,255,0.10);}
 .search-input::placeholder{color:var(--t3);}
-.search-input:focus{
-  border-color:rgba(106,171,255,0.50);
-  background:rgba(106,171,255,0.08);
-}
-.search-clear{
-  position:absolute;right:7px;background:none;border:none;color:var(--t2);
-  cursor:pointer;font-size:14px;line-height:1;padding:0;display:none;transition:color var(--dur);
-}
+.search-input:focus{border-color:rgba(106,171,255,0.55);background:rgba(106,171,255,0.10);}
+.search-clear{position:absolute;right:7px;background:none;border:none;color:var(--t2);cursor:pointer;font-size:14px;line-height:1;padding:0;display:none;transition:color var(--dur);}
 .search-clear:hover{color:#fff;}
 .search-clear.on{display:block;}
 .search-hint{font-size:10px;color:var(--t1);font-family:var(--mono);}
 
-/* ── CALENDAR ─────────────────────────────────────────────────────────── */
+/* ── CALENDAR ── */
 .main{padding:16px 18px 32px;max-width:1440px;margin:0 auto;}
+
+/* Month block */
 .mblock{
-  margin-bottom:22px;border-radius:var(--r-lg);overflow:hidden;
-  /* Very translucent glass month block */
-  background:rgba(255,255,255,0.035);
-  backdrop-filter:blur(20px) saturate(150%);
-  -webkit-backdrop-filter:blur(20px) saturate(150%);
-  border:1px solid rgba(255,255,255,0.10);
-  box-shadow:
-    inset 0 1px 0 rgba(255,255,255,0.10),
-    0 6px 28px rgba(0,0,0,0.45);
-}
-.mblock-header{
-  padding:10px 14px 8px;border-bottom:1px solid rgba(255,255,255,0.08);
-  display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;
-  background:linear-gradient(90deg,var(--es-bg,rgba(255,255,255,0.02)) 0%,transparent 60%);
-}
-.mlabel{font-family:var(--mono);font-size:12px;font-weight:700;color:#fff;letter-spacing:.5px;}
-.earn-season-badge{
-  display:inline-flex;align-items:center;font-family:var(--mono);font-size:8.5px;font-weight:700;
-  padding:3px 9px;border-radius:5px;white-space:nowrap;
-  background:color-mix(in srgb,var(--ec) 12%,transparent);
-  color:var(--ec);border:1px solid color-mix(in srgb,var(--ec) 28%,transparent);
-}
-.earn-season-sub{font-size:7px;font-weight:400;opacity:0.60;margin-left:5px;}
-
-.cgrid{
-  display:grid;grid-template-columns:repeat(7,1fr);gap:2px;padding:4px;
-  background:rgba(2,4,12,0.60);
-}
-.dname{
-  text-align:center;font-family:var(--mono);font-size:8px;font-weight:700;
-  color:var(--t2);padding:5px 0;letter-spacing:1.2px;
-}
-
-/* Calendar cells — translucent glass */
-.dcell{
-  background:rgba(255,255,255,0.028);
-  border:1px solid rgba(255,255,255,0.07);
-  border-radius:7px;min-height:100px;padding:7px 6px 5px;
-  transition:border-color 0.15s,background 0.15s;
-  position:relative;overflow:hidden;
-}
-/* Faint top-shine */
-.dcell::before{
-  content:'';position:absolute;inset:0;
-  background:linear-gradient(160deg,rgba(255,255,255,0.045) 0%,transparent 38%);
-  pointer-events:none;border-radius:7px;
-}
-.dcell.empty{background:transparent;border-color:transparent;pointer-events:none;}
-.dcell.wknd{background:rgba(0,0,0,0.25);opacity:0.38;}
-.dcell.past{opacity:0.32;filter:saturate(0.35) brightness(0.75);}
-/* Today — accent glass */
-.dcell.today{
-  border-color:rgba(106,171,255,0.60)!important;
-  background:rgba(106,171,255,0.08)!important;
-  box-shadow:
-    0 0 0 1px rgba(106,171,255,0.18),
-    inset 0 1px 0 rgba(106,171,255,0.22)!important;
-}
-.dcell.today::after{
-  content:'';position:absolute;top:0;left:0;right:0;height:2px;
-  background:linear-gradient(90deg,transparent,var(--accent),var(--accent2),transparent);
-  border-radius:7px 7px 0 0;opacity:0.80;
-}
-.dcell.today .dno{color:var(--accent)!important;font-weight:700;}
-.dcell.has-e{
-  border-color:rgba(255,255,255,0.11);
+  margin-bottom:16px;border-radius:var(--r-lg);overflow:hidden;
   background:rgba(255,255,255,0.048);
+  backdrop-filter:blur(20px) saturate(160%);
+  -webkit-backdrop-filter:blur(20px) saturate(160%);
+  border:1px solid rgba(255,255,255,0.12);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,0.13),0 6px 30px rgba(0,0,0,0.45);
+  transition:box-shadow 0.2s;
 }
-.dcell.mkt-closed{
-  background:rgba(80,8,8,0.35);
-  border-color:rgba(200,50,50,.18);
+.mblock:hover{box-shadow:inset 0 1px 0 rgba(255,255,255,0.18),0 8px 36px rgba(0,0,0,0.55);}
+
+/* Collapsed past month */
+.mblock.past-month .mblock-body{
+  display:grid;
+  grid-template-rows:0fr;
+  transition:grid-template-rows 0.38s cubic-bezier(0.4,0,0.2,1);
 }
-.dno{
-  font-family:var(--mono);font-size:10.5px;font-weight:600;
-  color:rgba(210,225,255,0.75);margin-bottom:3px;display:block;
+.mblock.past-month .mblock-body > .cgrid{overflow:hidden;min-height:0;}
+.mblock.past-month.expanded .mblock-body{grid-template-rows:1fr;}
+/* Current/future month — body always visible */
+.mblock:not(.past-month) .mblock-body{display:block;}
+
+.mblock-header{
+  padding:10px 14px 9px;border-bottom:1px solid rgba(255,255,255,0.09);
+  display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;
+  background:linear-gradient(90deg,var(--es-bg,rgba(255,255,255,0.03)) 0%,transparent 60%);
+  cursor:pointer;user-select:none;transition:background 0.15s;
 }
-.evbadge{
-  font-family:var(--mono);font-size:6.5px;font-weight:700;padding:1px 4px;border-radius:3px;
-  margin-bottom:2px;display:inline-block;letter-spacing:.2px;white-space:nowrap;
-  max-width:100%;overflow:hidden;text-overflow:ellipsis;
-}
-.evbadge-holiday{background:rgba(74,122,200,.28);color:#a0c4f8;border:1px solid rgba(74,122,200,.45);}
-.evbadge-retail{background:rgba(160,112,48,.28);color:#f0c878;border:1px solid rgba(160,112,48,.45);}
-.ev-closed{
-  font-size:6px;font-weight:900;background:rgba(200,30,30,.85);color:#fff;
-  padding:0 3px;border-radius:2px;margin-left:2px;letter-spacing:.3px;vertical-align:middle;
-}
+.mblock-header:hover{background:linear-gradient(90deg,rgba(255,255,255,0.055) 0%,rgba(255,255,255,0.02) 60%);}
+.mblock-header-left{display:flex;align-items:center;gap:8px;}
+.month-chevron{font-size:11px;color:var(--t2);transition:color 0.15s;display:inline-block;line-height:1;width:14px;text-align:center;}
+.mblock.past-month .month-chevron{color:var(--t3);}
+.past-pill{font-family:var(--mono);font-size:7.5px;font-weight:700;padding:2px 7px;border-radius:4px;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.12);color:var(--t2);letter-spacing:.4px;}
+.mlabel{font-family:var(--mono);font-size:12px;font-weight:700;color:#fff;letter-spacing:.5px;}
+.earn-season-badge{display:inline-flex;align-items:center;font-family:var(--mono);font-size:8.5px;font-weight:700;padding:3px 9px;border-radius:5px;white-space:nowrap;background:color-mix(in srgb,var(--ec) 14%,transparent);color:var(--ec);border:1px solid color-mix(in srgb,var(--ec) 32%,transparent);}
+.earn-season-sub{font-size:7px;font-weight:400;opacity:0.65;margin-left:5px;}
+
+.cgrid{display:grid;grid-template-columns:repeat(7,1fr);gap:2px;padding:4px;background:rgba(2,4,14,0.55);}
+.dname{text-align:center;font-family:var(--mono);font-size:8px;font-weight:700;color:var(--t2);padding:5px 0;letter-spacing:1.2px;}
+
+/* Cells */
+.dcell{background:rgba(255,255,255,0.040);border:1px solid rgba(255,255,255,0.09);border-radius:7px;min-height:100px;padding:7px 6px 5px;transition:border-color 0.15s,background 0.15s;position:relative;overflow:hidden;}
+.dcell::before{content:'';position:absolute;inset:0;background:linear-gradient(155deg,rgba(255,255,255,0.06) 0%,transparent 40%);pointer-events:none;border-radius:7px;}
+.dcell.empty{background:transparent;border-color:transparent;pointer-events:none;}
+.dcell.wknd{background:rgba(0,0,0,0.28);opacity:0.40;}
+.dcell.past{opacity:0.35;filter:saturate(0.40) brightness(0.78);}
+.dcell.today{border-color:rgba(106,171,255,0.70)!important;background:rgba(106,171,255,0.11)!important;box-shadow:0 0 0 1px rgba(106,171,255,0.22),inset 0 1px 0 rgba(106,171,255,0.28)!important;}
+.dcell.today::after{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--accent),var(--accent2),transparent);border-radius:7px 7px 0 0;animation:shimmerLine 2.5s ease-in-out infinite;}
+@keyframes shimmerLine{0%,100%{opacity:0.6;}50%{opacity:1;}}
+.dcell.today .dno{color:var(--accent)!important;font-weight:700;}
+.dcell.has-e{border-color:rgba(255,255,255,0.13);background:rgba(255,255,255,0.060);}
+.dcell.mkt-closed{background:rgba(90,10,10,0.38);border-color:rgba(220,60,60,.22);}
+.dno{font-family:var(--mono);font-size:10.5px;font-weight:600;color:rgba(220,235,255,0.80);margin-bottom:3px;display:block;}
+.evbadge{font-family:var(--mono);font-size:6.5px;font-weight:700;padding:1px 4px;border-radius:3px;margin-bottom:2px;display:inline-block;letter-spacing:.2px;white-space:nowrap;max-width:100%;overflow:hidden;text-overflow:ellipsis;}
+.evbadge-holiday{background:rgba(74,122,200,.32);color:#b0d0ff;border:1px solid rgba(74,122,200,.50);}
+.evbadge-retail{background:rgba(160,112,48,.32);color:#f5d090;border:1px solid rgba(160,112,48,.50);}
+.ev-closed{font-size:6px;font-weight:900;background:rgba(210,30,30,.90);color:#fff;padding:0 3px;border-radius:2px;margin-left:2px;letter-spacing:.3px;vertical-align:middle;}
 .chips{display:flex;flex-wrap:wrap;gap:3px;margin-top:3px;}
 
-/* ── CHIPS — black text, vivid color, toned-down glow ──────────────── */
-.chip{
-  display:inline-flex;align-items:center;gap:2px;
-  /* Bright, saturated fill — lightened so black text reads well */
-  background:linear-gradient(135deg,
-    color-mix(in srgb,var(--cc) 70%,#fff 30%) 0%,
-    color-mix(in srgb,var(--cc) 88%,#fff 12%) 100%);
-  font-family:var(--mono);font-size:9px;font-weight:800;
-  color:#000;
-  padding:4px 7px;border-radius:5px;cursor:pointer;white-space:nowrap;
-  /* Subtle border + top-shine only — no ambient glow */
-  border:1px solid rgba(255,255,255,0.28);
-  box-shadow:
-    inset 0 1px 0 rgba(255,255,255,0.45),
-    inset 0 -1px 0 rgba(0,0,0,0.10),
-    0 1px 4px rgba(0,0,0,0.35);
-  transition:transform 0.12s,filter 0.12s,box-shadow 0.12s,opacity 0.12s;
-  letter-spacing:.2px;
-}
-.chip:hover{
-  transform:translateY(-2px) scale(1.08);
-  filter:brightness(1.15) saturate(1.08);
-  /* Lift shadow only — no color glow spread */
-  box-shadow:
-    inset 0 1px 0 rgba(255,255,255,0.50),
-    0 5px 14px rgba(0,0,0,0.50);
-  z-index:10;position:relative;
-}
+/* Chips */
+.chip{display:inline-flex;align-items:center;gap:2px;background:linear-gradient(135deg,color-mix(in srgb,var(--cc) 65%,#fff 35%) 0%,color-mix(in srgb,var(--cc) 85%,#fff 15%) 100%);font-family:var(--mono);font-size:9px;font-weight:800;color:#000;padding:4px 7px;border-radius:5px;cursor:pointer;white-space:nowrap;border:1px solid rgba(255,255,255,0.32);box-shadow:inset 0 1px 0 rgba(255,255,255,0.52),inset 0 -1px 0 rgba(0,0,0,0.12),0 2px 6px rgba(0,0,0,0.38);transition:transform 0.12s,filter 0.12s,box-shadow 0.12s,opacity 0.12s;letter-spacing:.2px;}
+.chip:hover{transform:translateY(-2px) scale(1.09);filter:brightness(1.18) saturate(1.10);box-shadow:inset 0 1px 0 rgba(255,255,255,0.58),0 6px 16px rgba(0,0,0,0.52);z-index:10;position:relative;}
 .chip.dimmed{opacity:0.06;pointer-events:none;}
+.tbadge{font-family:var(--mono);font-size:6.5px;font-weight:900;padding:1px 3px;border-radius:3px;letter-spacing:.2px;line-height:1.4;vertical-align:middle;display:inline-block;}
+.tbadge-bmo{background:rgba(0,0,0,0.32);color:#ffd740;border:1px solid rgba(255,215,64,.50);}
+.tbadge-amc{background:rgba(0,0,0,0.32);color:#c4b0ff;border:1px solid rgba(196,176,255,.50);}
+.bdg-uc{font-family:var(--mono);font-size:7.5px;font-weight:900;background:rgba(255,179,71,.38);color:#ffb347;border:1px solid rgba(255,179,71,.60);border-radius:3px;padding:0 3px;line-height:1.4;}
+.bdg-mm{font-family:var(--mono);font-size:7.5px;font-weight:900;background:rgba(255,95,95,.42);color:#ff5f5f;border:1px solid rgba(255,95,95,.70);border-radius:3px;padding:0 3px;line-height:1.4;animation:warnPulse 2.2s ease-in-out infinite;}
+@keyframes warnPulse{0%,100%{box-shadow:none;}50%{box-shadow:0 0 0 2px rgba(255,95,95,.32);}}
 
-.tbadge{
-  font-family:var(--mono);font-size:6.5px;font-weight:900;
-  padding:1px 3px;border-radius:3px;letter-spacing:.2px;line-height:1.4;
-  vertical-align:middle;display:inline-block;
-}
-.tbadge-bmo{background:rgba(0,0,0,0.30);color:#ffd740;border:1px solid rgba(255,215,64,.45);}
-.tbadge-amc{background:rgba(0,0,0,0.30);color:#b8a4ff;border:1px solid rgba(184,164,255,.45);}
-.bdg-uc{
-  font-family:var(--mono);font-size:7.5px;font-weight:900;
-  background:rgba(255,170,51,.35);color:#ffaa33;border:1px solid rgba(255,170,51,.55);
-  border-radius:3px;padding:0 3px;line-height:1.4;
-}
-.bdg-mm{
-  font-family:var(--mono);font-size:7.5px;font-weight:900;
-  background:rgba(255,82,82,.40);color:#ff5252;border:1px solid rgba(255,82,82,.65);
-  border-radius:3px;padding:0 3px;line-height:1.4;
-  animation:warnPulse 2.2s ease-in-out infinite;
-}
-@keyframes warnPulse{
-  0%,100%{box-shadow:none;}
-  50%{box-shadow:0 0 0 2px rgba(255,82,82,.28);}
-}
-
-/* ── UNANNOUNCED ──────────────────────────────────────────────────────── */
-.ubox{
-  margin:0 18px 32px;
-  background:rgba(255,255,255,0.032);
-  backdrop-filter:blur(20px) saturate(150%);
-  -webkit-backdrop-filter:blur(20px) saturate(150%);
-  border:1px solid rgba(255,255,255,0.09);
-  border-radius:var(--r-lg);overflow:hidden;
-  box-shadow:0 6px 24px rgba(0,0,0,0.40),inset 0 1px 0 rgba(255,255,255,0.08);
-}
-.ubox-head{
-  padding:12px 18px;border-bottom:1px solid rgba(255,255,255,0.08);
-  display:flex;align-items:baseline;gap:12px;
-  background:rgba(255,255,255,0.02);
-}
+/* Unannounced */
+.ubox{margin:0 18px 32px;background:rgba(255,255,255,0.042);backdrop-filter:blur(20px) saturate(160%);-webkit-backdrop-filter:blur(20px) saturate(160%);border:1px solid rgba(255,255,255,0.11);border-radius:var(--r-lg);overflow:hidden;box-shadow:0 6px 26px rgba(0,0,0,0.42),inset 0 1px 0 rgba(255,255,255,0.10);}
+.ubox-head{padding:12px 18px;border-bottom:1px solid rgba(255,255,255,0.09);display:flex;align-items:baseline;gap:12px;background:rgba(255,255,255,0.025);}
 .ubox-title{font-family:var(--mono);font-size:10.5px;font-weight:700;color:#fff;letter-spacing:.5px;}
 .ubox-sub{font-size:9.5px;color:var(--t1);}
 .utable{width:100%;border-collapse:collapse;}
-.utable th{
-  text-align:left;padding:6px 14px;font-family:var(--mono);font-size:7.5px;font-weight:700;
-  color:var(--t1);border-bottom:1px solid rgba(255,255,255,0.07);text-transform:uppercase;letter-spacing:.8px;
-}
-.utable td{padding:7px 14px;border-bottom:1px solid rgba(255,255,255,0.05);vertical-align:middle;}
+.utable th{text-align:left;padding:6px 14px;font-family:var(--mono);font-size:7.5px;font-weight:700;color:var(--t1);border-bottom:1px solid rgba(255,255,255,0.08);text-transform:uppercase;letter-spacing:.8px;}
+.utable td{padding:7px 14px;border-bottom:1px solid rgba(255,255,255,0.06);vertical-align:middle;}
 .utable tr:last-child td{border-bottom:none;}
-.utable tr:hover td{background:rgba(255,255,255,0.03);}
-.sbadge{
-  font-family:var(--mono);font-size:8.5px;font-weight:700;color:#000;
-  padding:3px 8px;border-radius:5px;white-space:nowrap;
-  border:1px solid rgba(255,255,255,0.18);
-  box-shadow:inset 0 1px 0 rgba(255,255,255,0.28);
-}
-.uchip{
-  display:inline-flex;align-items:center;
-  background:linear-gradient(135deg,
-    color-mix(in srgb,var(--cc) 70%,#fff 30%) 0%,
-    var(--cc) 100%);
-  font-family:var(--mono);font-size:9px;font-weight:800;color:#000;
-  padding:3px 7px;border-radius:4px;margin:2px;cursor:pointer;
-  transition:transform 0.12s,filter 0.12s,opacity 0.12s;
-  border:1px solid rgba(255,255,255,0.22);
-  box-shadow:inset 0 1px 0 rgba(255,255,255,0.35);
-}
-.uchip:hover{transform:translateY(-1px) scale(1.07);filter:brightness(1.14);}
+.utable tr:hover td{background:rgba(255,255,255,0.035);}
+.sbadge{font-family:var(--mono);font-size:8.5px;font-weight:700;color:#000;padding:3px 8px;border-radius:5px;white-space:nowrap;border:1px solid rgba(255,255,255,0.22);box-shadow:inset 0 1px 0 rgba(255,255,255,0.32);}
+.uchip{display:inline-flex;align-items:center;background:linear-gradient(135deg,color-mix(in srgb,var(--cc) 65%,#fff 35%) 0%,var(--cc) 100%);font-family:var(--mono);font-size:9px;font-weight:800;color:#000;padding:3px 7px;border-radius:4px;margin:2px;cursor:pointer;transition:transform 0.12s,filter 0.12s,opacity 0.12s;border:1px solid rgba(255,255,255,0.26);box-shadow:inset 0 1px 0 rgba(255,255,255,0.40);}
+.uchip:hover{transform:translateY(-1px) scale(1.07);filter:brightness(1.16);}
 .uchip.dimmed{opacity:0.06;pointer-events:none;}
 
-/* ── FOOTER ───────────────────────────────────────────────────────────── */
-.footer{
-  border-top:1px solid rgba(255,255,255,0.08);padding:10px 18px;
-  font-family:var(--mono);font-size:8.5px;color:var(--t2);
-  display:flex;justify-content:space-between;align-items:center;
-  /* Translucent glass strip */
-  background:rgba(4,6,14,0.55);
-  backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);
-}
+/* Footer */
+.footer{border-top:1px solid rgba(255,255,255,0.09);padding:10px 18px;font-family:var(--mono);font-size:8.5px;color:var(--t2);display:flex;justify-content:space-between;align-items:center;background:rgba(4,6,16,0.60);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);}
 
-/* ── MODAL ────────────────────────────────────────────────────────────── */
-.overlay{
-  display:none;position:fixed;inset:0;
-  background:rgba(0,0,0,0.78);
-  backdrop-filter:blur(32px) saturate(140%);
-  -webkit-backdrop-filter:blur(32px) saturate(140%);
-  z-index:999;align-items:center;justify-content:center;
-}
+/* Modal */
+.overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.80);backdrop-filter:blur(32px) saturate(150%);-webkit-backdrop-filter:blur(32px) saturate(150%);z-index:999;align-items:center;justify-content:center;}
 .overlay.on{display:flex;}
-.modal{
-  /* Deep translucent glass card */
-  background:rgba(14,18,42,0.72);
-  backdrop-filter:blur(40px) saturate(180%);
-  -webkit-backdrop-filter:blur(40px) saturate(180%);
-  border:1px solid rgba(255,255,255,0.18);
-  border-radius:var(--r-xl);padding:26px;max-width:400px;width:90%;
-  box-shadow:
-    inset 0 1px 0 rgba(255,255,255,0.14),
-    0 32px 72px rgba(0,0,0,0.85);
-  position:relative;animation:popIn .20s cubic-bezier(.34,1.4,.64,1);
-}
+.modal{background:rgba(12,16,44,0.78);backdrop-filter:blur(44px) saturate(190%);-webkit-backdrop-filter:blur(44px) saturate(190%);border:1px solid rgba(255,255,255,0.20);border-radius:var(--r-xl);padding:26px;max-width:400px;width:90%;box-shadow:inset 0 1px 0 rgba(255,255,255,0.18),0 32px 80px rgba(0,0,0,0.88);position:relative;animation:popIn .20s cubic-bezier(.34,1.4,.64,1);}
 @keyframes popIn{from{transform:scale(.88) translateY(12px);opacity:0}to{transform:scale(1) translateY(0);opacity:1}}
-.modal-close{
-  position:absolute;top:12px;right:14px;
-  background:rgba(255,255,255,0.07);
-  border:1px solid rgba(255,255,255,0.13);
-  border-radius:6px;width:24px;height:24px;font-size:14px;color:var(--t1);cursor:pointer;
-  display:flex;align-items:center;justify-content:center;
-  box-shadow:inset 0 1px 0 rgba(255,255,255,0.14);
-  transition:background var(--dur),color var(--dur);
-}
-.modal-close:hover{background:rgba(255,255,255,0.14);color:#fff;}
-.modal-ticker{
-  font-family:var(--mono);font-size:28px;font-weight:700;margin-bottom:3px;line-height:1;
-}
+.modal-close{position:absolute;top:12px;right:14px;background:rgba(255,255,255,0.09);border:1px solid rgba(255,255,255,0.16);border-radius:6px;width:24px;height:24px;font-size:14px;color:var(--t1);cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:inset 0 1px 0 rgba(255,255,255,0.18);transition:background var(--dur),color var(--dur);}
+.modal-close:hover{background:rgba(255,255,255,0.18);color:#fff;}
+.modal-ticker{font-family:var(--mono);font-size:28px;font-weight:700;margin-bottom:3px;line-height:1;}
 .modal-name{font-size:11.5px;color:var(--t1);margin-bottom:20px;}
 .modal-banner{border-radius:7px;padding:9px 12px;margin-bottom:12px;font-size:10.5px;line-height:1.5;display:none;}
 .modal-banner.on{display:block;}
-.modal-banner.warn{background:rgba(255,82,82,.10);border:1px solid rgba(255,82,82,.28);color:#ff8080;}
-.modal-banner.info{background:rgba(255,170,51,.09);border:1px solid rgba(255,170,51,.26);color:#ffaa33;}
-.modal-row{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.07);font-size:11.5px;}
+.modal-banner.warn{background:rgba(255,95,95,.12);border:1px solid rgba(255,95,95,.32);color:#ff8888;}
+.modal-banner.info{background:rgba(255,179,71,.10);border:1px solid rgba(255,179,71,.30);color:#ffb347;}
+.modal-row{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.08);font-size:11.5px;}
 .modal-row:last-of-type{border-bottom:none;}
 .modal-key{color:var(--t2);font-size:9px;text-transform:uppercase;letter-spacing:.7px;font-weight:600;}
 .modal-val{color:#fff;font-family:var(--mono);font-size:11px;font-weight:600;}
 .modal-val.secondary{color:var(--t1);font-size:10.5px;font-weight:400;}
-.modal-source-row{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.07);gap:12px;}
+.modal-source-row{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.08);gap:12px;}
 .modal-source-col{display:flex;flex-direction:column;gap:3px;flex:1;}
 .modal-source-label{color:var(--t2);font-size:8.5px;text-transform:uppercase;letter-spacing:.7px;font-weight:600;}
 .modal-source-date{font-family:var(--mono);font-size:11.5px;font-weight:600;color:#fff;}
 .modal-source-date.conflict{color:var(--conflict);}
-.modal-ir-link{
-  display:inline-flex;align-items:center;gap:6px;margin-top:16px;
-  font-family:var(--mono);font-size:9.5px;font-weight:600;color:var(--accent);text-decoration:none;
-  border:1px solid rgba(106,171,255,.28);border-radius:8px;padding:9px 14px;width:100%;
-  justify-content:center;
-  background:rgba(106,171,255,0.07);
-  backdrop-filter:blur(8px);
-  box-shadow:inset 0 1px 0 rgba(106,171,255,0.14);
-  transition:background var(--dur),border-color var(--dur);
-}
-.modal-ir-link:hover{
-  background:rgba(106,171,255,0.14);
-  border-color:rgba(106,171,255,.50);
-}
+.modal-ir-link{display:inline-flex;align-items:center;gap:6px;margin-top:16px;font-family:var(--mono);font-size:9.5px;font-weight:600;color:var(--accent);text-decoration:none;border:1px solid rgba(106,171,255,.32);border-radius:8px;padding:9px 14px;width:100%;justify-content:center;background:rgba(106,171,255,0.09);backdrop-filter:blur(8px);box-shadow:inset 0 1px 0 rgba(106,171,255,0.18);transition:background var(--dur),border-color var(--dur);}
+.modal-ir-link:hover{background:rgba(106,171,255,0.18);border-color:rgba(106,171,255,.55);}
 
-/* ── MOBILE ───────────────────────────────────────────────────────────── */
+/* Mobile */
 @media(max-width:768px){
   .sidebar{width:0;border-right-color:transparent;}
   .topbar{padding:0 10px;height:46px;gap:6px;}
@@ -555,7 +273,7 @@ body{
   .evbadge{font-size:5.5px;padding:1px 2px;}
   .dname{font-size:7px;padding:3px 0;}
   .main{padding:10px 8px 20px;}
-  .mblock{margin-bottom:14px;}
+  .mblock{margin-bottom:12px;}
   .ubox{margin:0 8px 20px;}
   .modal{padding:18px 14px;}
   .modal-ticker{font-size:22px;}
@@ -565,11 +283,8 @@ body{
 <body>
 <div class="page-wrap">
 
-<!-- ===== SIDEBAR ===== -->
 <aside class="sidebar" id="sidebar">
-  <div class="sidebar-head">
-    <span class="sidebar-title">&#11041; Sectors</span>
-  </div>
+  <div class="sidebar-head"><span class="sidebar-title">&#11041; Sectors</span></div>
   <div class="sidebar-sectors"><div class="sleg-group"><button class="sleg-toggle" onclick="toggleSector('APPAREL___FOOTWEAR')" style="--cc:#4f8ef7"><span class="sleg-dot" style="background:#4f8ef7"></span><span class="sleg-label">APPAREL & FOOTWEAR</span><span class="sleg-arrow" id="arrow-APPAREL___FOOTWEAR">&#8250;</span></button><div class="sleg-tickers" id="tickers-APPAREL___FOOTWEAR"><a class="sleg-ticker" href="https://about.underarmour.com/en/investors/press-releases--events---presentations.html" target="_blank" rel="noopener" title="Under Armour">UAA</a><a class="sleg-ticker" href="https://investors.ae.com/investor-home/default.aspx" target="_blank" rel="noopener" title="American Eagle Outfitters">AEO</a><a class="sleg-ticker" href="https://corporate.abercrombie.com/investors" target="_blank" rel="noopener" title="Abercrombie & Fitch">ANF</a><a class="sleg-ticker" href="https://www.vfc.com/investors" target="_blank" rel="noopener" title="VF Corporation">VFC</a><a class="sleg-ticker" href="https://investors.gapinc.com/Investor-Relation/default.aspx" target="_blank" rel="noopener" title="Gap Inc.">GAP</a><a class="sleg-ticker" href="https://www.birkenstock-holding.com/" target="_blank" rel="noopener" title="Birkenstock">BIRK</a><a class="sleg-ticker" href="https://investors.levistrauss.com/home/default.aspx" target="_blank" rel="noopener" title="Levi Strauss & Co.">LEVI</a><a class="sleg-ticker" href="https://investors.on-running.com/home/default.aspx" target="_blank" rel="noopener" title="On Holding">ONON</a><a class="sleg-ticker" href="https://corporate.lululemon.com/investors" target="_blank" rel="noopener" title="Lululemon Athletica">LULU</a><a class="sleg-ticker" href="https://ir.deckers.com/" target="_blank" rel="noopener" title="Deckers Outdoor">DECK</a><a class="sleg-ticker" href="https://investors.nike.com" target="_blank" rel="noopener" title="Nike">NKE</a></div></div><div class="sleg-group"><button class="sleg-toggle" onclick="toggleSector('DOLLAR_STORES')" style="--cc:#9b78d4"><span class="sleg-dot" style="background:#9b78d4"></span><span class="sleg-label">DOLLAR STORES</span><span class="sleg-arrow" id="arrow-DOLLAR_STORES">&#8250;</span></button><div class="sleg-tickers" id="tickers-DOLLAR_STORES"><a class="sleg-ticker" href="https://corporate.dollartree.com/investors" target="_blank" rel="noopener" title="Dollar Tree">DLTR</a><a class="sleg-ticker" href="https://investor.dollargeneral.com" target="_blank" rel="noopener" title="Dollar General">DG</a><a class="sleg-ticker" href="https://investors.rossstores.com" target="_blank" rel="noopener" title="Ross Stores">ROST</a><a class="sleg-ticker" href="https://investor.tjx.com/" target="_blank" rel="noopener" title="TJX Companies">TJX</a></div></div><div class="sleg-group"><button class="sleg-toggle" onclick="toggleSector('LUXURY___BEAUTY')" style="--cc:#c96b9e"><span class="sleg-dot" style="background:#c96b9e"></span><span class="sleg-label">LUXURY & BEAUTY</span><span class="sleg-arrow" id="arrow-LUXURY___BEAUTY">&#8250;</span></button><div class="sleg-tickers" id="tickers-LUXURY___BEAUTY"><a class="sleg-ticker" href="https://investors.canadagoose.com" target="_blank" rel="noopener" title="Canada Goose">GOOS</a><a class="sleg-ticker" href="https://investors.coty.com" target="_blank" rel="noopener" title="Coty Inc.">COTY</a><a class="sleg-ticker" href="https://capriholdings.com/" target="_blank" rel="noopener" title="Capri Holdings">CPRI</a><a class="sleg-ticker" href="https://investor.elfbeauty.com/stock-and-financial/events-and-presentations" target="_blank" rel="noopener" title="e.l.f. Beauty">ELF</a><a class="sleg-ticker" href="https://www.ulta.com/investor" target="_blank" rel="noopener" title="Ulta Beauty">ULTA</a><a class="sleg-ticker" href="https://corporate.ralphlauren.com/investor-relations" target="_blank" rel="noopener" title="Ralph Lauren">RL</a><a class="sleg-ticker" href="https://www.tapestry.com/investors/" target="_blank" rel="noopener" title="Tapestry">TPR</a><a class="sleg-ticker" href="https://www.elcompanies.com/en/investors" target="_blank" rel="noopener" title="Estée Lauder">EL</a></div></div><div class="sleg-group"><button class="sleg-toggle" onclick="toggleSector('RETAILERS')" style="--cc:#e07d45"><span class="sleg-dot" style="background:#e07d45"></span><span class="sleg-label">RETAILERS</span><span class="sleg-arrow" id="arrow-RETAILERS">&#8250;</span></button><div class="sleg-tickers" id="tickers-RETAILERS"><a class="sleg-ticker" href="https://investors.kohls.com/overview/default.aspx" target="_blank" rel="noopener" title="Kohl's">KSS</a><a class="sleg-ticker" href="https://www.bbwinc.com/investors" target="_blank" rel="noopener" title="Bath & Body Works">BBWI</a><a class="sleg-ticker" href="https://www.macysinc.com/investors/" target="_blank" rel="noopener" title="Macy's">M</a><a class="sleg-ticker" href="https://www.albertsonscompanies.com/investors/overview/default.aspx" target="_blank" rel="noopener" title="Albertsons">ACI</a><a class="sleg-ticker" href="https://investors.bestbuy.com" target="_blank" rel="noopener" title="Best Buy">BBY</a><a class="sleg-ticker" href="https://ir.kroger.com" target="_blank" rel="noopener" title="Kroger">KR</a><a class="sleg-ticker" href="https://corporate.target.com/investors" target="_blank" rel="noopener" title="Target">TGT</a><a class="sleg-ticker" href="https://corporate.lowes.com/investors" target="_blank" rel="noopener" title="Lowe's">LOW</a><a class="sleg-ticker" href="https://ir.homedepot.com" target="_blank" rel="noopener" title="Home Depot">HD</a><a class="sleg-ticker" href="https://investor.costco.com" target="_blank" rel="noopener" title="Costco">COST</a><a class="sleg-ticker" href="https://stock.walmart.com" target="_blank" rel="noopener" title="Walmart">WMT</a></div></div><div class="sleg-group"><button class="sleg-toggle" onclick="toggleSector('CRUISES')" style="--cc:#3aada8"><span class="sleg-dot" style="background:#3aada8"></span><span class="sleg-label">CRUISES</span><span class="sleg-arrow" id="arrow-CRUISES">&#8250;</span></button><div class="sleg-tickers" id="tickers-CRUISES"><a class="sleg-ticker" href="https://www.nclhltd.com/investors" target="_blank" rel="noopener" title="Norwegian Cruise Line">NCLH</a><a class="sleg-ticker" href="https://www.rclinvestor.com/" target="_blank" rel="noopener" title="Royal Caribbean">RCL</a><a class="sleg-ticker" href="https://www.carnivalcorp.com/investors/" target="_blank" rel="noopener" title="Carnival Corporation">CCL</a></div></div><div class="sleg-group"><button class="sleg-toggle" onclick="toggleSector('BEVERAGES___ALCOHOL')" style="--cc:#5fa85a"><span class="sleg-dot" style="background:#5fa85a"></span><span class="sleg-label">BEVERAGES & ALCOHOL</span><span class="sleg-arrow" id="arrow-BEVERAGES___ALCOHOL">&#8250;</span></button><div class="sleg-tickers" id="tickers-BEVERAGES___ALCOHOL"><a class="sleg-ticker" href="https://ir.molsoncoors.com/overview/default.aspx" target="_blank" rel="noopener" title="Molson Coors">TAP</a><a class="sleg-ticker" href="https://investors.brown-forman.com" target="_blank" rel="noopener" title="Brown-Forman">BF-B</a><a class="sleg-ticker" href="https://ir.cbrands.com/" target="_blank" rel="noopener" title="Constellation Brands">STZ</a><a class="sleg-ticker" href="https://investors.keurigdrpepper.com" target="_blank" rel="noopener" title="Keurig Dr Pepper">KDP</a><a class="sleg-ticker" href="https://www.pepsico.com/investors" target="_blank" rel="noopener" title="PepsiCo">PEP</a><a class="sleg-ticker" href="https://investors.coca-colacompany.com" target="_blank" rel="noopener" title="Coca-Cola">KO</a></div></div><div class="sleg-group"><button class="sleg-toggle" onclick="toggleSector('PACKAGED_FOOD')" style="--cc:#c9a84c"><span class="sleg-dot" style="background:#c9a84c"></span><span class="sleg-label">PACKAGED FOOD</span><span class="sleg-arrow" id="arrow-PACKAGED_FOOD">&#8250;</span></button><div class="sleg-tickers" id="tickers-PACKAGED_FOOD"><a class="sleg-ticker" href="https://investors.beyondmeat.com" target="_blank" rel="noopener" title="Beyond Meat">BYND</a><a class="sleg-ticker" href="https://www.lambweston.com/en/investors.html" target="_blank" rel="noopener" title="Lamb Weston">LW</a><a class="sleg-ticker" href="https://www.conagrabrands.com/investor-relations" target="_blank" rel="noopener" title="Conagra Brands">CAG</a><a class="sleg-ticker" href="https://investor.thecampbellscompany.com/" target="_blank" rel="noopener" title="Campbell's Company">CPB</a><a class="sleg-ticker" href="https://investors.jmsmucker.com" target="_blank" rel="noopener" title="J.M. Smucker">SJM</a><a class="sleg-ticker" href="https://ir.mccormick.com/" target="_blank" rel="noopener" title="McCormick & Company">MKC</a><a class="sleg-ticker" href="https://investors.hormelfoods.com" target="_blank" rel="noopener" title="Hormel Foods">HRL</a><a class="sleg-ticker" href="https://investors.generalmills.com/home/default.aspx" target="_blank" rel="noopener" title="General Mills">GIS</a><a class="sleg-ticker" href="https://ir.iff.com" target="_blank" rel="noopener" title="Intl Flavors & Fragrances">IFF</a><a class="sleg-ticker" href="https://ir.kraftheinzcompany.com" target="_blank" rel="noopener" title="Kraft Heinz">KHC</a><a class="sleg-ticker" href="https://www.thehersheycompany.com/en_us/investors.html" target="_blank" rel="noopener" title="Hershey">HSY</a><a class="sleg-ticker" href="https://ir.mondelezinternational.com" target="_blank" rel="noopener" title="Mondelez International">MDLZ</a></div></div><div class="sleg-group"><button class="sleg-toggle" onclick="toggleSector('CONSUMER_GOODS')" style="--cc:#4a9e8a"><span class="sleg-dot" style="background:#4a9e8a"></span><span class="sleg-label">CONSUMER GOODS</span><span class="sleg-arrow" id="arrow-CONSUMER_GOODS">&#8250;</span></button><div class="sleg-tickers" id="tickers-CONSUMER_GOODS"><a class="sleg-ticker" href="https://ir.newellbrands.com" target="_blank" rel="noopener" title="Newell Brands">NWL</a><a class="sleg-ticker" href="https://investors.thecloroxcompany.com/overview/default.aspx" target="_blank" rel="noopener" title="Clorox">CLX</a><a class="sleg-ticker" href="https://investor.churchdwight.com/overview/default.aspx" target="_blank" rel="noopener" title="Church & Dwight">CHD</a><a class="sleg-ticker" href="https://www.investor.kimberly-clark.com/" target="_blank" rel="noopener" title="Kimberly-Clark">KMB</a><a class="sleg-ticker" href="https://investor.colgatepalmolive.com/" target="_blank" rel="noopener" title="Colgate-Palmolive">CL</a><a class="sleg-ticker" href="https://www.pginvestor.com/overview/default.aspx" target="_blank" rel="noopener" title="Procter & Gamble">PG</a></div></div><div class="sleg-group"><button class="sleg-toggle" onclick="toggleSector('CIGARETTES')" style="--cc:#9e7a55"><span class="sleg-dot" style="background:#9e7a55"></span><span class="sleg-label">CIGARETTES</span><span class="sleg-arrow" id="arrow-CIGARETTES">&#8250;</span></button><div class="sleg-tickers" id="tickers-CIGARETTES"><a class="sleg-ticker" href="https://www.altria.com/Investors/at-a-glance" target="_blank" rel="noopener" title="Altria Group">MO</a><a class="sleg-ticker" href="https://www.pmi.com/investor-relations/overview" target="_blank" rel="noopener" title="Philip Morris International">PM</a></div></div><div class="sleg-group"><button class="sleg-toggle" onclick="toggleSector('TOYMAKERS')" style="--cc:#d45f5f"><span class="sleg-dot" style="background:#d45f5f"></span><span class="sleg-label">TOYMAKERS</span><span class="sleg-arrow" id="arrow-TOYMAKERS">&#8250;</span></button><div class="sleg-tickers" id="tickers-TOYMAKERS"><a class="sleg-ticker" href="https://investors.mattel.com/overview/default.aspx" target="_blank" rel="noopener" title="Mattel">MAT</a><a class="sleg-ticker" href="https://investor.hasbro.com" target="_blank" rel="noopener" title="Hasbro">HAS</a></div></div><div class="sleg-group"><button class="sleg-toggle" onclick="toggleSector('RESTAURANTS')" style="--cc:#d47a3a"><span class="sleg-dot" style="background:#d47a3a"></span><span class="sleg-label">RESTAURANTS</span><span class="sleg-arrow" id="arrow-RESTAURANTS">&#8250;</span></button><div class="sleg-tickers" id="tickers-RESTAURANTS"><a class="sleg-ticker" href="https://ir.dominos.com" target="_blank" rel="noopener" title="Domino's Pizza">DPZ</a><a class="sleg-ticker" href="https://investor.darden.com/home/default.aspx" target="_blank" rel="noopener" title="Darden Restaurants">DRI</a><a class="sleg-ticker" href="https://www.rbi.com/English/investors/investor-home/default.aspx" target="_blank" rel="noopener" title="Restaurant Brands Intl">QSR</a><a class="sleg-ticker" href="https://ir.chipotle.com" target="_blank" rel="noopener" title="Chipotle Mexican Grill">CMG</a><a class="sleg-ticker" href="https://investors.yum.com/corporateprofile/default.aspx" target="_blank" rel="noopener" title="Yum! Brands">YUM</a><a class="sleg-ticker" href="https://investor.starbucks.com/ir-home/default.aspx" target="_blank" rel="noopener" title="Starbucks">SBUX</a><a class="sleg-ticker" href="https://corporate.mcdonalds.com/corpmcd/investors.html" target="_blank" rel="noopener" title="McDonald's">MCD</a></div></div><div class="sleg-group"><button class="sleg-toggle" onclick="toggleSector('MEAT_COS')" style="--cc:#9a66c0"><span class="sleg-dot" style="background:#9a66c0"></span><span class="sleg-label">MEAT COS</span><span class="sleg-arrow" id="arrow-MEAT_COS">&#8250;</span></button><div class="sleg-tickers" id="tickers-MEAT_COS"><a class="sleg-ticker" href="https://investors.smithfieldfoods.com/" target="_blank" rel="noopener" title="Smithfield Foods">SFD</a><a class="sleg-ticker" href="https://ir.tyson.com/investor-home/default.aspx" target="_blank" rel="noopener" title="Tyson Foods">TSN</a><a class="sleg-ticker" href="https://investors.sysco.com/" target="_blank" rel="noopener" title="Sysco">SYY</a></div></div><div class="sleg-group"><button class="sleg-toggle" onclick="toggleSector('DELIVERY')" style="--cc:#5580d4"><span class="sleg-dot" style="background:#5580d4"></span><span class="sleg-label">DELIVERY</span><span class="sleg-arrow" id="arrow-DELIVERY">&#8250;</span></button><div class="sleg-tickers" id="tickers-DELIVERY"><a class="sleg-ticker" href="https://investors.instacart.com/" target="_blank" rel="noopener" title="Instacart">CART</a><a class="sleg-ticker" href="https://ir.doordash.com/overview/default.aspx" target="_blank" rel="noopener" title="DoorDash">DASH</a></div></div><div class="sleg-group"><button class="sleg-toggle" onclick="toggleSector('REAL_ESTATE')" style="--cc:#6a8fa8"><span class="sleg-dot" style="background:#6a8fa8"></span><span class="sleg-label">REAL ESTATE</span><span class="sleg-arrow" id="arrow-REAL_ESTATE">&#8250;</span></button><div class="sleg-tickers" id="tickers-REAL_ESTATE"><a class="sleg-ticker" href="https://www.federalrealty.com/investors/overview/" target="_blank" rel="noopener" title="Federal Realty">FRT</a><a class="sleg-ticker" href="https://investors.regencycenters.com/" target="_blank" rel="noopener" title="Regency Centers">REG</a><a class="sleg-ticker" href="https://investors.kimcorealty.com/" target="_blank" rel="noopener" title="Kimco Realty">KIM</a><a class="sleg-ticker" href="https://simonpg.gcs-web.com/news-events/stockholder-events" target="_blank" rel="noopener" title="Simon Property Group">SPG</a></div></div><div class="sleg-group"><button class="sleg-toggle" onclick="toggleSector('OTHERS')" style="--cc:#7a8fa0"><span class="sleg-dot" style="background:#7a8fa0"></span><span class="sleg-label">OTHERS</span><span class="sleg-arrow" id="arrow-OTHERS">&#8250;</span></button><div class="sleg-tickers" id="tickers-OTHERS"><a class="sleg-ticker" href="https://investor.masco.com/overview/default.aspx" target="_blank" rel="noopener" title="Masco Corporation">MAS</a><a class="sleg-ticker" href="https://investors.ball.com/" target="_blank" rel="noopener" title="Ball Corporation">BALL</a><a class="sleg-ticker" href="https://ir.tractorsupply.com/investor-relations/overview/default.aspx" target="_blank" rel="noopener" title="Tractor Supply">TSCO</a><a class="sleg-ticker" href="https://www.amcor.com/investors" target="_blank" rel="noopener" title="Amcor">AMCR</a><a class="sleg-ticker" href="https://www.rollins.com/investors" target="_blank" rel="noopener" title="Rollins">ROL</a><a class="sleg-ticker" href="https://www.cintas.com/investors/" target="_blank" rel="noopener" title="Cintas Corporation">CTAS</a><a class="sleg-ticker" href="https://www.internationalpaper.com/investors" target="_blank" rel="noopener" title="International Paper">IP</a></div></div></div>
   <div class="notes-panel">
     <textarea class="notes-box" id="notesBox"
@@ -579,48 +294,30 @@ body{
 </aside>
 
 <div class="content">
-
-<!-- ===== TOPBAR ===== -->
 <header class="topbar">
   <div class="topbar-left">
-    <!-- Left-arrow toggle; flips to right-arrow when collapsed -->
-    <button class="sidebar-toggle" id="sidebarToggle"
-            onclick="toggleSidebar()" title="Toggle sidebar">&#8249;</button>
+    <button class="sidebar-toggle" id="sidebarToggle" onclick="toggleSidebar()" title="Toggle sidebar">&#8249;</button>
     <span class="title-dot"></span>
     <span class="page-title">Earnings Calendar</span>
     <span class="vdiv"></span>
-    <span class="topbar-meta">Consumer &amp; Retail &middot; 05 Jul 2026, 08:49 AM ET</span>
+    <span class="topbar-meta">Consumer &amp; Retail &middot; <span id="liveDate">06 Jul 2026, 06:40 AM ET</span></span>
   </div>
   <div class="topbar-right">
-    <div class="tstat">
-      <span class="tstat-num" style="color:#6aabff">86</span>
-      <span class="tstat-lbl">Dates Found</span>
-    </div>
-    <div class="tstat">
-      <span class="tstat-num" style="color:var(--t2)">2</span>
-      <span class="tstat-lbl">Unannounced</span>
-    </div>
-    <div class="tstat">
-      <span class="tstat-num" style="color:var(--conflict)">16</span>
-      <span class="tstat-lbl">Mismatches</span>
-    </div>
+    <div class="tstat"><span class="tstat-num" style="color:#6aabff">84</span><span class="tstat-lbl">Dates Found</span></div>
+    <div class="tstat"><span class="tstat-num" style="color:var(--t2)">4</span><span class="tstat-lbl">Unannounced</span></div>
+    <div class="tstat"><span class="tstat-num" style="color:var(--conflict)">15</span><span class="tstat-lbl">Mismatches</span></div>
   </div>
 </header>
 
-<!-- ===== KEY BAR ===== -->
 <div class="timingbar">
   <span class="key-label">Key</span>
-  <span class="tbadge tbadge-bmo" style="font-size:10px;padding:3px 9px">&#9650; BMO</span>
-  <span class="key-desc">Before market open</span>
+  <span class="tbadge tbadge-bmo" style="font-size:10px;padding:3px 9px">&#9650; BMO</span><span class="key-desc">Before market open</span>
   <span class="key-sep">&middot;</span>
-  <span class="tbadge tbadge-amc" style="font-size:10px;padding:3px 9px">&#9660; AMC</span>
-  <span class="key-desc">After market close</span>
+  <span class="tbadge tbadge-amc" style="font-size:10px;padding:3px 9px">&#9660; AMC</span><span class="key-desc">After market close</span>
   <span class="key-sep">&middot;</span>
-  <span class="tpill unc">? Unconfirmed</span>
-  <span class="key-desc">Yahoo only</span>
+  <span class="tpill unc">? Unconfirmed</span><span class="key-desc">Yahoo only</span>
   <span class="key-sep">&middot;</span>
-  <span class="tpill mis">! Conflict</span>
-  <span class="key-desc">Sources disagree</span>
+  <span class="tpill mis">! Conflict</span><span class="key-desc">Sources disagree</span>
   <span class="key-sep">&middot;</span>
   <span class="key-desc" style="color:var(--t2)">Click any ticker for details</span>
   <div class="event-legend">
@@ -631,7 +328,6 @@ body{
   </div>
 </div>
 
-<!-- ===== SEARCH ===== -->
 <div class="search-bar">
   <div class="search-wrap">
     <span class="search-icon">&#8981;</span>
@@ -642,53 +338,31 @@ body{
   <span class="search-hint" id="searchHint"></span>
 </div>
 
-<main class="main"><div class="mblock" style="--es-bg:rgba(95,168,90,0.07);--es-col:#5fa85a"><div class="mblock-header"><span class="mlabel">JUNE 2026</span><span class="earn-season-badge" style="--ec:#5fa85a"><svg viewBox="0 0 14 14" width="10" height="10" style="vertical-align:middle;margin-right:4px"><rect x="1" y="5" width="2" height="7" rx="1" fill="#5fa85a"/><rect x="4.5" y="3" width="2" height="9" rx="1" fill="#5fa85a" opacity="0.85"/><rect x="8" y="1" width="2" height="11" rx="1" fill="#5fa85a" opacity="0.7"/><rect x="11.5" y="4" width="2" height="8" rx="1" fill="#5fa85a" opacity="0.6"/></svg>Q1 Earnings Season<span class="earn-season-sub">Jan–Mar results</span></span></div><div class="cgrid"><div class="dname">MON</div><div class="dname">TUE</div><div class="dname">WED</div><div class="dname">THU</div><div class="dname">FRI</div><div class="dname">SAT</div><div class="dname">SUN</div><div class="dcell past"><span class="dno">1</span><div class="chips"></div></div><div class="dcell past"><span class="dno">2</span><div class="chips"></div></div><div class="dcell past"><span class="dno">3</span><div class="chips"></div></div><div class="dcell past"><span class="dno">4</span><div class="chips"></div></div><div class="dcell past"><span class="dno">5</span><div class="chips"></div></div><div class="dcell wknd past"><span class="dno">6</span><div class="chips"></div></div><div class="dcell wknd past"><span class="dno">7</span><div class="chips"></div></div><div class="dcell past"><span class="dno">8</span><div class="chips"></div></div><div class="dcell past"><span class="dno">9</span><div class="chips"></div></div><div class="dcell past"><span class="dno">10</span><div class="chips"></div></div><div class="dcell past"><span class="dno">11</span><div class="chips"></div></div><div class="dcell past"><span class="dno">12</span><div class="chips"></div></div><div class="dcell wknd past"><span class="dno">13</span><div class="chips"></div></div><div class="dcell wknd past"><span class="dno">14</span><div class="chips"></div></div><div class="dcell past"><span class="dno">15</span><div class="chips"></div></div><div class="dcell past"><span class="dno">16</span><div class="chips"></div></div><div class="dcell past"><span class="dno">17</span><div class="chips"></div></div><div class="dcell past"><span class="dno">18</span><div class="chips"></div></div><div class="dcell past mkt-closed"><span class="dno">19</span><div class="evbadge evbadge-holiday">Juneteenth<span class=ev-closed>CLOSED</span></div><div class="chips"></div></div><div class="dcell wknd past"><span class="dno">20</span><div class="chips"></div></div><div class="dcell wknd past"><span class="dno">21</span><div class="evbadge evbadge-retail">Father's Day</div><div class="chips"></div></div><div class="dcell past"><span class="dno">22</span><div class="chips"></div></div><div class="dcell past has-e"><span class="dno">23</span><div class="chips"><div class="chip s-CRUISES" style="--cc:#3aada8" data-ticker="CCL" onclick="showCard('CCL','Carnival Corporation','CRUISES','nan','2026-06-23','#3aada8','NASDAQ','N/A',false,true,'https://www.carnivalcorp.com/investors/')">CCL</div></div></div><div class="dcell past"><span class="dno">24</span><div class="chips"></div></div><div class="dcell past has-e"><span class="dno">25</span><div class="chips"><div class="chip s-PACKAGED_FOOD" style="--cc:#c9a84c" data-ticker="MKC" onclick="showCard('MKC','McCormick & Company','PACKAGED FOOD','nan','2026-06-25','#c9a84c','NASDAQ','N/A',false,true,'https://ir.mccormick.com/')">MKC</div><div class="chip s-RESTAURANTS" style="--cc:#d47a3a" data-ticker="DRI" onclick="showCard('DRI','Darden Restaurants','RESTAURANTS','nan','2026-06-25','#d47a3a','NASDAQ','2026-09-17',true,true,'https://investor.darden.com/home/default.aspx')">DRI<span class="bdg-mm" title="Date conflict">!</span></div></div></div><div class="dcell past"><span class="dno">26</span><div class="chips"></div></div><div class="dcell wknd past"><span class="dno">27</span><div class="chips"></div></div><div class="dcell wknd past"><span class="dno">28</span><div class="chips"></div></div><div class="dcell past"><span class="dno">29</span><div class="chips"></div></div><div class="dcell past has-e"><span class="dno">30</span><div class="chips"><div class="chip s-APPAREL___FOOTWEAR" style="--cc:#4f8ef7" data-ticker="NKE" onclick="showCard('NKE','Nike','APPAREL & FOOTWEAR','nan','2026-06-30','#4f8ef7','NASDAQ','2026-09-29',true,true,'https://investors.nike.com')">NKE<span class="bdg-mm" title="Date conflict">!</span></div><div class="chip s-BEVERAGES___ALCOHOL" style="--cc:#5fa85a" data-ticker="STZ" onclick="showCard('STZ','Constellation Brands','BEVERAGES & ALCOHOL','nan','2026-06-30','#5fa85a','NASDAQ','N/A',false,true,'https://ir.cbrands.com/')">STZ</div></div></div></div></div><div class="mblock" style="--es-bg:rgba(201,168,76,0.07);--es-col:#c9a84c"><div class="mblock-header"><span class="mlabel">JULY 2026</span><span class="earn-season-badge" style="--ec:#c9a84c"><svg viewBox="0 0 14 14" width="10" height="10" style="vertical-align:middle;margin-right:4px"><rect x="1" y="5" width="2" height="7" rx="1" fill="#c9a84c"/><rect x="4.5" y="3" width="2" height="9" rx="1" fill="#c9a84c" opacity="0.85"/><rect x="8" y="1" width="2" height="11" rx="1" fill="#c9a84c" opacity="0.7"/><rect x="11.5" y="4" width="2" height="8" rx="1" fill="#c9a84c" opacity="0.6"/></svg>Q2 Earnings Season<span class="earn-season-sub">Apr–Jun results</span></span></div><div class="cgrid"><div class="dname">MON</div><div class="dname">TUE</div><div class="dname">WED</div><div class="dname">THU</div><div class="dname">FRI</div><div class="dname">SAT</div><div class="dname">SUN</div><div class="dcell empty"></div><div class="dcell empty"></div><div class="dcell past has-e"><span class="dno">1</span><div class="chips"><div class="chip s-PACKAGED_FOOD" style="--cc:#c9a84c" data-ticker="GIS" onclick="showCard('GIS','General Mills','PACKAGED FOOD','nan','2026-07-01','#c9a84c','NASDAQ','2026-09-23',true,true,'https://investors.generalmills.com/home/default.aspx')">GIS<span class="bdg-mm" title="Date conflict">!</span></div></div></div><div class="dcell past"><span class="dno">2</span><div class="chips"></div></div><div class="dcell past"><span class="dno">3</span><div class="chips"></div></div><div class="dcell wknd past mkt-closed"><span class="dno">4</span><div class="evbadge evbadge-holiday">Independence Day<span class=ev-closed>CLOSED</span></div><div class="chips"></div></div><div class="dcell wknd today"><span class="dno">5</span><div class="chips"></div></div><div class="dcell"><span class="dno">6</span><div class="chips"></div></div><div class="dcell"><span class="dno">7</span><div class="chips"></div></div><div class="dcell has-e"><span class="dno">8</span><div class="chips"><div class="chip s-APPAREL___FOOTWEAR" style="--cc:#4f8ef7" data-ticker="LEVI" onclick="showCard('LEVI','Levi Strauss & Co.','APPAREL & FOOTWEAR','BMO','2026-07-08','#4f8ef7','NASDAQ','2026-07-08',false,true,'https://investors.levistrauss.com/home/default.aspx')">LEVI<span class="tbadge tbadge-bmo">&#9650; BMO</span></div></div></div><div class="dcell has-e"><span class="dno">9</span><div class="chips"><div class="chip s-BEVERAGES___ALCOHOL" style="--cc:#5fa85a" data-ticker="PEP" onclick="showCard('PEP','PepsiCo','BEVERAGES & ALCOHOL','BMO','2026-07-09','#5fa85a','NASDAQ','2026-07-09',false,true,'https://www.pepsico.com/investors')">PEP<span class="tbadge tbadge-bmo">&#9650; BMO</span></div></div></div><div class="dcell"><span class="dno">10</span><div class="chips"></div></div><div class="dcell wknd"><span class="dno">11</span><div class="chips"></div></div><div class="dcell wknd"><span class="dno">12</span><div class="chips"></div></div><div class="dcell"><span class="dno">13</span><div class="chips"></div></div><div class="dcell"><span class="dno">14</span><div class="chips"></div></div><div class="dcell has-e"><span class="dno">15</span><div class="chips"><div class="chip s-PACKAGED_FOOD" style="--cc:#c9a84c" data-ticker="CAG" onclick="showCard('CAG','Conagra Brands','PACKAGED FOOD','BMO','2026-07-15','#c9a84c','NASDAQ','2026-07-15',false,true,'https://www.conagrabrands.com/investor-relations')">CAG<span class="tbadge tbadge-bmo">&#9650; BMO</span></div><div class="chip s-OTHERS" style="--cc:#7a8fa0" data-ticker="CTAS" onclick="showCard('CTAS','Cintas Corporation','OTHERS','BMO','2026-07-15','#7a8fa0','NASDAQ','2026-07-15',false,true,'https://www.cintas.com/investors/')">CTAS<span class="tbadge tbadge-bmo">&#9650; BMO</span></div></div></div><div class="dcell"><span class="dno">16</span><div class="chips"></div></div><div class="dcell"><span class="dno">17</span><div class="chips"></div></div><div class="dcell wknd"><span class="dno">18</span><div class="chips"></div></div><div class="dcell wknd"><span class="dno">19</span><div class="chips"></div></div><div class="dcell has-e"><span class="dno">20</span><div class="chips"><div class="chip s-RESTAURANTS" style="--cc:#d47a3a" data-ticker="DPZ" onclick="showCard('DPZ','Domino\'s Pizza','RESTAURANTS','BMO','2026-07-20','#d47a3a','NASDAQ','2026-07-20',false,true,'https://ir.dominos.com')">DPZ<span class="tbadge tbadge-bmo">&#9650; BMO</span></div></div></div><div class="dcell has-e"><span class="dno">21</span><div class="chips"><div class="chip s-RETAILERS" style="--cc:#e07d45" data-ticker="ACI" onclick="showCard('ACI','Albertsons','RETAILERS','nan','2026-07-21','#e07d45','NASDAQ','N/A',false,true,'https://www.albertsonscompanies.com/investors/overview/default.aspx')">ACI</div><div class="chip s-TOYMAKERS" style="--cc:#d45f5f" data-ticker="HAS" onclick="showCard('HAS','Hasbro','TOYMAKERS','BMO','2026-07-21','#d45f5f','NASDAQ','2026-07-21',false,true,'https://investor.hasbro.com')">HAS<span class="tbadge tbadge-bmo">&#9650; BMO</span></div></div></div><div class="dcell has-e"><span class="dno">22</span><div class="chips"><div class="chip s-CIGARETTES" style="--cc:#9e7a55" data-ticker="PM" onclick="showCard('PM','Philip Morris International','CIGARETTES','BMO','2026-07-22','#9e7a55','NASDAQ','2026-07-22',false,true,'https://www.pmi.com/investor-relations/overview')">PM<span class="tbadge tbadge-bmo">&#9650; BMO</span></div><div class="chip s-TOYMAKERS" style="--cc:#d45f5f" data-ticker="MAT" onclick="showCard('MAT','Mattel','TOYMAKERS','nan','2026-07-22','#d45f5f','NASDAQ','2026-07-22',false,true,'https://investors.mattel.com/overview/default.aspx')">MAT</div><div class="chip s-OTHERS" style="--cc:#7a8fa0" data-ticker="ROL" onclick="showCard('ROL','Rollins','OTHERS','nan','2026-07-22','#7a8fa0','NASDAQ','N/A',false,true,'https://www.rollins.com/investors')">ROL</div></div></div><div class="dcell has-e"><span class="dno">23</span><div class="chips"><div class="chip s-APPAREL___FOOTWEAR" style="--cc:#4f8ef7" data-ticker="DECK" onclick="showCard('DECK','Deckers Outdoor','APPAREL & FOOTWEAR','nan','2026-07-23','#4f8ef7','NASDAQ','2026-07-23',false,true,'https://ir.deckers.com/')">DECK</div><div class="chip s-OTHERS" style="--cc:#7a8fa0" data-ticker="TSCO" onclick="showCard('TSCO','Tractor Supply','OTHERS','BMO','2026-07-23','#7a8fa0','NASDAQ','2026-07-23',false,true,'https://ir.tractorsupply.com/investor-relations/overview/default.aspx')">TSCO<span class="tbadge tbadge-bmo">&#9650; BMO</span></div></div></div><div class="dcell has-e"><span class="dno">24</span><div class="chips"><div class="chip s-PACKAGED_FOOD" style="--cc:#c9a84c" data-ticker="LW" onclick="showCard('LW','Lamb Weston','PACKAGED FOOD','BMO','2026-07-24','#c9a84c','NASDAQ','2026-07-24',false,true,'https://www.lambweston.com/en/investors.html')">LW<span class="tbadge tbadge-bmo">&#9650; BMO</span></div></div></div><div class="dcell wknd"><span class="dno">25</span><div class="chips"></div></div><div class="dcell wknd"><span class="dno">26</span><div class="chips"></div></div><div class="dcell"><span class="dno">27</span><div class="chips"></div></div><div class="dcell has-e"><span class="dno">28</span><div class="chips"><div class="chip s-BEVERAGES___ALCOHOL" style="--cc:#5fa85a" data-ticker="KO" onclick="showCard('KO','Coca-Cola','BEVERAGES & ALCOHOL','BMO','2026-07-28','#5fa85a','NASDAQ','2026-07-28',false,true,'https://investors.coca-colacompany.com')">KO<span class="tbadge tbadge-bmo">&#9650; BMO</span></div></div></div><div class="dcell has-e"><span class="dno">29</span><div class="chips"><div class="chip s-APPAREL___FOOTWEAR" style="--cc:#4f8ef7" data-ticker="VFC" onclick="showCard('VFC','VF Corporation','APPAREL & FOOTWEAR','nan','2026-07-29','#4f8ef7','NASDAQ','2026-08-04',true,true,'https://www.vfc.com/investors')">VFC<span class="bdg-mm" title="Date conflict">!</span></div><div class="chip s-PACKAGED_FOOD" style="--cc:#c9a84c" data-ticker="KHC" onclick="showCard('KHC','Kraft Heinz','PACKAGED FOOD','nan','2026-07-29','#c9a84c','NASDAQ','2026-07-29',false,true,'https://ir.kraftheinzcompany.com')">KHC</div><div class="chip s-PACKAGED_FOOD" style="--cc:#c9a84c" data-ticker="HSY" onclick="showCard('HSY','Hershey','PACKAGED FOOD','nan','2026-07-29','#c9a84c','NASDAQ','2026-07-30',true,true,'https://www.thehersheycompany.com/en_us/investors.html')">HSY<span class="bdg-mm" title="Date conflict">!</span></div><div class="chip s-CONSUMER_GOODS" style="--cc:#4a9e8a" data-ticker="PG" onclick="showCard('PG','Procter & Gamble','CONSUMER GOODS','BMO','2026-07-29','#4a9e8a','NASDAQ','2026-07-29',false,true,'https://www.pginvestor.com/overview/default.aspx')">PG<span class="tbadge tbadge-bmo">&#9650; BMO</span></div><div class="chip s-RESTAURANTS" style="--cc:#d47a3a" data-ticker="CMG" onclick="showCard('CMG','Chipotle Mexican Grill','RESTAURANTS','AMC','2026-07-29','#d47a3a','NASDAQ','2026-07-29',false,true,'https://ir.chipotle.com')">CMG<span class="tbadge tbadge-amc">&#9660; AMC</span></div><div class="chip s-REAL_ESTATE" style="--cc:#6a8fa8" data-ticker="REG" onclick="showCard('REG','Regency Centers','REAL ESTATE','AMC','2026-07-29','#6a8fa8','NASDAQ','2026-07-29',false,true,'https://investors.regencycenters.com/')">REG<span class="tbadge tbadge-amc">&#9660; AMC</span></div><div class="chip s-OTHERS" style="--cc:#7a8fa0" data-ticker="MAS" onclick="showCard('MAS','Masco Corporation','OTHERS','BMO','2026-07-29','#7a8fa0','NASDAQ','2026-07-29',false,true,'https://investor.masco.com/overview/default.aspx')">MAS<span class="tbadge tbadge-bmo">&#9650; BMO</span></div></div></div><div class="dcell has-e"><span class="dno">30</span><div class="chips"><div class="chip s-LUXURY___BEAUTY" style="--cc:#c96b9e" data-ticker="GOOS" onclick="showCard('GOOS','Canada Goose','LUXURY & BEAUTY','nan','2026-07-30','#c96b9e','NASDAQ','2026-08-06',true,true,'https://investors.canadagoose.com')">GOOS<span class="bdg-mm" title="Date conflict">!</span></div><div class="chip s-CRUISES" style="--cc:#3aada8" data-ticker="NCLH" onclick="showCard('NCLH','Norwegian Cruise Line','CRUISES','nan','2026-07-30','#3aada8','NASDAQ','2026-07-30',false,true,'https://www.nclhltd.com/investors')">NCLH</div><div class="chip s-CONSUMER_GOODS" style="--cc:#4a9e8a" data-ticker="CLX" onclick="showCard('CLX','Clorox','CONSUMER GOODS','nan','2026-07-30','#4a9e8a','NASDAQ','2026-07-30',false,true,'https://investors.thecloroxcompany.com/overview/default.aspx')">CLX</div><div class="chip s-CIGARETTES" style="--cc:#9e7a55" data-ticker="MO" onclick="showCard('MO','Altria Group','CIGARETTES','BMO','2026-07-30','#9e7a55','NASDAQ','2026-07-30',false,true,'https://www.altria.com/Investors/at-a-glance')">MO<span class="tbadge tbadge-bmo">&#9650; BMO</span></div><div class="chip s-OTHERS" style="--cc:#7a8fa0" data-ticker="IP" onclick="showCard('IP','International Paper','OTHERS','BMO','2026-07-30','#7a8fa0','NASDAQ','2026-07-30',false,true,'https://www.internationalpaper.com/investors')">IP<span class="tbadge tbadge-bmo">&#9650; BMO</span></div></div></div><div class="dcell has-e"><span class="dno">31</span><div class="chips"><div class="chip s-CONSUMER_GOODS" style="--cc:#4a9e8a" data-ticker="NWL" onclick="showCard('NWL','Newell Brands','CONSUMER GOODS','BMO','2026-07-31','#4a9e8a','NASDAQ','2026-07-31',false,true,'https://ir.newellbrands.com')">NWL<span class="tbadge tbadge-bmo">&#9650; BMO</span></div><div class="chip s-CONSUMER_GOODS" style="--cc:#4a9e8a" data-ticker="CHD" onclick="showCard('CHD','Church & Dwight','CONSUMER GOODS','BMO','2026-07-31','#4a9e8a','NASDAQ','2026-07-31',false,true,'https://investor.churchdwight.com/overview/default.aspx')">CHD<span class="tbadge tbadge-bmo">&#9650; BMO</span></div><div class="chip s-CONSUMER_GOODS" style="--cc:#4a9e8a" data-ticker="CL" onclick="showCard('CL','Colgate-Palmolive','CONSUMER GOODS','BMO','2026-07-31','#4a9e8a','NASDAQ','2026-07-31',false,true,'https://investor.colgatepalmolive.com/')">CL<span class="tbadge tbadge-bmo">&#9650; BMO</span></div><div class="chip s-REAL_ESTATE" style="--cc:#6a8fa8" data-ticker="FRT" onclick="showCard('FRT','Federal Realty','REAL ESTATE','BMO','2026-07-31','#6a8fa8','NASDAQ','2026-07-31',false,true,'https://www.federalrealty.com/investors/overview/')">FRT<span class="tbadge tbadge-bmo">&#9650; BMO</span></div></div></div></div></div><div class="mblock" style="--es-bg:rgba(201,168,76,0.07);--es-col:#c9a84c"><div class="mblock-header"><span class="mlabel">AUGUST 2026</span><span class="earn-season-badge" style="--ec:#c9a84c"><svg viewBox="0 0 14 14" width="10" height="10" style="vertical-align:middle;margin-right:4px"><rect x="1" y="5" width="2" height="7" rx="1" fill="#c9a84c"/><rect x="4.5" y="3" width="2" height="9" rx="1" fill="#c9a84c" opacity="0.85"/><rect x="8" y="1" width="2" height="11" rx="1" fill="#c9a84c" opacity="0.7"/><rect x="11.5" y="4" width="2" height="8" rx="1" fill="#c9a84c" opacity="0.6"/></svg>Q2 Earnings Season<span class="earn-season-sub">Apr–Jun results</span></span></div><div class="cgrid"><div class="dname">MON</div><div class="dname">TUE</div><div class="dname">WED</div><div class="dname">THU</div><div class="dname">FRI</div><div class="dname">SAT</div><div class="dname">SUN</div><div class="dcell empty"></div><div class="dcell empty"></div><div class="dcell empty"></div><div class="dcell empty"></div><div class="dcell empty"></div><div class="dcell wknd"><span class="dno">1</span><div class="chips"></div></div><div class="dcell wknd"><span class="dno">2</span><div class="chips"></div></div><div class="dcell has-e"><span class="dno">3</span><div class="chips"><div class="chip s-MEAT_COS" style="--cc:#9a66c0" data-ticker="TSN" onclick="showCard('TSN','Tyson Foods','MEAT COS','BMO','2026-08-03','#9a66c0','NASDAQ','2026-08-03',false,true,'https://ir.tyson.com/investor-home/default.aspx')">TSN<span class="tbadge tbadge-bmo">&#9650; BMO</span></div></div></div><div class="dcell has-e"><span class="dno">4</span><div class="chips"><div class="chip s-CRUISES" style="--cc:#3aada8" data-ticker="RCL" onclick="showCard('RCL','Royal Caribbean','CRUISES','nan','2026-08-04','#3aada8','NASDAQ','2026-07-28',true,true,'https://www.rclinvestor.com/')">RCL<span class="bdg-mm" title="Date conflict">!</span></div><div class="chip s-BEVERAGES___ALCOHOL" style="--cc:#5fa85a" data-ticker="TAP" onclick="showCard('TAP','Molson Coors','BEVERAGES & ALCOHOL','nan','2026-08-04','#5fa85a','NASDAQ','N/A',false,true,'https://ir.molsoncoors.com/overview/default.aspx')">TAP</div><div class="chip s-PACKAGED_FOOD" style="--cc:#c9a84c" data-ticker="IFF" onclick="showCard('IFF','Intl Flavors & Fragrances','PACKAGED FOOD','nan','2026-08-04','#c9a84c','NASDAQ','2026-08-04',false,true,'https://ir.iff.com')">IFF</div><div class="chip s-PACKAGED_FOOD" style="--cc:#c9a84c" data-ticker="MDLZ" onclick="showCard('MDLZ','Mondelez International','PACKAGED FOOD','nan','2026-08-04','#c9a84c','NASDAQ','2026-07-28',true,true,'https://ir.mondelezinternational.com')">MDLZ<span class="bdg-mm" title="Date conflict">!</span></div><div class="chip s-RESTAURANTS" style="--cc:#d47a3a" data-ticker="YUM" onclick="showCard('YUM','Yum! Brands','RESTAURANTS','nan','2026-08-04','#d47a3a','NASDAQ','2026-07-30',true,true,'https://investors.yum.com/corporateprofile/default.aspx')">YUM<span class="bdg-mm" title="Date conflict">!</span></div><div class="chip s-RESTAURANTS" style="--cc:#d47a3a" data-ticker="SBUX" onclick="showCard('SBUX','Starbucks','RESTAURANTS','nan','2026-08-04','#d47a3a','NASDAQ','2026-07-29',true,true,'https://investor.starbucks.com/ir-home/default.aspx')">SBUX<span class="bdg-mm" title="Date conflict">!</span></div><div class="chip s-MEAT_COS" style="--cc:#9a66c0" data-ticker="SYY" onclick="showCard('SYY','Sysco','MEAT COS','nan','2026-08-04','#9a66c0','NASDAQ','2026-07-28',true,true,'https://investors.sysco.com/')">SYY<span class="bdg-mm" title="Date conflict">!</span></div><div class="chip s-REAL_ESTATE" style="--cc:#6a8fa8" data-ticker="KIM" onclick="showCard('KIM','Kimco Realty','REAL ESTATE','BMO','2026-08-04','#6a8fa8','NASDAQ','2026-08-04',false,true,'https://investors.kimcorealty.com/')">KIM<span class="tbadge tbadge-bmo">&#9650; BMO</span></div><div class="chip s-OTHERS" style="--cc:#7a8fa0" data-ticker="BALL" onclick="showCard('BALL','Ball Corporation','OTHERS','nan','2026-08-04','#7a8fa0','NASDAQ','2026-08-04',false,true,'https://investors.ball.com/')">BALL</div></div></div><div class="dcell has-e"><span class="dno">5</span><div class="chips"><div class="chip s-LUXURY___BEAUTY" style="--cc:#c96b9e" data-ticker="CPRI" onclick="showCard('CPRI','Capri Holdings','LUXURY & BEAUTY','nan','2026-08-05','#c96b9e','NASDAQ','2026-08-05',false,true,'https://capriholdings.com/')">CPRI</div><div class="chip s-LUXURY___BEAUTY" style="--cc:#c96b9e" data-ticker="ELF" onclick="showCard('ELF','e.l.f. Beauty','LUXURY & BEAUTY','nan','2026-08-05','#c96b9e','NASDAQ','2026-08-05',false,true,'https://investor.elfbeauty.com/stock-and-financial/events-and-presentations')">ELF</div><div class="chip s-PACKAGED_FOOD" style="--cc:#c9a84c" data-ticker="BYND" onclick="showCard('BYND','Beyond Meat','PACKAGED FOOD','nan','2026-08-05','#c9a84c','NASDAQ','2026-08-05',false,true,'https://investors.beyondmeat.com')">BYND</div><div class="chip s-RESTAURANTS" style="--cc:#d47a3a" data-ticker="MCD" onclick="showCard('MCD','McDonald\'s','RESTAURANTS','nan','2026-08-05','#d47a3a','NASDAQ','2026-08-06',true,true,'https://corporate.mcdonalds.com/corpmcd/investors.html')">MCD<span class="bdg-mm" title="Date conflict">!</span></div><div class="chip s-DELIVERY" style="--cc:#5580d4" data-ticker="DASH" onclick="showCard('DASH','DoorDash','DELIVERY','nan','2026-08-05','#5580d4','NASDAQ','N/A',false,true,'https://ir.doordash.com/overview/default.aspx')">DASH</div></div></div><div class="dcell has-e"><span class="dno">6</span><div class="chips"><div class="chip s-LUXURY___BEAUTY" style="--cc:#c96b9e" data-ticker="RL" onclick="showCard('RL','Ralph Lauren','LUXURY & BEAUTY','nan','2026-08-06','#c96b9e','NASDAQ','2026-08-06',false,true,'https://corporate.ralphlauren.com/investor-relations')">RL</div><div class="chip s-BEVERAGES___ALCOHOL" style="--cc:#5fa85a" data-ticker="KDP" onclick="showCard('KDP','Keurig Dr Pepper','BEVERAGES & ALCOHOL','BMO','2026-08-06','#5fa85a','NASDAQ','2026-08-06',false,true,'https://investors.keurigdrpepper.com')">KDP<span class="tbadge tbadge-bmo">&#9650; BMO</span></div><div class="chip s-RESTAURANTS" style="--cc:#d47a3a" data-ticker="QSR" onclick="showCard('QSR','Restaurant Brands Intl','RESTAURANTS','BMO','2026-08-06','#d47a3a','NASDAQ','2026-08-06',false,true,'https://www.rbi.com/English/investors/investor-home/default.aspx')">QSR<span class="tbadge tbadge-bmo">&#9650; BMO</span></div><div class="chip s-DELIVERY" style="--cc:#5580d4" data-ticker="CART" onclick="showCard('CART','Instacart','DELIVERY','nan','2026-08-06','#5580d4','NASDAQ','2026-08-06',false,true,'https://investors.instacart.com/')">CART</div></div></div><div class="dcell has-e"><span class="dno">7</span><div class="chips"><div class="chip s-CONSUMER_GOODS" style="--cc:#4a9e8a" data-ticker="KMB" onclick="showCard('KMB','Kimberly-Clark','CONSUMER GOODS','nan','2026-08-07','#4a9e8a','NASDAQ','2026-07-28',true,true,'https://www.investor.kimberly-clark.com/')">KMB<span class="bdg-mm" title="Date conflict">!</span></div></div></div><div class="dcell wknd"><span class="dno">8</span><div class="chips"></div></div><div class="dcell wknd"><span class="dno">9</span><div class="chips"></div></div><div class="dcell has-e"><span class="dno">10</span><div class="chips"><div class="chip s-REAL_ESTATE" style="--cc:#6a8fa8" data-ticker="SPG" onclick="showCard('SPG','Simon Property Group','REAL ESTATE','AMC','2026-08-10','#6a8fa8','NASDAQ','2026-08-10',false,true,'https://simonpg.gcs-web.com/news-events/stockholder-events')">SPG<span class="tbadge tbadge-amc">&#9660; AMC</span></div></div></div><div class="dcell has-e"><span class="dno">11</span><div class="chips"><div class="chip s-APPAREL___FOOTWEAR" style="--cc:#4f8ef7" data-ticker="ONON" onclick="showCard('ONON','On Holding','APPAREL & FOOTWEAR','nan','2026-08-11','#4f8ef7','NASDAQ','2026-08-11',false,true,'https://investors.on-running.com/home/default.aspx')">ONON</div><div class="chip s-MEAT_COS" style="--cc:#9a66c0" data-ticker="SFD" onclick="showCard('SFD','Smithfield Foods','MEAT COS','nan','2026-08-11','#9a66c0','NASDAQ','2026-07-28',true,true,'https://investors.smithfieldfoods.com/')">SFD<span class="bdg-mm" title="Date conflict">!</span></div></div></div><div class="dcell"><span class="dno">12</span><div class="chips"></div></div><div class="dcell has-e"><span class="dno">13</span><div class="chips"><div class="chip s-APPAREL___FOOTWEAR" style="--cc:#4f8ef7" data-ticker="BIRK" onclick="showCard('BIRK','Birkenstock','APPAREL & FOOTWEAR','nan','2026-08-13','#4f8ef7','NASDAQ','2026-08-13',false,true,'https://www.birkenstock-holding.com/')">BIRK</div><div class="chip s-LUXURY___BEAUTY" style="--cc:#c96b9e" data-ticker="TPR" onclick="showCard('TPR','Tapestry','LUXURY & BEAUTY','nan','2026-08-13','#c96b9e','NASDAQ','N/A',false,true,'https://www.tapestry.com/investors/')">TPR</div><div class="chip s-OTHERS" style="--cc:#7a8fa0" data-ticker="AMCR" onclick="showCard('AMCR','Amcor','OTHERS','nan','2026-08-13','#7a8fa0','NASDAQ','N/A',false,true,'https://www.amcor.com/investors')">AMCR</div></div></div><div class="dcell has-e"><span class="dno">14</span><div class="chips"><div class="chip s-APPAREL___FOOTWEAR" style="--cc:#4f8ef7" data-ticker="UAA" onclick="showCard('UAA','Under Armour','APPAREL & FOOTWEAR','nan','2026-08-14','#4f8ef7','NASDAQ','2026-08-07',true,true,'https://about.underarmour.com/en/investors/press-releases--events---presentations.html')">UAA<span class="bdg-mm" title="Date conflict">!</span></div></div></div><div class="dcell wknd"><span class="dno">15</span><div class="chips"></div></div><div class="dcell wknd"><span class="dno">16</span><div class="chips"></div></div><div class="dcell"><span class="dno">17</span><div class="chips"></div></div><div class="dcell has-e"><span class="dno">18</span><div class="chips"><div class="chip s-RETAILERS" style="--cc:#e07d45" data-ticker="HD" onclick="showCard('HD','Home Depot','RETAILERS','BMO','2026-08-18','#e07d45','NASDAQ','2026-08-18',false,true,'https://ir.homedepot.com')">HD<span class="tbadge tbadge-bmo">&#9650; BMO</span></div></div></div><div class="dcell has-e"><span class="dno">19</span><div class="chips"><div class="chip s-DOLLAR_STORES" style="--cc:#9b78d4" data-ticker="TJX" onclick="showCard('TJX','TJX Companies','DOLLAR STORES','nan','2026-08-19','#9b78d4','NASDAQ','2026-08-19',false,true,'https://investor.tjx.com/')">TJX</div><div class="chip s-LUXURY___BEAUTY" style="--cc:#c96b9e" data-ticker="COTY" onclick="showCard('COTY','Coty Inc.','LUXURY & BEAUTY','nan','2026-08-19','#c96b9e','NASDAQ','N/A',false,true,'https://investors.coty.com')">COTY</div><div class="chip s-LUXURY___BEAUTY" style="--cc:#c96b9e" data-ticker="EL" onclick="showCard('EL','Estée Lauder','LUXURY & BEAUTY','nan','2026-08-19','#c96b9e','NASDAQ','N/A',false,true,'https://www.elcompanies.com/en/investors')">EL</div><div class="chip s-RETAILERS" style="--cc:#e07d45" data-ticker="TGT" onclick="showCard('TGT','Target','RETAILERS','nan','2026-08-19','#e07d45','NASDAQ','2026-08-19',false,true,'https://corporate.target.com/investors')">TGT</div><div class="chip s-RETAILERS" style="--cc:#e07d45" data-ticker="LOW" onclick="showCard('LOW','Lowe\'s','RETAILERS','BMO','2026-08-19','#e07d45','NASDAQ','2026-08-19',false,true,'https://corporate.lowes.com/investors')">LOW<span class="tbadge tbadge-bmo">&#9650; BMO</span></div></div></div><div class="dcell has-e"><span class="dno">20</span><div class="chips"><div class="chip s-DOLLAR_STORES" style="--cc:#9b78d4" data-ticker="ROST" onclick="showCard('ROST','Ross Stores','DOLLAR STORES','nan','2026-08-20','#9b78d4','NASDAQ','2026-08-20',false,true,'https://investors.rossstores.com')">ROST</div><div class="chip s-RETAILERS" style="--cc:#e07d45" data-ticker="WMT" onclick="showCard('WMT','Walmart','RETAILERS','BMO','2026-08-20','#e07d45','NASDAQ','2026-08-20',false,true,'https://stock.walmart.com')">WMT<span class="tbadge tbadge-bmo">&#9650; BMO</span></div></div></div><div class="dcell"><span class="dno">21</span><div class="chips"></div></div><div class="dcell wknd"><span class="dno">22</span><div class="chips"></div></div><div class="dcell wknd"><span class="dno">23</span><div class="chips"></div></div><div class="dcell"><span class="dno">24</span><div class="chips"></div></div><div class="dcell"><span class="dno">25</span><div class="chips"></div></div><div class="dcell has-e"><span class="dno">26</span><div class="chips"><div class="chip s-APPAREL___FOOTWEAR" style="--cc:#4f8ef7" data-ticker="ANF" onclick="showCard('ANF','Abercrombie & Fitch','APPAREL & FOOTWEAR','nan','2026-08-26','#4f8ef7','NASDAQ','2026-08-26',false,true,'https://corporate.abercrombie.com/investors')">ANF</div><div class="chip s-RETAILERS" style="--cc:#e07d45" data-ticker="KSS" onclick="showCard('KSS','Kohl\'s','RETAILERS','nan','2026-08-26','#e07d45','NASDAQ','2026-08-26',false,true,'https://investors.kohls.com/overview/default.aspx')">KSS</div><div class="chip s-PACKAGED_FOOD" style="--cc:#c9a84c" data-ticker="SJM" onclick="showCard('SJM','J.M. Smucker','PACKAGED FOOD','nan','2026-08-26','#c9a84c','NASDAQ','2026-08-27',true,true,'https://investors.jmsmucker.com')">SJM<span class="bdg-mm" title="Date conflict">!</span></div></div></div><div class="dcell has-e"><span class="dno">27</span><div class="chips"><div class="chip s-APPAREL___FOOTWEAR" style="--cc:#4f8ef7" data-ticker="GAP" onclick="showCard('GAP','Gap Inc.','APPAREL & FOOTWEAR','nan','2026-08-27','#4f8ef7','NASDAQ','2026-08-27',false,true,'https://investors.gapinc.com/Investor-Relation/default.aspx')">GAP</div><div class="chip s-DOLLAR_STORES" style="--cc:#9b78d4" data-ticker="DG" onclick="showCard('DG','Dollar General','DOLLAR STORES','nan','2026-08-27','#9b78d4','NASDAQ','2026-08-27',false,true,'https://investor.dollargeneral.com')">DG</div><div class="chip s-LUXURY___BEAUTY" style="--cc:#c96b9e" data-ticker="ULTA" onclick="showCard('ULTA','Ulta Beauty','LUXURY & BEAUTY','nan','2026-08-27','#c96b9e','NASDAQ','2026-08-27',false,true,'https://www.ulta.com/investor')">ULTA</div><div class="chip s-RETAILERS" style="--cc:#e07d45" data-ticker="BBWI" onclick="showCard('BBWI','Bath & Body Works','RETAILERS','nan','2026-08-27','#e07d45','NASDAQ','2026-08-27',false,true,'https://www.bbwinc.com/investors')">BBWI</div><div class="chip s-RETAILERS" style="--cc:#e07d45" data-ticker="BBY" onclick="showCard('BBY','Best Buy','RETAILERS','nan','2026-08-27','#e07d45','NASDAQ','2026-08-27',false,true,'https://investors.bestbuy.com')">BBY</div><div class="chip s-BEVERAGES___ALCOHOL" style="--cc:#5fa85a" data-ticker="BF-B" onclick="showCard('BF-B','Brown-Forman','BEVERAGES & ALCOHOL','nan','2026-08-27','#5fa85a','Yahoo Finance','2026-08-27',false,false,'https://investors.brown-forman.com')">BF-B<span class="bdg-uc" title="Unconfirmed">?</span></div><div class="chip s-PACKAGED_FOOD" style="--cc:#c9a84c" data-ticker="HRL" onclick="showCard('HRL','Hormel Foods','PACKAGED FOOD','nan','2026-08-27','#c9a84c','NASDAQ','2026-08-27',false,true,'https://investors.hormelfoods.com')">HRL</div></div></div><div class="dcell"><span class="dno">28</span><div class="chips"></div></div><div class="dcell wknd"><span class="dno">29</span><div class="chips"></div></div><div class="dcell wknd"><span class="dno">30</span><div class="chips"></div></div><div class="dcell"><span class="dno">31</span><div class="chips"></div></div></div></div><div class="mblock" style="--es-bg:rgba(201,168,76,0.07);--es-col:#c9a84c"><div class="mblock-header"><span class="mlabel">SEPTEMBER 2026</span><span class="earn-season-badge" style="--ec:#c9a84c"><svg viewBox="0 0 14 14" width="10" height="10" style="vertical-align:middle;margin-right:4px"><rect x="1" y="5" width="2" height="7" rx="1" fill="#c9a84c"/><rect x="4.5" y="3" width="2" height="9" rx="1" fill="#c9a84c" opacity="0.85"/><rect x="8" y="1" width="2" height="11" rx="1" fill="#c9a84c" opacity="0.7"/><rect x="11.5" y="4" width="2" height="8" rx="1" fill="#c9a84c" opacity="0.6"/></svg>Q2 Earnings Season<span class="earn-season-sub">Apr–Jun results</span></span></div><div class="cgrid"><div class="dname">MON</div><div class="dname">TUE</div><div class="dname">WED</div><div class="dname">THU</div><div class="dname">FRI</div><div class="dname">SAT</div><div class="dname">SUN</div><div class="dcell empty"></div><div class="dcell"><span class="dno">1</span><div class="chips"></div></div><div class="dcell has-e"><span class="dno">2</span><div class="chips"><div class="chip s-RETAILERS" style="--cc:#e07d45" data-ticker="M" onclick="showCard('M','Macy\'s','RETAILERS','nan','2026-09-02','#e07d45','Yahoo Finance','2026-09-02',false,false,'https://www.macysinc.com/investors/')">M<span class="bdg-uc" title="Unconfirmed">?</span></div></div></div><div class="dcell has-e"><span class="dno">3</span><div class="chips"><div class="chip s-APPAREL___FOOTWEAR" style="--cc:#4f8ef7" data-ticker="LULU" onclick="showCard('LULU','Lululemon Athletica','APPAREL & FOOTWEAR','nan','2026-09-03','#4f8ef7','Yahoo Finance','2026-09-03',false,false,'https://corporate.lululemon.com/investors')">LULU<span class="bdg-uc" title="Unconfirmed">?</span></div></div></div><div class="dcell"><span class="dno">4</span><div class="chips"></div></div><div class="dcell wknd"><span class="dno">5</span><div class="chips"></div></div><div class="dcell wknd"><span class="dno">6</span><div class="chips"></div></div><div class="dcell mkt-closed"><span class="dno">7</span><div class="evbadge evbadge-holiday">Labor Day<span class=ev-closed>CLOSED</span></div><div class="chips"></div></div><div class="dcell"><span class="dno">8</span><div class="chips"></div></div><div class="dcell has-e"><span class="dno">9</span><div class="chips"><div class="chip s-PACKAGED_FOOD" style="--cc:#c9a84c" data-ticker="CPB" onclick="showCard('CPB','Campbell\'s Company','PACKAGED FOOD','nan','2026-09-09','#c9a84c','Yahoo Finance','2026-09-09',false,false,'https://investor.thecampbellscompany.com/')">CPB<span class="bdg-uc" title="Unconfirmed">?</span></div></div></div><div class="dcell has-e"><span class="dno">10</span><div class="chips"><div class="chip s-RETAILERS" style="--cc:#e07d45" data-ticker="KR" onclick="showCard('KR','Kroger','RETAILERS','nan','2026-09-10','#e07d45','Yahoo Finance','2026-09-10',false,false,'https://ir.kroger.com')">KR<span class="bdg-uc" title="Unconfirmed">?</span></div></div></div><div class="dcell"><span class="dno">11</span><div class="chips"></div></div><div class="dcell wknd"><span class="dno">12</span><div class="chips"></div></div><div class="dcell wknd"><span class="dno">13</span><div class="chips"></div></div><div class="dcell"><span class="dno">14</span><div class="chips"></div></div><div class="dcell"><span class="dno">15</span><div class="chips"></div></div><div class="dcell"><span class="dno">16</span><div class="chips"></div></div><div class="dcell"><span class="dno">17</span><div class="chips"></div></div><div class="dcell"><span class="dno">18</span><div class="chips"></div></div><div class="dcell wknd"><span class="dno">19</span><div class="chips"></div></div><div class="dcell wknd"><span class="dno">20</span><div class="chips"></div></div><div class="dcell"><span class="dno">21</span><div class="chips"></div></div><div class="dcell"><span class="dno">22</span><div class="chips"></div></div><div class="dcell"><span class="dno">23</span><div class="chips"></div></div><div class="dcell has-e"><span class="dno">24</span><div class="chips"><div class="chip s-RETAILERS" style="--cc:#e07d45" data-ticker="COST" onclick="showCard('COST','Costco','RETAILERS','nan','2026-09-24','#e07d45','Yahoo Finance','2026-09-24',false,false,'https://investor.costco.com')">COST<span class="bdg-uc" title="Unconfirmed">?</span></div></div></div><div class="dcell"><span class="dno">25</span><div class="chips"></div></div><div class="dcell wknd"><span class="dno">26</span><div class="chips"></div></div><div class="dcell wknd"><span class="dno">27</span><div class="chips"></div></div><div class="dcell"><span class="dno">28</span><div class="chips"></div></div><div class="dcell"><span class="dno">29</span><div class="chips"></div></div><div class="dcell"><span class="dno">30</span><div class="chips"></div></div></div></div></main>
-<div class="ubox"><div class="ubox-head"><span class="ubox-title">NOT YET ANNOUNCED</span><span class="ubox-sub">Click any ticker for details</span></div><table class="utable"><thead><tr><th>SECTOR</th><th>TICKERS</th></tr></thead><tbody><tr><td><span class="sbadge" style="background:#4f8ef7">APPAREL & FOOTWEAR</span></td><td><span class="uchip s-APPAREL___FOOTWEAR" style="--cc:#4f8ef7" data-ticker="AEO" onclick="showCard('AEO','American Eagle Outfitters','APPAREL & FOOTWEAR','TBD','TBD','#4f8ef7','-','N/A',false,false,'https://investors.ae.com/investor-home/default.aspx')">AEO</span></td></tr><tr><td><span class="sbadge" style="background:#9b78d4">DOLLAR STORES</span></td><td><span class="uchip s-DOLLAR_STORES" style="--cc:#9b78d4" data-ticker="DLTR" onclick="showCard('DLTR','Dollar Tree','DOLLAR STORES','TBD','TBD','#9b78d4','-','N/A',false,false,'https://corporate.dollartree.com/investors')">DLTR</span></td></tr></tbody></table></div>
+<main class="main"><div class="mblock past-month" data-month-key="2026-06" style="--es-bg:rgba(95,168,90,0.07);--es-col:#5fa85a"><div class="mblock-header" onclick="toggleMonth(this.parentElement)"><div class="mblock-header-left"><span class="month-chevron">&#9658;</span><span class="mlabel">JUNE 2026</span><span class="past-pill" data-count="1">PAST &middot; 1 reports</span></div><span class="earn-season-badge" style="--ec:#5fa85a"><svg viewBox="0 0 14 14" width="10" height="10" style="vertical-align:middle;margin-right:4px"><rect x="1" y="5" width="2" height="7" rx="1" fill="#5fa85a"/><rect x="4.5" y="3" width="2" height="9" rx="1" fill="#5fa85a" opacity="0.85"/><rect x="8" y="1" width="2" height="11" rx="1" fill="#5fa85a" opacity="0.7"/><rect x="11.5" y="4" width="2" height="8" rx="1" fill="#5fa85a" opacity="0.6"/></svg>Q1 Earnings Season<span class="earn-season-sub">Jan–Mar results</span></span></div><div class="mblock-body"><div class="cgrid"><div class="dname">MON</div><div class="dname">TUE</div><div class="dname">WED</div><div class="dname">THU</div><div class="dname">FRI</div><div class="dname">SAT</div><div class="dname">SUN</div><div class="dcell" data-date="2026-06-01"><span class="dno">1</span><div class="chips"></div></div><div class="dcell" data-date="2026-06-02"><span class="dno">2</span><div class="chips"></div></div><div class="dcell" data-date="2026-06-03"><span class="dno">3</span><div class="chips"></div></div><div class="dcell" data-date="2026-06-04"><span class="dno">4</span><div class="chips"></div></div><div class="dcell" data-date="2026-06-05"><span class="dno">5</span><div class="chips"></div></div><div class="dcell wknd" data-date="2026-06-06"><span class="dno">6</span><div class="chips"></div></div><div class="dcell wknd" data-date="2026-06-07"><span class="dno">7</span><div class="chips"></div></div><div class="dcell" data-date="2026-06-08"><span class="dno">8</span><div class="chips"></div></div><div class="dcell" data-date="2026-06-09"><span class="dno">9</span><div class="chips"></div></div><div class="dcell" data-date="2026-06-10"><span class="dno">10</span><div class="chips"></div></div><div class="dcell" data-date="2026-06-11"><span class="dno">11</span><div class="chips"></div></div><div class="dcell" data-date="2026-06-12"><span class="dno">12</span><div class="chips"></div></div><div class="dcell wknd" data-date="2026-06-13"><span class="dno">13</span><div class="chips"></div></div><div class="dcell wknd" data-date="2026-06-14"><span class="dno">14</span><div class="chips"></div></div><div class="dcell" data-date="2026-06-15"><span class="dno">15</span><div class="chips"></div></div><div class="dcell" data-date="2026-06-16"><span class="dno">16</span><div class="chips"></div></div><div class="dcell" data-date="2026-06-17"><span class="dno">17</span><div class="chips"></div></div><div class="dcell" data-date="2026-06-18"><span class="dno">18</span><div class="chips"></div></div><div class="dcell mkt-closed" data-date="2026-06-19"><span class="dno">19</span><div class="evbadge evbadge-holiday">Juneteenth<span class=ev-closed>CLOSED</span></div><div class="chips"></div></div><div class="dcell wknd" data-date="2026-06-20"><span class="dno">20</span><div class="chips"></div></div><div class="dcell wknd" data-date="2026-06-21"><span class="dno">21</span><div class="evbadge evbadge-retail">Father's Day</div><div class="chips"></div></div><div class="dcell" data-date="2026-06-22"><span class="dno">22</span><div class="chips"></div></div><div class="dcell" data-date="2026-06-23"><span class="dno">23</span><div class="chips"></div></div><div class="dcell" data-date="2026-06-24"><span class="dno">24</span><div class="chips"></div></div><div class="dcell" data-date="2026-06-25"><span class="dno">25</span><div class="chips"></div></div><div class="dcell" data-date="2026-06-26"><span class="dno">26</span><div class="chips"></div></div><div class="dcell wknd" data-date="2026-06-27"><span class="dno">27</span><div class="chips"></div></div><div class="dcell wknd" data-date="2026-06-28"><span class="dno">28</span><div class="chips"></div></div><div class="dcell" data-date="2026-06-29"><span class="dno">29</span><div class="chips"></div></div><div class="dcell has-e" data-date="2026-06-30"><span class="dno">30</span><div class="chips"><div class="chip s-APPAREL___FOOTWEAR" style="--cc:#4f8ef7" data-ticker="NKE" onclick="showCard('NKE','Nike','APPAREL & FOOTWEAR','nan','2026-06-30','#4f8ef7','NASDAQ','2026-09-29',true,true,'https://investors.nike.com')">NKE<span class="bdg-mm" title="Date conflict">!</span></div><div class="chip s-BEVERAGES___ALCOHOL" style="--cc:#5fa85a" data-ticker="STZ" onclick="showCard('STZ','Constellation Brands','BEVERAGES & ALCOHOL','nan','2026-06-30','#5fa85a','NASDAQ','N/A',false,true,'https://ir.cbrands.com/')">STZ</div></div></div></div></div></div><div class="mblock past-month" data-month-key="2026-07" style="--es-bg:rgba(201,168,76,0.07);--es-col:#c9a84c"><div class="mblock-header" onclick="toggleMonth(this.parentElement)"><div class="mblock-header-left"><span class="month-chevron">&#9658;</span><span class="mlabel">JULY 2026</span><span class="past-pill" data-count="13">PAST &middot; 13 reports</span></div><span class="earn-season-badge" style="--ec:#c9a84c"><svg viewBox="0 0 14 14" width="10" height="10" style="vertical-align:middle;margin-right:4px"><rect x="1" y="5" width="2" height="7" rx="1" fill="#c9a84c"/><rect x="4.5" y="3" width="2" height="9" rx="1" fill="#c9a84c" opacity="0.85"/><rect x="8" y="1" width="2" height="11" rx="1" fill="#c9a84c" opacity="0.7"/><rect x="11.5" y="4" width="2" height="8" rx="1" fill="#c9a84c" opacity="0.6"/></svg>Q2 Earnings Season<span class="earn-season-sub">Apr–Jun results</span></span></div><div class="mblock-body"><div class="cgrid"><div class="dname">MON</div><div class="dname">TUE</div><div class="dname">WED</div><div class="dname">THU</div><div class="dname">FRI</div><div class="dname">SAT</div><div class="dname">SUN</div><div class="dcell empty"></div><div class="dcell empty"></div><div class="dcell has-e" data-date="2026-07-01"><span class="dno">1</span><div class="chips"><div class="chip s-PACKAGED_FOOD" style="--cc:#c9a84c" data-ticker="GIS" onclick="showCard('GIS','General Mills','PACKAGED FOOD','nan','2026-07-01','#c9a84c','NASDAQ','2026-09-23',true,true,'https://investors.generalmills.com/home/default.aspx')">GIS<span class="bdg-mm" title="Date conflict">!</span></div></div></div><div class="dcell" data-date="2026-07-02"><span class="dno">2</span><div class="chips"></div></div><div class="dcell" data-date="2026-07-03"><span class="dno">3</span><div class="chips"></div></div><div class="dcell wknd mkt-closed" data-date="2026-07-04"><span class="dno">4</span><div class="evbadge evbadge-holiday">Independence Day<span class=ev-closed>CLOSED</span></div><div class="chips"></div></div><div class="dcell wknd" data-date="2026-07-05"><span class="dno">5</span><div class="chips"></div></div><div class="dcell" data-date="2026-07-06"><span class="dno">6</span><div class="chips"></div></div><div class="dcell" data-date="2026-07-07"><span class="dno">7</span><div class="chips"></div></div><div class="dcell has-e" data-date="2026-07-08"><span class="dno">8</span><div class="chips"><div class="chip s-APPAREL___FOOTWEAR" style="--cc:#4f8ef7" data-ticker="LEVI" onclick="showCard('LEVI','Levi Strauss & Co.','APPAREL & FOOTWEAR','BMO','2026-07-08','#4f8ef7','NASDAQ','2026-07-08',false,true,'https://investors.levistrauss.com/home/default.aspx')">LEVI<span class="tbadge tbadge-bmo">&#9650; BMO</span></div></div></div><div class="dcell has-e" data-date="2026-07-09"><span class="dno">9</span><div class="chips"><div class="chip s-BEVERAGES___ALCOHOL" style="--cc:#5fa85a" data-ticker="PEP" onclick="showCard('PEP','PepsiCo','BEVERAGES & ALCOHOL','BMO','2026-07-09','#5fa85a','NASDAQ','2026-07-09',false,true,'https://www.pepsico.com/investors')">PEP<span class="tbadge tbadge-bmo">&#9650; BMO</span></div></div></div><div class="dcell" data-date="2026-07-10"><span class="dno">10</span><div class="chips"></div></div><div class="dcell wknd" data-date="2026-07-11"><span class="dno">11</span><div class="chips"></div></div><div class="dcell wknd" data-date="2026-07-12"><span class="dno">12</span><div class="chips"></div></div><div class="dcell" data-date="2026-07-13"><span class="dno">13</span><div class="chips"></div></div><div class="dcell" data-date="2026-07-14"><span class="dno">14</span><div class="chips"></div></div><div class="dcell has-e" data-date="2026-07-15"><span class="dno">15</span><div class="chips"><div class="chip s-PACKAGED_FOOD" style="--cc:#c9a84c" data-ticker="CAG" onclick="showCard('CAG','Conagra Brands','PACKAGED FOOD','BMO','2026-07-15','#c9a84c','NASDAQ','2026-07-15',false,true,'https://www.conagrabrands.com/investor-relations')">CAG<span class="tbadge tbadge-bmo">&#9650; BMO</span></div><div class="chip s-OTHERS" style="--cc:#7a8fa0" data-ticker="CTAS" onclick="showCard('CTAS','Cintas Corporation','OTHERS','BMO','2026-07-15','#7a8fa0','NASDAQ','2026-07-15',false,true,'https://www.cintas.com/investors/')">CTAS<span class="tbadge tbadge-bmo">&#9650; BMO</span></div></div></div><div class="dcell" data-date="2026-07-16"><span class="dno">16</span><div class="chips"></div></div><div class="dcell" data-date="2026-07-17"><span class="dno">17</span><div class="chips"></div></div><div class="dcell wknd" data-date="2026-07-18"><span class="dno">18</span><div class="chips"></div></div><div class="dcell wknd" data-date="2026-07-19"><span class="dno">19</span><div class="chips"></div></div><div class="dcell has-e" data-date="2026-07-20"><span class="dno">20</span><div class="chips"><div class="chip s-RESTAURANTS" style="--cc:#d47a3a" data-ticker="DPZ" onclick="showCard('DPZ','Domino\'s Pizza','RESTAURANTS','BMO','2026-07-20','#d47a3a','NASDAQ','2026-07-20',false,true,'https://ir.dominos.com')">DPZ<span class="tbadge tbadge-bmo">&#9650; BMO</span></div></div></div><div class="dcell has-e" data-date="2026-07-21"><span class="dno">21</span><div class="chips"><div class="chip s-RETAILERS" style="--cc:#e07d45" data-ticker="ACI" onclick="showCard('ACI','Albertsons','RETAILERS','nan','2026-07-21','#e07d45','NASDAQ','N/A',false,true,'https://www.albertsonscompanies.com/investors/overview/default.aspx')">ACI</div><div class="chip s-TOYMAKERS" style="--cc:#d45f5f" data-ticker="HAS" onclick="showCard('HAS','Hasbro','TOYMAKERS','BMO','2026-07-21','#d45f5f','NASDAQ','2026-07-21',false,true,'https://investor.hasbro.com')">HAS<span class="tbadge tbadge-bmo">&#9650; BMO</span></div></div></div><div class="dcell has-e" data-date="2026-07-22"><span class="dno">22</span><div class="chips"><div class="chip s-CIGARETTES" style="--cc:#9e7a55" data-ticker="PM" onclick="showCard('PM','Philip Morris International','CIGARETTES','BMO','2026-07-22','#9e7a55','NASDAQ','2026-07-22',false,true,'https://www.pmi.com/investor-relations/overview')">PM<span class="tbadge tbadge-bmo">&#9650; BMO</span></div><div class="chip s-TOYMAKERS" style="--cc:#d45f5f" data-ticker="MAT" onclick="showCard('MAT','Mattel','TOYMAKERS','nan','2026-07-22','#d45f5f','NASDAQ','2026-07-22',false,true,'https://investors.mattel.com/overview/default.aspx')">MAT</div><div class="chip s-OTHERS" style="--cc:#7a8fa0" data-ticker="ROL" onclick="showCard('ROL','Rollins','OTHERS','nan','2026-07-22','#7a8fa0','NASDAQ','N/A',false,true,'https://www.rollins.com/investors')">ROL</div></div></div><div class="dcell has-e" data-date="2026-07-23"><span class="dno">23</span><div class="chips"><div class="chip s-APPAREL___FOOTWEAR" style="--cc:#4f8ef7" data-ticker="DECK" onclick="showCard('DECK','Deckers Outdoor','APPAREL & FOOTWEAR','nan','2026-07-23','#4f8ef7','NASDAQ','2026-07-23',false,true,'https://ir.deckers.com/')">DECK</div><div class="chip s-OTHERS" style="--cc:#7a8fa0" data-ticker="TSCO" onclick="showCard('TSCO','Tractor Supply','OTHERS','BMO','2026-07-23','#7a8fa0','NASDAQ','2026-07-23',false,true,'https://ir.tractorsupply.com/investor-relations/overview/default.aspx')">TSCO<span class="tbadge tbadge-bmo">&#9650; BMO</span></div></div></div><div class="dcell has-e" data-date="2026-07-24"><span class="dno">24</span><div class="chips"><div class="chip s-PACKAGED_FOOD" style="--cc:#c9a84c" data-ticker="LW" onclick="showCard('LW','Lamb Weston','PACKAGED FOOD','BMO','2026-07-24','#c9a84c','NASDAQ','2026-07-24',false,true,'https://www.lambweston.com/en/investors.html')">LW<span class="tbadge tbadge-bmo">&#9650; BMO</span></div></div></div><div class="dcell wknd" data-date="2026-07-25"><span class="dno">25</span><div class="chips"></div></div><div class="dcell wknd" data-date="2026-07-26"><span class="dno">26</span><div class="chips"></div></div><div class="dcell" data-date="2026-07-27"><span class="dno">27</span><div class="chips"></div></div><div class="dcell has-e" data-date="2026-07-28"><span class="dno">28</span><div class="chips"><div class="chip s-BEVERAGES___ALCOHOL" style="--cc:#5fa85a" data-ticker="KO" onclick="showCard('KO','Coca-Cola','BEVERAGES & ALCOHOL','BMO','2026-07-28','#5fa85a','NASDAQ','2026-07-28',false,true,'https://investors.coca-colacompany.com')">KO<span class="tbadge tbadge-bmo">&#9650; BMO</span></div></div></div><div class="dcell has-e" data-date="2026-07-29"><span class="dno">29</span><div class="chips"><div class="chip s-APPAREL___FOOTWEAR" style="--cc:#4f8ef7" data-ticker="VFC" onclick="showCard('VFC','VF Corporation','APPAREL & FOOTWEAR','nan','2026-07-29','#4f8ef7','NASDAQ','2026-08-04',true,true,'https://www.vfc.com/investors')">VFC<span class="bdg-mm" title="Date conflict">!</span></div><div class="chip s-PACKAGED_FOOD" style="--cc:#c9a84c" data-ticker="KHC" onclick="showCard('KHC','Kraft Heinz','PACKAGED FOOD','nan','2026-07-29','#c9a84c','NASDAQ','2026-07-29',false,true,'https://ir.kraftheinzcompany.com')">KHC</div><div class="chip s-PACKAGED_FOOD" style="--cc:#c9a84c" data-ticker="HSY" onclick="showCard('HSY','Hershey','PACKAGED FOOD','nan','2026-07-29','#c9a84c','NASDAQ','2026-07-30',true,true,'https://www.thehersheycompany.com/en_us/investors.html')">HSY<span class="bdg-mm" title="Date conflict">!</span></div><div class="chip s-CONSUMER_GOODS" style="--cc:#4a9e8a" data-ticker="PG" onclick="showCard('PG','Procter & Gamble','CONSUMER GOODS','BMO','2026-07-29','#4a9e8a','NASDAQ','2026-07-29',false,true,'https://www.pginvestor.com/overview/default.aspx')">PG<span class="tbadge tbadge-bmo">&#9650; BMO</span></div><div class="chip s-RESTAURANTS" style="--cc:#d47a3a" data-ticker="CMG" onclick="showCard('CMG','Chipotle Mexican Grill','RESTAURANTS','AMC','2026-07-29','#d47a3a','NASDAQ','2026-07-29',false,true,'https://ir.chipotle.com')">CMG<span class="tbadge tbadge-amc">&#9660; AMC</span></div><div class="chip s-REAL_ESTATE" style="--cc:#6a8fa8" data-ticker="REG" onclick="showCard('REG','Regency Centers','REAL ESTATE','AMC','2026-07-29','#6a8fa8','NASDAQ','2026-07-29',false,true,'https://investors.regencycenters.com/')">REG<span class="tbadge tbadge-amc">&#9660; AMC</span></div><div class="chip s-OTHERS" style="--cc:#7a8fa0" data-ticker="MAS" onclick="showCard('MAS','Masco Corporation','OTHERS','BMO','2026-07-29','#7a8fa0','NASDAQ','2026-07-29',false,true,'https://investor.masco.com/overview/default.aspx')">MAS<span class="tbadge tbadge-bmo">&#9650; BMO</span></div></div></div><div class="dcell has-e" data-date="2026-07-30"><span class="dno">30</span><div class="chips"><div class="chip s-LUXURY___BEAUTY" style="--cc:#c96b9e" data-ticker="GOOS" onclick="showCard('GOOS','Canada Goose','LUXURY & BEAUTY','nan','2026-07-30','#c96b9e','NASDAQ','2026-08-06',true,true,'https://investors.canadagoose.com')">GOOS<span class="bdg-mm" title="Date conflict">!</span></div><div class="chip s-CRUISES" style="--cc:#3aada8" data-ticker="NCLH" onclick="showCard('NCLH','Norwegian Cruise Line','CRUISES','nan','2026-07-30','#3aada8','NASDAQ','2026-07-30',false,true,'https://www.nclhltd.com/investors')">NCLH</div><div class="chip s-CONSUMER_GOODS" style="--cc:#4a9e8a" data-ticker="CLX" onclick="showCard('CLX','Clorox','CONSUMER GOODS','nan','2026-07-30','#4a9e8a','NASDAQ','2026-07-30',false,true,'https://investors.thecloroxcompany.com/overview/default.aspx')">CLX</div><div class="chip s-CIGARETTES" style="--cc:#9e7a55" data-ticker="MO" onclick="showCard('MO','Altria Group','CIGARETTES','BMO','2026-07-30','#9e7a55','NASDAQ','2026-07-30',false,true,'https://www.altria.com/Investors/at-a-glance')">MO<span class="tbadge tbadge-bmo">&#9650; BMO</span></div><div class="chip s-OTHERS" style="--cc:#7a8fa0" data-ticker="IP" onclick="showCard('IP','International Paper','OTHERS','BMO','2026-07-30','#7a8fa0','NASDAQ','2026-07-30',false,true,'https://www.internationalpaper.com/investors')">IP<span class="tbadge tbadge-bmo">&#9650; BMO</span></div></div></div><div class="dcell has-e" data-date="2026-07-31"><span class="dno">31</span><div class="chips"><div class="chip s-CONSUMER_GOODS" style="--cc:#4a9e8a" data-ticker="NWL" onclick="showCard('NWL','Newell Brands','CONSUMER GOODS','BMO','2026-07-31','#4a9e8a','NASDAQ','2026-07-31',false,true,'https://ir.newellbrands.com')">NWL<span class="tbadge tbadge-bmo">&#9650; BMO</span></div><div class="chip s-CONSUMER_GOODS" style="--cc:#4a9e8a" data-ticker="CHD" onclick="showCard('CHD','Church & Dwight','CONSUMER GOODS','BMO','2026-07-31','#4a9e8a','NASDAQ','2026-07-31',false,true,'https://investor.churchdwight.com/overview/default.aspx')">CHD<span class="tbadge tbadge-bmo">&#9650; BMO</span></div><div class="chip s-CONSUMER_GOODS" style="--cc:#4a9e8a" data-ticker="CL" onclick="showCard('CL','Colgate-Palmolive','CONSUMER GOODS','BMO','2026-07-31','#4a9e8a','NASDAQ','2026-07-31',false,true,'https://investor.colgatepalmolive.com/')">CL<span class="tbadge tbadge-bmo">&#9650; BMO</span></div><div class="chip s-REAL_ESTATE" style="--cc:#6a8fa8" data-ticker="FRT" onclick="showCard('FRT','Federal Realty','REAL ESTATE','BMO','2026-07-31','#6a8fa8','NASDAQ','2026-07-31',false,true,'https://www.federalrealty.com/investors/overview/')">FRT<span class="tbadge tbadge-bmo">&#9650; BMO</span></div></div></div></div></div></div><div class="mblock past-month" data-month-key="2026-08" style="--es-bg:rgba(201,168,76,0.07);--es-col:#c9a84c"><div class="mblock-header" onclick="toggleMonth(this.parentElement)"><div class="mblock-header-left"><span class="month-chevron">&#9658;</span><span class="mlabel">AUGUST 2026</span><span class="past-pill" data-count="14">PAST &middot; 14 reports</span></div><span class="earn-season-badge" style="--ec:#c9a84c"><svg viewBox="0 0 14 14" width="10" height="10" style="vertical-align:middle;margin-right:4px"><rect x="1" y="5" width="2" height="7" rx="1" fill="#c9a84c"/><rect x="4.5" y="3" width="2" height="9" rx="1" fill="#c9a84c" opacity="0.85"/><rect x="8" y="1" width="2" height="11" rx="1" fill="#c9a84c" opacity="0.7"/><rect x="11.5" y="4" width="2" height="8" rx="1" fill="#c9a84c" opacity="0.6"/></svg>Q2 Earnings Season<span class="earn-season-sub">Apr–Jun results</span></span></div><div class="mblock-body"><div class="cgrid"><div class="dname">MON</div><div class="dname">TUE</div><div class="dname">WED</div><div class="dname">THU</div><div class="dname">FRI</div><div class="dname">SAT</div><div class="dname">SUN</div><div class="dcell empty"></div><div class="dcell empty"></div><div class="dcell empty"></div><div class="dcell empty"></div><div class="dcell empty"></div><div class="dcell wknd" data-date="2026-08-01"><span class="dno">1</span><div class="chips"></div></div><div class="dcell wknd" data-date="2026-08-02"><span class="dno">2</span><div class="chips"></div></div><div class="dcell has-e" data-date="2026-08-03"><span class="dno">3</span><div class="chips"><div class="chip s-MEAT_COS" style="--cc:#9a66c0" data-ticker="TSN" onclick="showCard('TSN','Tyson Foods','MEAT COS','BMO','2026-08-03','#9a66c0','NASDAQ','2026-08-03',false,true,'https://ir.tyson.com/investor-home/default.aspx')">TSN<span class="tbadge tbadge-bmo">&#9650; BMO</span></div></div></div><div class="dcell has-e" data-date="2026-08-04"><span class="dno">4</span><div class="chips"><div class="chip s-CRUISES" style="--cc:#3aada8" data-ticker="RCL" onclick="showCard('RCL','Royal Caribbean','CRUISES','nan','2026-08-04','#3aada8','NASDAQ','2026-07-28',true,true,'https://www.rclinvestor.com/')">RCL<span class="bdg-mm" title="Date conflict">!</span></div><div class="chip s-BEVERAGES___ALCOHOL" style="--cc:#5fa85a" data-ticker="TAP" onclick="showCard('TAP','Molson Coors','BEVERAGES & ALCOHOL','nan','2026-08-04','#5fa85a','NASDAQ','N/A',false,true,'https://ir.molsoncoors.com/overview/default.aspx')">TAP</div><div class="chip s-PACKAGED_FOOD" style="--cc:#c9a84c" data-ticker="IFF" onclick="showCard('IFF','Intl Flavors & Fragrances','PACKAGED FOOD','nan','2026-08-04','#c9a84c','NASDAQ','2026-08-04',false,true,'https://ir.iff.com')">IFF</div><div class="chip s-PACKAGED_FOOD" style="--cc:#c9a84c" data-ticker="MDLZ" onclick="showCard('MDLZ','Mondelez International','PACKAGED FOOD','nan','2026-08-04','#c9a84c','NASDAQ','2026-07-28',true,true,'https://ir.mondelezinternational.com')">MDLZ<span class="bdg-mm" title="Date conflict">!</span></div><div class="chip s-RESTAURANTS" style="--cc:#d47a3a" data-ticker="YUM" onclick="showCard('YUM','Yum! Brands','RESTAURANTS','nan','2026-08-04','#d47a3a','NASDAQ','2026-07-30',true,true,'https://investors.yum.com/corporateprofile/default.aspx')">YUM<span class="bdg-mm" title="Date conflict">!</span></div><div class="chip s-RESTAURANTS" style="--cc:#d47a3a" data-ticker="SBUX" onclick="showCard('SBUX','Starbucks','RESTAURANTS','nan','2026-08-04','#d47a3a','NASDAQ','2026-07-29',true,true,'https://investor.starbucks.com/ir-home/default.aspx')">SBUX<span class="bdg-mm" title="Date conflict">!</span></div><div class="chip s-MEAT_COS" style="--cc:#9a66c0" data-ticker="SYY" onclick="showCard('SYY','Sysco','MEAT COS','nan','2026-08-04','#9a66c0','NASDAQ','2026-07-28',true,true,'https://investors.sysco.com/')">SYY<span class="bdg-mm" title="Date conflict">!</span></div><div class="chip s-REAL_ESTATE" style="--cc:#6a8fa8" data-ticker="KIM" onclick="showCard('KIM','Kimco Realty','REAL ESTATE','BMO','2026-08-04','#6a8fa8','NASDAQ','2026-08-04',false,true,'https://investors.kimcorealty.com/')">KIM<span class="tbadge tbadge-bmo">&#9650; BMO</span></div><div class="chip s-OTHERS" style="--cc:#7a8fa0" data-ticker="BALL" onclick="showCard('BALL','Ball Corporation','OTHERS','nan','2026-08-04','#7a8fa0','NASDAQ','2026-08-04',false,true,'https://investors.ball.com/')">BALL</div></div></div><div class="dcell has-e" data-date="2026-08-05"><span class="dno">5</span><div class="chips"><div class="chip s-LUXURY___BEAUTY" style="--cc:#c96b9e" data-ticker="CPRI" onclick="showCard('CPRI','Capri Holdings','LUXURY & BEAUTY','nan','2026-08-05','#c96b9e','NASDAQ','2026-08-05',false,true,'https://capriholdings.com/')">CPRI</div><div class="chip s-LUXURY___BEAUTY" style="--cc:#c96b9e" data-ticker="ELF" onclick="showCard('ELF','e.l.f. Beauty','LUXURY & BEAUTY','nan','2026-08-05','#c96b9e','NASDAQ','2026-08-05',false,true,'https://investor.elfbeauty.com/stock-and-financial/events-and-presentations')">ELF</div><div class="chip s-PACKAGED_FOOD" style="--cc:#c9a84c" data-ticker="BYND" onclick="showCard('BYND','Beyond Meat','PACKAGED FOOD','nan','2026-08-05','#c9a84c','NASDAQ','2026-08-05',false,true,'https://investors.beyondmeat.com')">BYND</div><div class="chip s-RESTAURANTS" style="--cc:#d47a3a" data-ticker="MCD" onclick="showCard('MCD','McDonald\'s','RESTAURANTS','nan','2026-08-05','#d47a3a','NASDAQ','2026-08-06',true,true,'https://corporate.mcdonalds.com/corpmcd/investors.html')">MCD<span class="bdg-mm" title="Date conflict">!</span></div><div class="chip s-DELIVERY" style="--cc:#5580d4" data-ticker="DASH" onclick="showCard('DASH','DoorDash','DELIVERY','nan','2026-08-05','#5580d4','NASDAQ','N/A',false,true,'https://ir.doordash.com/overview/default.aspx')">DASH</div></div></div><div class="dcell has-e" data-date="2026-08-06"><span class="dno">6</span><div class="chips"><div class="chip s-LUXURY___BEAUTY" style="--cc:#c96b9e" data-ticker="RL" onclick="showCard('RL','Ralph Lauren','LUXURY & BEAUTY','nan','2026-08-06','#c96b9e','NASDAQ','2026-08-06',false,true,'https://corporate.ralphlauren.com/investor-relations')">RL</div><div class="chip s-BEVERAGES___ALCOHOL" style="--cc:#5fa85a" data-ticker="KDP" onclick="showCard('KDP','Keurig Dr Pepper','BEVERAGES & ALCOHOL','BMO','2026-08-06','#5fa85a','NASDAQ','2026-08-06',false,true,'https://investors.keurigdrpepper.com')">KDP<span class="tbadge tbadge-bmo">&#9650; BMO</span></div><div class="chip s-RESTAURANTS" style="--cc:#d47a3a" data-ticker="QSR" onclick="showCard('QSR','Restaurant Brands Intl','RESTAURANTS','BMO','2026-08-06','#d47a3a','NASDAQ','2026-08-06',false,true,'https://www.rbi.com/English/investors/investor-home/default.aspx')">QSR<span class="tbadge tbadge-bmo">&#9650; BMO</span></div><div class="chip s-DELIVERY" style="--cc:#5580d4" data-ticker="CART" onclick="showCard('CART','Instacart','DELIVERY','nan','2026-08-06','#5580d4','NASDAQ','2026-08-06',false,true,'https://investors.instacart.com/')">CART</div></div></div><div class="dcell has-e" data-date="2026-08-07"><span class="dno">7</span><div class="chips"><div class="chip s-CONSUMER_GOODS" style="--cc:#4a9e8a" data-ticker="KMB" onclick="showCard('KMB','Kimberly-Clark','CONSUMER GOODS','nan','2026-08-07','#4a9e8a','NASDAQ','2026-07-28',true,true,'https://www.investor.kimberly-clark.com/')">KMB<span class="bdg-mm" title="Date conflict">!</span></div></div></div><div class="dcell wknd" data-date="2026-08-08"><span class="dno">8</span><div class="chips"></div></div><div class="dcell wknd" data-date="2026-08-09"><span class="dno">9</span><div class="chips"></div></div><div class="dcell has-e" data-date="2026-08-10"><span class="dno">10</span><div class="chips"><div class="chip s-REAL_ESTATE" style="--cc:#6a8fa8" data-ticker="SPG" onclick="showCard('SPG','Simon Property Group','REAL ESTATE','AMC','2026-08-10','#6a8fa8','NASDAQ','2026-08-10',false,true,'https://simonpg.gcs-web.com/news-events/stockholder-events')">SPG<span class="tbadge tbadge-amc">&#9660; AMC</span></div></div></div><div class="dcell has-e" data-date="2026-08-11"><span class="dno">11</span><div class="chips"><div class="chip s-APPAREL___FOOTWEAR" style="--cc:#4f8ef7" data-ticker="ONON" onclick="showCard('ONON','On Holding','APPAREL & FOOTWEAR','nan','2026-08-11','#4f8ef7','NASDAQ','2026-08-11',false,true,'https://investors.on-running.com/home/default.aspx')">ONON</div><div class="chip s-MEAT_COS" style="--cc:#9a66c0" data-ticker="SFD" onclick="showCard('SFD','Smithfield Foods','MEAT COS','nan','2026-08-11','#9a66c0','NASDAQ','2026-07-28',true,true,'https://investors.smithfieldfoods.com/')">SFD<span class="bdg-mm" title="Date conflict">!</span></div></div></div><div class="dcell" data-date="2026-08-12"><span class="dno">12</span><div class="chips"></div></div><div class="dcell has-e" data-date="2026-08-13"><span class="dno">13</span><div class="chips"><div class="chip s-APPAREL___FOOTWEAR" style="--cc:#4f8ef7" data-ticker="BIRK" onclick="showCard('BIRK','Birkenstock','APPAREL & FOOTWEAR','nan','2026-08-13','#4f8ef7','NASDAQ','2026-08-13',false,true,'https://www.birkenstock-holding.com/')">BIRK</div><div class="chip s-LUXURY___BEAUTY" style="--cc:#c96b9e" data-ticker="TPR" onclick="showCard('TPR','Tapestry','LUXURY & BEAUTY','nan','2026-08-13','#c96b9e','NASDAQ','N/A',false,true,'https://www.tapestry.com/investors/')">TPR</div><div class="chip s-OTHERS" style="--cc:#7a8fa0" data-ticker="AMCR" onclick="showCard('AMCR','Amcor','OTHERS','nan','2026-08-13','#7a8fa0','NASDAQ','N/A',false,true,'https://www.amcor.com/investors')">AMCR</div></div></div><div class="dcell has-e" data-date="2026-08-14"><span class="dno">14</span><div class="chips"><div class="chip s-APPAREL___FOOTWEAR" style="--cc:#4f8ef7" data-ticker="UAA" onclick="showCard('UAA','Under Armour','APPAREL & FOOTWEAR','nan','2026-08-14','#4f8ef7','NASDAQ','2026-08-07',true,true,'https://about.underarmour.com/en/investors/press-releases--events---presentations.html')">UAA<span class="bdg-mm" title="Date conflict">!</span></div></div></div><div class="dcell wknd" data-date="2026-08-15"><span class="dno">15</span><div class="chips"></div></div><div class="dcell wknd" data-date="2026-08-16"><span class="dno">16</span><div class="chips"></div></div><div class="dcell" data-date="2026-08-17"><span class="dno">17</span><div class="chips"></div></div><div class="dcell has-e" data-date="2026-08-18"><span class="dno">18</span><div class="chips"><div class="chip s-RETAILERS" style="--cc:#e07d45" data-ticker="HD" onclick="showCard('HD','Home Depot','RETAILERS','BMO','2026-08-18','#e07d45','NASDAQ','2026-08-18',false,true,'https://ir.homedepot.com')">HD<span class="tbadge tbadge-bmo">&#9650; BMO</span></div></div></div><div class="dcell has-e" data-date="2026-08-19"><span class="dno">19</span><div class="chips"><div class="chip s-DOLLAR_STORES" style="--cc:#9b78d4" data-ticker="TJX" onclick="showCard('TJX','TJX Companies','DOLLAR STORES','nan','2026-08-19','#9b78d4','NASDAQ','2026-08-19',false,true,'https://investor.tjx.com/')">TJX</div><div class="chip s-LUXURY___BEAUTY" style="--cc:#c96b9e" data-ticker="COTY" onclick="showCard('COTY','Coty Inc.','LUXURY & BEAUTY','nan','2026-08-19','#c96b9e','NASDAQ','N/A',false,true,'https://investors.coty.com')">COTY</div><div class="chip s-LUXURY___BEAUTY" style="--cc:#c96b9e" data-ticker="EL" onclick="showCard('EL','Estée Lauder','LUXURY & BEAUTY','nan','2026-08-19','#c96b9e','NASDAQ','N/A',false,true,'https://www.elcompanies.com/en/investors')">EL</div><div class="chip s-RETAILERS" style="--cc:#e07d45" data-ticker="TGT" onclick="showCard('TGT','Target','RETAILERS','nan','2026-08-19','#e07d45','NASDAQ','2026-08-19',false,true,'https://corporate.target.com/investors')">TGT</div><div class="chip s-RETAILERS" style="--cc:#e07d45" data-ticker="LOW" onclick="showCard('LOW','Lowe\'s','RETAILERS','BMO','2026-08-19','#e07d45','NASDAQ','2026-08-19',false,true,'https://corporate.lowes.com/investors')">LOW<span class="tbadge tbadge-bmo">&#9650; BMO</span></div></div></div><div class="dcell has-e" data-date="2026-08-20"><span class="dno">20</span><div class="chips"><div class="chip s-DOLLAR_STORES" style="--cc:#9b78d4" data-ticker="ROST" onclick="showCard('ROST','Ross Stores','DOLLAR STORES','nan','2026-08-20','#9b78d4','NASDAQ','2026-08-20',false,true,'https://investors.rossstores.com')">ROST</div><div class="chip s-RETAILERS" style="--cc:#e07d45" data-ticker="WMT" onclick="showCard('WMT','Walmart','RETAILERS','BMO','2026-08-20','#e07d45','NASDAQ','2026-08-20',false,true,'https://stock.walmart.com')">WMT<span class="tbadge tbadge-bmo">&#9650; BMO</span></div></div></div><div class="dcell" data-date="2026-08-21"><span class="dno">21</span><div class="chips"></div></div><div class="dcell wknd" data-date="2026-08-22"><span class="dno">22</span><div class="chips"></div></div><div class="dcell wknd" data-date="2026-08-23"><span class="dno">23</span><div class="chips"></div></div><div class="dcell" data-date="2026-08-24"><span class="dno">24</span><div class="chips"></div></div><div class="dcell" data-date="2026-08-25"><span class="dno">25</span><div class="chips"></div></div><div class="dcell has-e" data-date="2026-08-26"><span class="dno">26</span><div class="chips"><div class="chip s-APPAREL___FOOTWEAR" style="--cc:#4f8ef7" data-ticker="ANF" onclick="showCard('ANF','Abercrombie & Fitch','APPAREL & FOOTWEAR','nan','2026-08-26','#4f8ef7','NASDAQ','2026-08-26',false,true,'https://corporate.abercrombie.com/investors')">ANF</div><div class="chip s-RETAILERS" style="--cc:#e07d45" data-ticker="KSS" onclick="showCard('KSS','Kohl\'s','RETAILERS','nan','2026-08-26','#e07d45','NASDAQ','2026-08-26',false,true,'https://investors.kohls.com/overview/default.aspx')">KSS</div><div class="chip s-PACKAGED_FOOD" style="--cc:#c9a84c" data-ticker="SJM" onclick="showCard('SJM','J.M. Smucker','PACKAGED FOOD','nan','2026-08-26','#c9a84c','NASDAQ','2026-08-27',true,true,'https://investors.jmsmucker.com')">SJM<span class="bdg-mm" title="Date conflict">!</span></div></div></div><div class="dcell has-e" data-date="2026-08-27"><span class="dno">27</span><div class="chips"><div class="chip s-APPAREL___FOOTWEAR" style="--cc:#4f8ef7" data-ticker="GAP" onclick="showCard('GAP','Gap Inc.','APPAREL & FOOTWEAR','nan','2026-08-27','#4f8ef7','NASDAQ','2026-08-27',false,true,'https://investors.gapinc.com/Investor-Relation/default.aspx')">GAP</div><div class="chip s-DOLLAR_STORES" style="--cc:#9b78d4" data-ticker="DG" onclick="showCard('DG','Dollar General','DOLLAR STORES','nan','2026-08-27','#9b78d4','NASDAQ','2026-08-27',false,true,'https://investor.dollargeneral.com')">DG</div><div class="chip s-LUXURY___BEAUTY" style="--cc:#c96b9e" data-ticker="ULTA" onclick="showCard('ULTA','Ulta Beauty','LUXURY & BEAUTY','nan','2026-08-27','#c96b9e','NASDAQ','2026-08-27',false,true,'https://www.ulta.com/investor')">ULTA</div><div class="chip s-RETAILERS" style="--cc:#e07d45" data-ticker="BBWI" onclick="showCard('BBWI','Bath & Body Works','RETAILERS','nan','2026-08-27','#e07d45','NASDAQ','2026-08-27',false,true,'https://www.bbwinc.com/investors')">BBWI</div><div class="chip s-RETAILERS" style="--cc:#e07d45" data-ticker="BBY" onclick="showCard('BBY','Best Buy','RETAILERS','nan','2026-08-27','#e07d45','NASDAQ','2026-08-27',false,true,'https://investors.bestbuy.com')">BBY</div><div class="chip s-BEVERAGES___ALCOHOL" style="--cc:#5fa85a" data-ticker="BF-B" onclick="showCard('BF-B','Brown-Forman','BEVERAGES & ALCOHOL','nan','2026-08-27','#5fa85a','Yahoo Finance','2026-08-27',false,false,'https://investors.brown-forman.com')">BF-B<span class="bdg-uc" title="Unconfirmed">?</span></div><div class="chip s-PACKAGED_FOOD" style="--cc:#c9a84c" data-ticker="HRL" onclick="showCard('HRL','Hormel Foods','PACKAGED FOOD','nan','2026-08-27','#c9a84c','NASDAQ','2026-08-27',false,true,'https://investors.hormelfoods.com')">HRL</div></div></div><div class="dcell" data-date="2026-08-28"><span class="dno">28</span><div class="chips"></div></div><div class="dcell wknd" data-date="2026-08-29"><span class="dno">29</span><div class="chips"></div></div><div class="dcell wknd" data-date="2026-08-30"><span class="dno">30</span><div class="chips"></div></div><div class="dcell" data-date="2026-08-31"><span class="dno">31</span><div class="chips"></div></div></div></div></div><div class="mblock past-month" data-month-key="2026-09" style="--es-bg:rgba(201,168,76,0.07);--es-col:#c9a84c"><div class="mblock-header" onclick="toggleMonth(this.parentElement)"><div class="mblock-header-left"><span class="month-chevron">&#9658;</span><span class="mlabel">SEPTEMBER 2026</span><span class="past-pill" data-count="6">PAST &middot; 6 reports</span></div><span class="earn-season-badge" style="--ec:#c9a84c"><svg viewBox="0 0 14 14" width="10" height="10" style="vertical-align:middle;margin-right:4px"><rect x="1" y="5" width="2" height="7" rx="1" fill="#c9a84c"/><rect x="4.5" y="3" width="2" height="9" rx="1" fill="#c9a84c" opacity="0.85"/><rect x="8" y="1" width="2" height="11" rx="1" fill="#c9a84c" opacity="0.7"/><rect x="11.5" y="4" width="2" height="8" rx="1" fill="#c9a84c" opacity="0.6"/></svg>Q2 Earnings Season<span class="earn-season-sub">Apr–Jun results</span></span></div><div class="mblock-body"><div class="cgrid"><div class="dname">MON</div><div class="dname">TUE</div><div class="dname">WED</div><div class="dname">THU</div><div class="dname">FRI</div><div class="dname">SAT</div><div class="dname">SUN</div><div class="dcell empty"></div><div class="dcell" data-date="2026-09-01"><span class="dno">1</span><div class="chips"></div></div><div class="dcell has-e" data-date="2026-09-02"><span class="dno">2</span><div class="chips"><div class="chip s-RETAILERS" style="--cc:#e07d45" data-ticker="M" onclick="showCard('M','Macy\'s','RETAILERS','nan','2026-09-02','#e07d45','Yahoo Finance','2026-09-02',false,false,'https://www.macysinc.com/investors/')">M<span class="bdg-uc" title="Unconfirmed">?</span></div></div></div><div class="dcell has-e" data-date="2026-09-03"><span class="dno">3</span><div class="chips"><div class="chip s-APPAREL___FOOTWEAR" style="--cc:#4f8ef7" data-ticker="LULU" onclick="showCard('LULU','Lululemon Athletica','APPAREL & FOOTWEAR','nan','2026-09-03','#4f8ef7','Yahoo Finance','2026-09-03',false,false,'https://corporate.lululemon.com/investors')">LULU<span class="bdg-uc" title="Unconfirmed">?</span></div></div></div><div class="dcell" data-date="2026-09-04"><span class="dno">4</span><div class="chips"></div></div><div class="dcell wknd" data-date="2026-09-05"><span class="dno">5</span><div class="chips"></div></div><div class="dcell wknd" data-date="2026-09-06"><span class="dno">6</span><div class="chips"></div></div><div class="dcell mkt-closed" data-date="2026-09-07"><span class="dno">7</span><div class="evbadge evbadge-holiday">Labor Day<span class=ev-closed>CLOSED</span></div><div class="chips"></div></div><div class="dcell" data-date="2026-09-08"><span class="dno">8</span><div class="chips"></div></div><div class="dcell has-e" data-date="2026-09-09"><span class="dno">9</span><div class="chips"><div class="chip s-PACKAGED_FOOD" style="--cc:#c9a84c" data-ticker="CPB" onclick="showCard('CPB','Campbell\'s Company','PACKAGED FOOD','nan','2026-09-09','#c9a84c','Yahoo Finance','2026-09-09',false,false,'https://investor.thecampbellscompany.com/')">CPB<span class="bdg-uc" title="Unconfirmed">?</span></div></div></div><div class="dcell has-e" data-date="2026-09-10"><span class="dno">10</span><div class="chips"><div class="chip s-RETAILERS" style="--cc:#e07d45" data-ticker="KR" onclick="showCard('KR','Kroger','RETAILERS','nan','2026-09-10','#e07d45','Yahoo Finance','2026-09-10',false,false,'https://ir.kroger.com')">KR<span class="bdg-uc" title="Unconfirmed">?</span></div></div></div><div class="dcell" data-date="2026-09-11"><span class="dno">11</span><div class="chips"></div></div><div class="dcell wknd" data-date="2026-09-12"><span class="dno">12</span><div class="chips"></div></div><div class="dcell wknd" data-date="2026-09-13"><span class="dno">13</span><div class="chips"></div></div><div class="dcell" data-date="2026-09-14"><span class="dno">14</span><div class="chips"></div></div><div class="dcell" data-date="2026-09-15"><span class="dno">15</span><div class="chips"></div></div><div class="dcell" data-date="2026-09-16"><span class="dno">16</span><div class="chips"></div></div><div class="dcell has-e" data-date="2026-09-17"><span class="dno">17</span><div class="chips"><div class="chip s-RESTAURANTS" style="--cc:#d47a3a" data-ticker="DRI" onclick="showCard('DRI','Darden Restaurants','RESTAURANTS','nan','2026-09-17','#d47a3a','Yahoo Finance','2026-09-17',false,false,'https://investor.darden.com/home/default.aspx')">DRI<span class="bdg-uc" title="Unconfirmed">?</span></div></div></div><div class="dcell" data-date="2026-09-18"><span class="dno">18</span><div class="chips"></div></div><div class="dcell wknd" data-date="2026-09-19"><span class="dno">19</span><div class="chips"></div></div><div class="dcell wknd" data-date="2026-09-20"><span class="dno">20</span><div class="chips"></div></div><div class="dcell" data-date="2026-09-21"><span class="dno">21</span><div class="chips"></div></div><div class="dcell" data-date="2026-09-22"><span class="dno">22</span><div class="chips"></div></div><div class="dcell" data-date="2026-09-23"><span class="dno">23</span><div class="chips"></div></div><div class="dcell has-e" data-date="2026-09-24"><span class="dno">24</span><div class="chips"><div class="chip s-RETAILERS" style="--cc:#e07d45" data-ticker="COST" onclick="showCard('COST','Costco','RETAILERS','nan','2026-09-24','#e07d45','Yahoo Finance','2026-09-24',false,false,'https://investor.costco.com')">COST<span class="bdg-uc" title="Unconfirmed">?</span></div></div></div><div class="dcell" data-date="2026-09-25"><span class="dno">25</span><div class="chips"></div></div><div class="dcell wknd" data-date="2026-09-26"><span class="dno">26</span><div class="chips"></div></div><div class="dcell wknd" data-date="2026-09-27"><span class="dno">27</span><div class="chips"></div></div><div class="dcell" data-date="2026-09-28"><span class="dno">28</span><div class="chips"></div></div><div class="dcell" data-date="2026-09-29"><span class="dno">29</span><div class="chips"></div></div><div class="dcell" data-date="2026-09-30"><span class="dno">30</span><div class="chips"></div></div></div></div></div></main>
+<div class="ubox"><div class="ubox-head"><span class="ubox-title">NOT YET ANNOUNCED</span><span class="ubox-sub">Click any ticker for details</span></div><table class="utable"><thead><tr><th>SECTOR</th><th>TICKERS</th></tr></thead><tbody><tr><td><span class="sbadge" style="background:#4f8ef7">APPAREL & FOOTWEAR</span></td><td><span class="uchip s-APPAREL___FOOTWEAR" style="--cc:#4f8ef7" data-ticker="AEO" onclick="showCard('AEO','American Eagle Outfitters','APPAREL & FOOTWEAR','TBD','TBD','#4f8ef7','-','N/A',false,false,'https://investors.ae.com/investor-home/default.aspx')">AEO</span></td></tr><tr><td><span class="sbadge" style="background:#9b78d4">DOLLAR STORES</span></td><td><span class="uchip s-DOLLAR_STORES" style="--cc:#9b78d4" data-ticker="DLTR" onclick="showCard('DLTR','Dollar Tree','DOLLAR STORES','TBD','TBD','#9b78d4','-','N/A',false,false,'https://corporate.dollartree.com/investors')">DLTR</span></td></tr><tr><td><span class="sbadge" style="background:#3aada8">CRUISES</span></td><td><span class="uchip s-CRUISES" style="--cc:#3aada8" data-ticker="CCL" onclick="showCard('CCL','Carnival Corporation','CRUISES','TBD','TBD','#3aada8','-','N/A',false,false,'https://www.carnivalcorp.com/investors/')">CCL</span></td></tr><tr><td><span class="sbadge" style="background:#c9a84c">PACKAGED FOOD</span></td><td><span class="uchip s-PACKAGED_FOOD" style="--cc:#c9a84c" data-ticker="MKC" onclick="showCard('MKC','McCormick & Company','PACKAGED FOOD','TBD','TBD','#c9a84c','-','N/A',false,false,'https://ir.mccormick.com/')">MKC</span></td></tr></tbody></table></div>
 
 <footer class="footer">
   <span>Neil J Kanatt &middot; NASDAQ API + Yahoo Finance</span>
-  <span id="refreshLabel">Next refresh calculating&hellip;</span>
+  <span id="refreshLabel">Calculating next refresh&hellip;</span>
 </footer>
-</div><!-- .content -->
-</div><!-- .page-wrap -->
+</div>
+</div>
 
-<!-- ===== MODAL ===== -->
 <div class="overlay" id="overlay" onclick="closeModal(event)">
   <div class="modal" id="modal">
     <button class="modal-close" onclick="closeModal()">&times;</button>
     <div class="modal-ticker" id="mTicker"></div>
     <div class="modal-name"   id="mName"></div>
-    <div class="modal-banner warn" id="mMismatch">
-      &#9888; Date conflict &mdash; NASDAQ and Yahoo show different dates.
-    </div>
-    <div class="modal-banner info" id="mUnconf">
-      &#10069; Unconfirmed &mdash; sourced from Yahoo Finance only.
-    </div>
-    <div class="modal-row">
-      <span class="modal-key">Sector</span>
-      <span class="modal-val" id="mSector"></span>
-    </div>
+    <div class="modal-banner warn" id="mMismatch">&#9888; Date conflict &mdash; NASDAQ and Yahoo show different dates.</div>
+    <div class="modal-banner info" id="mUnconf">&#10069; Unconfirmed &mdash; sourced from Yahoo Finance only.</div>
+    <div class="modal-row"><span class="modal-key">Sector</span><span class="modal-val" id="mSector"></span></div>
     <div class="modal-source-row">
-      <div class="modal-source-col">
-        <span class="modal-source-label">NASDAQ Date</span>
-        <span class="modal-source-date" id="mNasdaqDate"></span>
-      </div>
-      <div class="modal-source-col">
-        <span class="modal-source-label">Yahoo Date</span>
-        <span class="modal-source-date" id="mYahooDate"></span>
-      </div>
+      <div class="modal-source-col"><span class="modal-source-label">NASDAQ Date</span><span class="modal-source-date" id="mNasdaqDate"></span></div>
+      <div class="modal-source-col"><span class="modal-source-label">Yahoo Date</span><span class="modal-source-date" id="mYahooDate"></span></div>
     </div>
-    <div class="modal-row">
-      <span class="modal-key">Timing</span>
-      <span class="modal-val" id="mTiming"></span>
-    </div>
-    <div class="modal-row">
-      <span class="modal-key">Source</span>
-      <span class="modal-val secondary" id="mSource"></span>
-    </div>
-    <a class="modal-ir-link" id="mIRLink" href="#" target="_blank" rel="noopener">
-      &#8599; Investor Relations Page
-    </a>
+    <div class="modal-row"><span class="modal-key">Timing</span><span class="modal-val" id="mTiming"></span></div>
+    <div class="modal-row"><span class="modal-key">Source</span><span class="modal-val secondary" id="mSource"></span></div>
+    <a class="modal-ir-link" id="mIRLink" href="#" target="_blank" rel="noopener">&#8599; Investor Relations Page</a>
   </div>
 </div>
 
@@ -698,15 +372,12 @@ const SECTOR_COLORS = {"APPAREL & FOOTWEAR": "#4f8ef7", "DOLLAR STORES": "#9b78d
 const COMPANY_NAMES = {"UAA": "Under Armour", "AEO": "American Eagle Outfitters", "ANF": "Abercrombie & Fitch", "VFC": "VF Corporation", "GAP": "Gap Inc.", "BIRK": "Birkenstock", "LEVI": "Levi Strauss & Co.", "ONON": "On Holding", "LULU": "Lululemon Athletica", "DECK": "Deckers Outdoor", "NKE": "Nike", "DLTR": "Dollar Tree", "DG": "Dollar General", "ROST": "Ross Stores", "TJX": "TJX Companies", "GOOS": "Canada Goose", "COTY": "Coty Inc.", "CPRI": "Capri Holdings", "ELF": "e.l.f. Beauty", "ULTA": "Ulta Beauty", "RL": "Ralph Lauren", "TPR": "Tapestry", "EL": "Est\u00e9e Lauder", "KSS": "Kohl's", "BBWI": "Bath & Body Works", "M": "Macy's", "ACI": "Albertsons", "BBY": "Best Buy", "KR": "Kroger", "TGT": "Target", "LOW": "Lowe's", "HD": "Home Depot", "COST": "Costco", "WMT": "Walmart", "NCLH": "Norwegian Cruise Line", "RCL": "Royal Caribbean", "CCL": "Carnival Corporation", "TAP": "Molson Coors", "BF-B": "Brown-Forman", "STZ": "Constellation Brands", "KDP": "Keurig Dr Pepper", "PEP": "PepsiCo", "KO": "Coca-Cola", "BYND": "Beyond Meat", "LW": "Lamb Weston", "CAG": "Conagra Brands", "CPB": "Campbell's Company", "SJM": "J.M. Smucker", "MKC": "McCormick & Company", "HRL": "Hormel Foods", "GIS": "General Mills", "IFF": "Intl Flavors & Fragrances", "KHC": "Kraft Heinz", "HSY": "Hershey", "MDLZ": "Mondelez International", "NWL": "Newell Brands", "CLX": "Clorox", "CHD": "Church & Dwight", "KMB": "Kimberly-Clark", "CL": "Colgate-Palmolive", "PG": "Procter & Gamble", "MO": "Altria Group", "PM": "Philip Morris International", "MAT": "Mattel", "HAS": "Hasbro", "DPZ": "Domino's Pizza", "DRI": "Darden Restaurants", "QSR": "Restaurant Brands Intl", "CMG": "Chipotle Mexican Grill", "YUM": "Yum! Brands", "SBUX": "Starbucks", "MCD": "McDonald's", "SFD": "Smithfield Foods", "TSN": "Tyson Foods", "SYY": "Sysco", "CART": "Instacart", "DASH": "DoorDash", "FRT": "Federal Realty", "REG": "Regency Centers", "KIM": "Kimco Realty", "SPG": "Simon Property Group", "MAS": "Masco Corporation", "BALL": "Ball Corporation", "TSCO": "Tractor Supply", "AMCR": "Amcor", "ROL": "Rollins", "CTAS": "Cintas Corporation", "IP": "International Paper"};
 const IR_URLS_JS    = {"UAA": "https://about.underarmour.com/en/investors/press-releases--events---presentations.html", "AEO": "https://investors.ae.com/investor-home/default.aspx", "ANF": "https://corporate.abercrombie.com/investors", "VFC": "https://www.vfc.com/investors", "GAP": "https://investors.gapinc.com/Investor-Relation/default.aspx", "BIRK": "https://www.birkenstock-holding.com/", "LEVI": "https://investors.levistrauss.com/home/default.aspx", "ONON": "https://investors.on-running.com/home/default.aspx", "LULU": "https://corporate.lululemon.com/investors", "DECK": "https://ir.deckers.com/", "NKE": "https://investors.nike.com", "DLTR": "https://corporate.dollartree.com/investors", "DG": "https://investor.dollargeneral.com", "ROST": "https://investors.rossstores.com", "TJX": "https://investor.tjx.com/", "GOOS": "https://investors.canadagoose.com", "COTY": "https://investors.coty.com", "CPRI": "https://capriholdings.com/", "ELF": "https://investor.elfbeauty.com/stock-and-financial/events-and-presentations", "ULTA": "https://www.ulta.com/investor", "RL": "https://corporate.ralphlauren.com/investor-relations", "TPR": "https://www.tapestry.com/investors/", "EL": "https://www.elcompanies.com/en/investors", "KSS": "https://investors.kohls.com/overview/default.aspx", "BBWI": "https://www.bbwinc.com/investors", "M": "https://www.macysinc.com/investors/", "ACI": "https://www.albertsonscompanies.com/investors/overview/default.aspx", "BBY": "https://investors.bestbuy.com", "KR": "https://ir.kroger.com", "TGT": "https://corporate.target.com/investors", "LOW": "https://corporate.lowes.com/investors", "HD": "https://ir.homedepot.com", "COST": "https://investor.costco.com", "WMT": "https://stock.walmart.com", "NCLH": "https://www.nclhltd.com/investors", "RCL": "https://www.rclinvestor.com/", "CCL": "https://www.carnivalcorp.com/investors/", "TAP": "https://ir.molsoncoors.com/overview/default.aspx", "BF-B": "https://investors.brown-forman.com", "STZ": "https://ir.cbrands.com/", "KDP": "https://investors.keurigdrpepper.com", "PEP": "https://www.pepsico.com/investors", "KO": "https://investors.coca-colacompany.com", "BYND": "https://investors.beyondmeat.com", "LW": "https://www.lambweston.com/en/investors.html", "CAG": "https://www.conagrabrands.com/investor-relations", "CPB": "https://investor.thecampbellscompany.com/", "SJM": "https://investors.jmsmucker.com", "MKC": "https://ir.mccormick.com/", "HRL": "https://investors.hormelfoods.com", "GIS": "https://investors.generalmills.com/home/default.aspx", "IFF": "https://ir.iff.com", "KHC": "https://ir.kraftheinzcompany.com", "HSY": "https://www.thehersheycompany.com/en_us/investors.html", "MDLZ": "https://ir.mondelezinternational.com", "NWL": "https://ir.newellbrands.com", "CLX": "https://investors.thecloroxcompany.com/overview/default.aspx", "CHD": "https://investor.churchdwight.com/overview/default.aspx", "KMB": "https://www.investor.kimberly-clark.com/", "CL": "https://investor.colgatepalmolive.com/", "PG": "https://www.pginvestor.com/overview/default.aspx", "MO": "https://www.altria.com/Investors/at-a-glance", "PM": "https://www.pmi.com/investor-relations/overview", "MAT": "https://investors.mattel.com/overview/default.aspx", "HAS": "https://investor.hasbro.com", "DPZ": "https://ir.dominos.com", "DRI": "https://investor.darden.com/home/default.aspx", "QSR": "https://www.rbi.com/English/investors/investor-home/default.aspx", "CMG": "https://ir.chipotle.com", "YUM": "https://investors.yum.com/corporateprofile/default.aspx", "SBUX": "https://investor.starbucks.com/ir-home/default.aspx", "MCD": "https://corporate.mcdonalds.com/corpmcd/investors.html", "SFD": "https://investors.smithfieldfoods.com/", "TSN": "https://ir.tyson.com/investor-home/default.aspx", "SYY": "https://investors.sysco.com/", "CART": "https://investors.instacart.com/", "DASH": "https://ir.doordash.com/overview/default.aspx", "FRT": "https://www.federalrealty.com/investors/overview/", "REG": "https://investors.regencycenters.com/", "KIM": "https://investors.kimcorealty.com/", "SPG": "https://simonpg.gcs-web.com/news-events/stockholder-events", "MAS": "https://investor.masco.com/overview/default.aspx", "BALL": "https://investors.ball.com/", "TSCO": "https://ir.tractorsupply.com/investor-relations/overview/default.aspx", "AMCR": "https://www.amcor.com/investors", "ROL": "https://www.rollins.com/investors", "CTAS": "https://www.cintas.com/investors/", "IP": "https://www.internationalpaper.com/investors"};
 
-// ── Sidebar toggle (arrow flips direction) ──────────────────────────────
 let sidebarOpen = true;
 function toggleSidebar() {
   sidebarOpen = !sidebarOpen;
   document.getElementById('sidebar').classList.toggle('collapsed', !sidebarOpen);
-  // Flip the arrow: ‹ when open (click to close), › when closed (click to open)
   document.getElementById('sidebarToggle').classList.toggle('flipped', !sidebarOpen);
 }
-
 function toggleSector(safe) {
   const t = document.getElementById('tickers-' + safe);
   const a = document.getElementById('arrow-'   + safe);
@@ -715,7 +386,6 @@ function toggleSector(safe) {
   a.classList.toggle('open', !open);
 }
 
-// ── Search ──────────────────────────────────────────────────────────────
 const searchInput = document.getElementById('searchInput');
 const searchClear = document.getElementById('searchClear');
 const searchHint  = document.getElementById('searchHint');
@@ -753,7 +423,6 @@ function applySearch(q) {
   searchHint.textContent = found ? found + ' result' + (found > 1 ? 's' : '') : 'No results';
 }
 
-// ── Modal ───────────────────────────────────────────────────────────────
 function showCard(ticker, name, sector, timing, nasdaqDate, color, source, yahooDate, mismatch, confirmed, irUrl) {
   document.getElementById('mTicker').textContent = ticker;
   document.getElementById('mTicker').style.color  = color;
@@ -784,11 +453,8 @@ document.addEventListener('keydown', e => {
 });
 </script>
 
-<!-- Notes JS (raw string, no f-string brace issues) -->
 <script>
-
 const STORAGE_KEY = 'earnings_cal_private_notes_v1';
-
 function loadNotes() {
   try {
     const saved = localStorage.getItem(STORAGE_KEY) || '';
@@ -796,14 +462,12 @@ function loadNotes() {
     if (box) box.value = saved;
   } catch(e) {}
 }
-
 function onNotesInput() {
   clearTimeout(window._saveTimer);
   window._saveTimer = setTimeout(function() {
     try {
       const box = document.getElementById('notesBox');
       if (box) localStorage.setItem(STORAGE_KEY, box.value);
-      // brief border flash to confirm save
       if (box) {
         box.style.borderColor = 'rgba(106,171,255,0.75)';
         setTimeout(function(){ box.style.borderColor = ''; }, 500);
@@ -811,58 +475,142 @@ function onNotesInput() {
     } catch(e) {}
   }, 800);
 }
-
 loadNotes();
-
 </script>
-
-<!-- Auto-refresh JS — 4 AM ET only -->
 <script>
-
-function scheduleSmartRefresh() {
-  const TARGET_SEC = 4 * 3600; // 4:00:00 AM ET
-
-  function getETSeconds() {
-    const now = new Date();
-    const parts = new Intl.DateTimeFormat('en-US', {
-      timeZone: 'America/New_York',
-      hour: 'numeric', minute: 'numeric', second: 'numeric', hour12: false
-    }).formatToParts(now);
-    const h = parseInt(parts.find(x => x.type === 'hour').value);
-    const m = parseInt(parts.find(x => x.type === 'minute').value);
-    const s = parseInt(parts.find(x => x.type === 'second').value);
-    return h * 3600 + m * 60 + s;
-  }
-
-  // Update footer label
+// ── Helper: get current date/time in ET ────────────────────────────────
+function getETNow() {
   const now = new Date();
-  const curSec = getETSeconds();
-  let secsUntil = TARGET_SEC - curSec;
-  if (secsUntil <= 0) secsUntil += 86400; // wrap to next day
-  const nextTime = new Date(now.getTime() + secsUntil * 1000);
-  const lbl = nextTime.toLocaleString('en-US', {
+  // Use Intl to get ET wall-clock parts
+  const fmt = new Intl.DateTimeFormat('en-US', {
     timeZone: 'America/New_York',
-    weekday: 'short', hour: 'numeric', minute: '2-digit', hour12: true
+    year: 'numeric', month: '2-digit', day: '2-digit',
+    hour: '2-digit', minute: '2-digit', second: '2-digit',
+    hour12: false
   });
-  const el = document.getElementById('refreshLabel');
-  if (el) el.textContent = 'Next refresh: ' + lbl + ' ET';
-
-  // Tick every second — fire within 2-second window of 4:00:00 AM ET
-  let fired = false;
-  function tick() {
-    if (fired) return;
-    const s = getETSeconds();
-    if (Math.abs(s - TARGET_SEC) <= 2) {
-      fired = true;
-      location.reload();
-      return;
-    }
-    setTimeout(tick, 1000);
-  }
-  setTimeout(tick, 1000);
+  const parts = {};
+  fmt.formatToParts(now).forEach(p => { if (p.type !== 'literal') parts[p.type] = parseInt(p.value); });
+  return {
+    year: parts.year, month: parts.month, day: parts.day,
+    hour: parts.hour, minute: parts.minute, second: parts.second,
+    totalSec: parts.hour * 3600 + parts.minute * 60 + parts.second,
+    dateStr: `${parts.year}-${String(parts.month).padStart(2,'0')}-${String(parts.day).padStart(2,'0')}`,
+    monthKey: `${parts.year}-${String(parts.month).padStart(2,'0')}`
+  };
 }
-scheduleSmartRefresh();
 
+// ── Stamp today highlight and past/current month state ─────────────────
+function stampToday() {
+  const et = getETNow();
+  const todayStr  = et.dateStr;
+  const monthKey  = et.monthKey;
+
+  // 1. Mark today cell and past cells
+  document.querySelectorAll('.dcell[data-date]').forEach(cell => {
+    const d = cell.dataset.date;
+    cell.classList.remove('today', 'past');
+    if (d === todayStr) {
+      cell.classList.add('today');
+    } else if (d < todayStr) {
+      cell.classList.add('past');
+    }
+  });
+
+  // 2. Open current+future months, collapse past months
+  document.querySelectorAll('.mblock[data-month-key]').forEach(block => {
+    const mk = block.dataset.monthKey;
+    const isPast = mk < monthKey;
+    const chev   = block.querySelector('.month-chevron');
+    const pill   = block.querySelector('.past-pill');
+
+    if (isPast) {
+      // Collapsed by default unless user already expanded it
+      if (!block.classList.contains('user-expanded')) {
+        block.classList.add('past-month');
+        block.classList.remove('expanded');
+        if (chev) chev.innerHTML = '&#9658;'; // ▶
+      }
+      if (pill) pill.style.display = '';
+    } else {
+      // Current or future — always open
+      block.classList.remove('past-month', 'expanded');
+      if (chev) chev.innerHTML = '&#9660;'; // ▼
+      if (pill) pill.style.display = 'none';
+    }
+  });
+
+  // 3. Update topbar timestamp to show live ET date
+  const el = document.getElementById('liveDate');
+  if (el) {
+    const d = new Date();
+    el.textContent = d.toLocaleDateString('en-US', {
+      timeZone: 'America/New_York',
+      day: '2-digit', month: 'short', year: 'numeric'
+    }) + ', ' + d.toLocaleTimeString('en-US', {
+      timeZone: 'America/New_York',
+      hour: 'numeric', minute: '2-digit', hour12: true
+    }) + ' ET';
+  }
+}
+
+// ── Month toggle (user-initiated) ──────────────────────────────────────
+function toggleMonth(mblock) {
+  if (!mblock.classList.contains('past-month')) return; // current/future always open
+  const expanded = mblock.classList.contains('expanded');
+  mblock.classList.toggle('expanded', !expanded);
+  mblock.classList.toggle('user-expanded', !expanded); // remember user intent
+  const chev = mblock.querySelector('.month-chevron');
+  if (chev) chev.innerHTML = !expanded ? '&#9660;' : '&#9658;';
+}
+
+// ── Smart refresh ───────────────────────────────────────────────────────
+// Reload at 04:05 AM ET (5 min after GH Action fires) and at midnight ET.
+// If we're already past 04:05 when the page loads, skip the data refresh
+// (it already ran today) — only schedule the midnight calendar rollover.
+function scheduleRefreshes() {
+  const REFRESH_SEC  = 4 * 3600 + 5 * 60;  // 04:05:00 ET
+  const MIDNIGHT_SEC = 0;                    // 00:00:00 ET
+
+  function secsUntil(targetSec) {
+    const cur = getETNow().totalSec;
+    let diff = targetSec - cur;
+    if (diff <= 30) diff += 86400; // already passed (or within 30s) → next day
+    return diff;
+  }
+
+  function scheduleReload(delaySec, label) {
+    const ms = delaySec * 1000;
+    setTimeout(function() { location.reload(); }, ms);
+    // Update footer label with the soonest upcoming reload
+    const nextTime = new Date(Date.now() + ms);
+    const lbl = nextTime.toLocaleString('en-US', {
+      timeZone: 'America/New_York',
+      weekday: 'short', hour: 'numeric', minute: '2-digit', hour12: true
+    });
+    const el = document.getElementById('refreshLabel');
+    if (el) el.textContent = 'Next refresh: ' + lbl + ' ET (' + label + ')';
+  }
+
+  const secsToData     = secsUntil(REFRESH_SEC);
+  const secsToMidnight = secsUntil(MIDNIGHT_SEC);
+
+  // Schedule whichever is sooner
+  if (secsToData <= secsToMidnight) {
+    scheduleReload(secsToData, 'data update');
+    // Also schedule midnight rollover after the data reload fires,
+    // but that will be re-scheduled on the reloaded page naturally.
+  } else {
+    scheduleReload(secsToMidnight, 'day rollover');
+  }
+}
+
+// ── Run on load ─────────────────────────────────────────────────────────
+stampToday();
+scheduleRefreshes();
+
+// Re-stamp every minute so "today" highlight stays correct across midnight
+// (belt-and-suspenders alongside the midnight reload)
+setInterval(stampToday, 60 * 1000);
 </script>
 
 </body>
