@@ -336,6 +336,9 @@ def build_html(df, generated_at):
     dated = df[df["Earnings Date"].notna()].copy()
     dated["dt"] = pd.to_datetime(dated["Earnings Date"])
 
+    # ── Build month range from data ─────────────────────────────────────
+    # We still need a stable month range for rendering all cells in Python.
+    # We anchor on generated_at so the range always includes current month.
     today_dt = generated_at.date()
     days_since_monday = today_dt.weekday()
     prior_monday = today_dt - timedelta(days=days_since_monday + 7)
@@ -367,8 +370,8 @@ def build_html(df, generated_at):
         for ds, evs in get_us_events(yr).items():
             event_map.setdefault(ds, []).extend(evs)
 
-    today_str = generated_at.strftime("%Y-%m-%d")
-    current_month_str = today_dt.strftime("%Y-%m")  # e.g. "2026-07"
+    # ── IMPORTANT: today_str and current_month_str are NO LONGER baked in.
+    # Every cell gets a data-date attribute; JS computes today at runtime.
     DAYS = ["MON","TUE","WED","THU","FRI","SAT","SUN"]
 
     def build_chips(rpts, ds):
@@ -395,6 +398,7 @@ def build_html(df, generated_at):
     def render_month(ms):
         es_name, es_sub, es_color, es_bg = EARNINGS_SEASON_BY_MONTH[ms.month]
         lbl   = ms.strftime("%B %Y").upper()
+        month_key = ms.strftime("%Y-%m")   # e.g. "2026-07" — used by JS
         heads = "".join(f'<div class="dname">{d}</div>' for d in DAYS)
         blank = "".join('<div class="dcell empty"></div>' for _ in range(ms.weekday()))
         nm = (ms.replace(month=ms.month+1) if ms.month < 12
@@ -403,10 +407,9 @@ def build_html(df, generated_at):
         for day in range(1, (nm - ms).days + 1):
             do  = ms.replace(day=day)
             ds  = do.strftime("%Y-%m-%d")
+            # Base classes only — no today/past baked in; JS will add them
             cls = "dcell"
             if do.weekday() >= 5: cls += " wknd"
-            if ds == today_str:   cls += " today"
-            if do < today_dt and ds != today_str: cls += " past"
             rpts = dl.get(ds, [])
             if rpts: cls += " has-e"
             day_events = event_map.get(ds, [])
@@ -417,30 +420,29 @@ def build_html(df, generated_at):
                 for e in day_events
             )
             chips = build_chips(rpts, ds)
-            cells += (f'<div class="{cls}"><span class="dno">{day}</span>'
+            # data-date lets JS stamp today/past without a page rebuild
+            cells += (f'<div class="{cls}" data-date="{ds}"><span class="dno">{day}</span>'
                       f'{ev_html}<div class="chips">{chips}</div></div>')
 
-        # Determine if this month is current (open) or past (collapsed)
-        this_month_str = ms.strftime("%Y-%m")
-        is_current = (this_month_str >= current_month_str)
-        collapsed_class = "" if is_current else " past-month"
-        open_attr = "" if is_current else ' data-collapsed="true"'
-
-        # Count earnings in this month for the collapsed summary line
-        month_start = ms.strftime("%Y-%m-01")
+        # Count earnings in this month for the collapsed summary pill
         month_end_dt = nm - timedelta(days=1)
         month_ticker_count = sum(
             1 for ds_key in dl
-            if ds_key >= ms.strftime("%Y-%m-01") and ds_key <= month_end_dt.strftime("%Y-%m-%d")
+            if ms.strftime("%Y-%m-01") <= ds_key <= month_end_dt.strftime("%Y-%m-%d")
         )
 
+        # past-month vs current decided by JS at runtime via data-month-key
+        # We render ALL months with past-month class initially; JS will
+        # immediately remove it from current+future months on DOMContentLoaded.
         return (
-            f'<div class="mblock{collapsed_class}"{open_attr} style="--es-bg:{es_bg};--es-col:{es_color}">'
+            f'<div class="mblock past-month" data-month-key="{month_key}" '
+            f'style="--es-bg:{es_bg};--es-col:{es_color}">'
             f'<div class="mblock-header" onclick="toggleMonth(this.parentElement)">'
             f'<div class="mblock-header-left">'
-            f'<span class="month-chevron">{"▾" if is_current else "▸"}</span>'
+            f'<span class="month-chevron">&#9658;</span>'
             f'<span class="mlabel">{lbl}</span>'
-            f'{"" if is_current else f\'<span class="past-pill">PAST · {month_ticker_count} reports</span>\'}'
+            f'<span class="past-pill" data-count="{month_ticker_count}">'
+            f'PAST &middot; {month_ticker_count} reports</span>'
             f'</div>'
             f'<span class="earn-season-badge" style="--ec:{es_color}">'
             f'<svg viewBox="0 0 14 14" width="10" height="10" style="vertical-align:middle;margin-right:4px">'
@@ -539,41 +541,148 @@ function onNotesInput() {
 loadNotes();
 """
 
-    refresh_js = r"""
-function scheduleSmartRefresh() {
-  const TARGET_SEC = 4 * 3600;
-  function getETSeconds() {
-    const now = new Date();
-    const parts = new Intl.DateTimeFormat('en-US', {
-      timeZone: 'America/New_York',
-      hour: 'numeric', minute: 'numeric', second: 'numeric', hour12: false
-    }).formatToParts(now);
-    const h = parseInt(parts.find(x => x.type === 'hour').value);
-    const m = parseInt(parts.find(x => x.type === 'minute').value);
-    const s = parseInt(parts.find(x => x.type === 'second').value);
-    return h * 3600 + m * 60 + s;
-  }
+    # ── Live today/month init + smart refresh JS ────────────────────────
+    # All "what day is today" logic lives here, runs on every page load.
+    # Refresh strategy:
+    #   - On load, if current ET time is already past 04:05 AM, the page is
+    #     fresh (GitHub Action ran at 04:00). No same-day reload needed.
+    #   - If current ET time is BEFORE 04:05 AM, schedule a reload for 04:05.
+    #   - Additionally, reload at midnight ET so the "today" highlight and
+    #     month open/close state always stay correct even without a data push.
+    live_js = r"""
+// ── Helper: get current date/time in ET ────────────────────────────────
+function getETNow() {
   const now = new Date();
-  const curSec = getETSeconds();
-  let secsUntil = TARGET_SEC - curSec;
-  if (secsUntil <= 0) secsUntil += 86400;
-  const nextTime = new Date(now.getTime() + secsUntil * 1000);
-  const lbl = nextTime.toLocaleString('en-US', {
+  // Use Intl to get ET wall-clock parts
+  const fmt = new Intl.DateTimeFormat('en-US', {
     timeZone: 'America/New_York',
-    weekday: 'short', hour: 'numeric', minute: '2-digit', hour12: true
+    year: 'numeric', month: '2-digit', day: '2-digit',
+    hour: '2-digit', minute: '2-digit', second: '2-digit',
+    hour12: false
   });
-  const el = document.getElementById('refreshLabel');
-  if (el) el.textContent = 'Next refresh: ' + lbl + ' ET';
-  let fired = false;
-  function tick() {
-    if (fired) return;
-    const s = getETSeconds();
-    if (Math.abs(s - TARGET_SEC) <= 2) { fired = true; location.reload(); return; }
-    setTimeout(tick, 1000);
-  }
-  setTimeout(tick, 1000);
+  const parts = {};
+  fmt.formatToParts(now).forEach(p => { if (p.type !== 'literal') parts[p.type] = parseInt(p.value); });
+  return {
+    year: parts.year, month: parts.month, day: parts.day,
+    hour: parts.hour, minute: parts.minute, second: parts.second,
+    totalSec: parts.hour * 3600 + parts.minute * 60 + parts.second,
+    dateStr: `${parts.year}-${String(parts.month).padStart(2,'0')}-${String(parts.day).padStart(2,'0')}`,
+    monthKey: `${parts.year}-${String(parts.month).padStart(2,'0')}`
+  };
 }
-scheduleSmartRefresh();
+
+// ── Stamp today highlight and past/current month state ─────────────────
+function stampToday() {
+  const et = getETNow();
+  const todayStr  = et.dateStr;
+  const monthKey  = et.monthKey;
+
+  // 1. Mark today cell and past cells
+  document.querySelectorAll('.dcell[data-date]').forEach(cell => {
+    const d = cell.dataset.date;
+    cell.classList.remove('today', 'past');
+    if (d === todayStr) {
+      cell.classList.add('today');
+    } else if (d < todayStr) {
+      cell.classList.add('past');
+    }
+  });
+
+  // 2. Open current+future months, collapse past months
+  document.querySelectorAll('.mblock[data-month-key]').forEach(block => {
+    const mk = block.dataset.monthKey;
+    const isPast = mk < monthKey;
+    const chev   = block.querySelector('.month-chevron');
+    const pill   = block.querySelector('.past-pill');
+
+    if (isPast) {
+      // Collapsed by default unless user already expanded it
+      if (!block.classList.contains('user-expanded')) {
+        block.classList.add('past-month');
+        block.classList.remove('expanded');
+        if (chev) chev.innerHTML = '&#9658;'; // ▶
+      }
+      if (pill) pill.style.display = '';
+    } else {
+      // Current or future — always open
+      block.classList.remove('past-month', 'expanded');
+      if (chev) chev.innerHTML = '&#9660;'; // ▼
+      if (pill) pill.style.display = 'none';
+    }
+  });
+
+  // 3. Update topbar timestamp to show live ET date
+  const el = document.getElementById('liveDate');
+  if (el) {
+    const d = new Date();
+    el.textContent = d.toLocaleDateString('en-US', {
+      timeZone: 'America/New_York',
+      day: '2-digit', month: 'short', year: 'numeric'
+    }) + ', ' + d.toLocaleTimeString('en-US', {
+      timeZone: 'America/New_York',
+      hour: 'numeric', minute: '2-digit', hour12: true
+    }) + ' ET';
+  }
+}
+
+// ── Month toggle (user-initiated) ──────────────────────────────────────
+function toggleMonth(mblock) {
+  if (!mblock.classList.contains('past-month')) return; // current/future always open
+  const expanded = mblock.classList.contains('expanded');
+  mblock.classList.toggle('expanded', !expanded);
+  mblock.classList.toggle('user-expanded', !expanded); // remember user intent
+  const chev = mblock.querySelector('.month-chevron');
+  if (chev) chev.innerHTML = !expanded ? '&#9660;' : '&#9658;';
+}
+
+// ── Smart refresh ───────────────────────────────────────────────────────
+// Reload at 04:05 AM ET (5 min after GH Action fires) and at midnight ET.
+// If we're already past 04:05 when the page loads, skip the data refresh
+// (it already ran today) — only schedule the midnight calendar rollover.
+function scheduleRefreshes() {
+  const REFRESH_SEC  = 4 * 3600 + 5 * 60;  // 04:05:00 ET
+  const MIDNIGHT_SEC = 0;                    // 00:00:00 ET
+
+  function secsUntil(targetSec) {
+    const cur = getETNow().totalSec;
+    let diff = targetSec - cur;
+    if (diff <= 30) diff += 86400; // already passed (or within 30s) → next day
+    return diff;
+  }
+
+  function scheduleReload(delaySec, label) {
+    const ms = delaySec * 1000;
+    setTimeout(function() { location.reload(); }, ms);
+    // Update footer label with the soonest upcoming reload
+    const nextTime = new Date(Date.now() + ms);
+    const lbl = nextTime.toLocaleString('en-US', {
+      timeZone: 'America/New_York',
+      weekday: 'short', hour: 'numeric', minute: '2-digit', hour12: true
+    });
+    const el = document.getElementById('refreshLabel');
+    if (el) el.textContent = 'Next refresh: ' + lbl + ' ET (' + label + ')';
+  }
+
+  const secsToData     = secsUntil(REFRESH_SEC);
+  const secsToMidnight = secsUntil(MIDNIGHT_SEC);
+
+  // Schedule whichever is sooner
+  if (secsToData <= secsToMidnight) {
+    scheduleReload(secsToData, 'data update');
+    // Also schedule midnight rollover after the data reload fires,
+    // but that will be re-scheduled on the reloaded page naturally.
+  } else {
+    scheduleReload(secsToMidnight, 'day rollover');
+  }
+}
+
+// ── Run on load ─────────────────────────────────────────────────────────
+stampToday();
+scheduleRefreshes();
+
+// Re-stamp every minute so "today" highlight stays correct across midnight
+// (belt-and-suspenders alongside the midnight reload)
+setInterval(stampToday, 60 * 1000);
 """
 
     html = f"""<!DOCTYPE html>
@@ -607,8 +716,6 @@ scheduleSmartRefresh();
 ::-webkit-scrollbar{{width:3px;height:3px}}
 ::-webkit-scrollbar-track{{background:transparent}}
 ::-webkit-scrollbar-thumb{{background:rgba(255,255,255,0.18);border-radius:3px}}
-
-/* ── Body — brighter, more colourful background ───────────────────── */
 body{{
   font-family:var(--sans);background:var(--bg0);color:var(--t1);
   min-height:100vh;-webkit-font-smoothing:antialiased;overflow-x:hidden;
@@ -621,7 +728,7 @@ body{{
 }}
 .page-wrap{{display:flex;min-height:100vh;}}
 
-/* ── SIDEBAR ──────────────────────────────────────────────────────────── */
+/* ── SIDEBAR ── */
 .sidebar{{
   width:var(--sidebar-w);flex-shrink:0;
   background:rgba(7,9,24,0.60);
@@ -636,74 +743,28 @@ body{{
 }}
 .sidebar.collapsed{{width:0;border-right-color:transparent;}}
 .content{{flex:1;min-width:0;display:flex;flex-direction:column;}}
-
-.sidebar-head{{
-  padding:14px 14px 10px;
-  border-bottom:1px solid rgba(255,255,255,0.09);
-  flex-shrink:0;
-}}
-.sidebar-title{{
-  font-family:var(--mono);font-size:8.5px;font-weight:700;
-  color:var(--accent);text-transform:uppercase;letter-spacing:2px;white-space:nowrap;
-}}
+.sidebar-head{{padding:14px 14px 10px;border-bottom:1px solid rgba(255,255,255,0.09);flex-shrink:0;}}
+.sidebar-title{{font-family:var(--mono);font-size:8.5px;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:2px;white-space:nowrap;}}
 .sidebar-sectors{{overflow-y:auto;flex:1;padding:4px 0;min-height:0;}}
-
 .sleg-group{{border-bottom:1px solid rgba(255,255,255,0.06);}}
-.sleg-toggle{{
-  display:flex;align-items:center;gap:8px;
-  width:100%;padding:7px 12px;background:none;border:none;cursor:pointer;
-  transition:background var(--dur);
-}}
+.sleg-toggle{{display:flex;align-items:center;gap:8px;width:100%;padding:7px 12px;background:none;border:none;cursor:pointer;transition:background var(--dur);}}
 .sleg-toggle:hover{{background:rgba(255,255,255,0.07);}}
 .sleg-dot{{width:7px;height:7px;border-radius:50%;flex-shrink:0;opacity:0.9;}}
-.sleg-label{{
-  font-family:var(--mono);font-size:8.5px;font-weight:700;
-  color:var(--t0);flex:1;text-align:left;letter-spacing:.3px;white-space:nowrap;
-  overflow:hidden;text-overflow:ellipsis;
-}}
+.sleg-label{{font-family:var(--mono);font-size:8.5px;font-weight:700;color:var(--t0);flex:1;text-align:left;letter-spacing:.3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}}
 .sleg-arrow{{font-size:13px;color:var(--t3);transition:transform var(--dur) var(--ease);flex-shrink:0;line-height:1;}}
 .sleg-arrow.open{{transform:rotate(90deg);color:var(--t2);}}
-.sleg-tickers{{
-  display:flex;flex-wrap:wrap;gap:3px;padding:0 12px;
-  overflow:hidden;max-height:0;transition:max-height 0.3s var(--ease),padding 0.2s;
-}}
+.sleg-tickers{{display:flex;flex-wrap:wrap;gap:3px;padding:0 12px;overflow:hidden;max-height:0;transition:max-height 0.3s var(--ease),padding 0.2s;}}
 .sleg-tickers.open{{max-height:200px;padding:0 12px 8px;}}
-.sleg-ticker{{
-  font-family:var(--mono);font-size:7.5px;color:var(--t1);
-  background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.12);
-  border-radius:3px;padding:1px 5px;cursor:pointer;
-  transition:color var(--dur),background var(--dur),border-color var(--dur);
-  text-decoration:none;display:inline-block;
-}}
-.sleg-ticker:hover{{
-  color:#fff;background:rgba(106,171,255,0.20);
-  border-color:rgba(106,171,255,0.45);
-}}
+.sleg-ticker{{font-family:var(--mono);font-size:7.5px;color:var(--t1);background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.12);border-radius:3px;padding:1px 5px;cursor:pointer;transition:color var(--dur),background var(--dur),border-color var(--dur);text-decoration:none;display:inline-block;}}
+.sleg-ticker:hover{{color:#fff;background:rgba(106,171,255,0.20);border-color:rgba(106,171,255,0.45);}}
 
-/* ── NOTES PANEL ─────────────────────────────────────────────────────── */
-.notes-panel{{
-  flex-shrink:0;
-  background:rgba(6,8,20,0.55);
-  border-top:1px solid rgba(255,255,255,0.09);
-  padding:8px;
-}}
-.notes-box{{
-  width:100%;height:110px;
-  background:rgba(255,255,255,0.05);
-  border:1px solid rgba(255,255,255,0.12);
-  border-radius:7px;
-  padding:7px 9px;
-  font-family:var(--sans);font-size:10px;color:#fff;
-  outline:none;resize:none;line-height:1.55;
-  transition:border-color var(--dur),background var(--dur);
-}}
+/* ── NOTES ── */
+.notes-panel{{flex-shrink:0;background:rgba(6,8,20,0.55);border-top:1px solid rgba(255,255,255,0.09);padding:8px;}}
+.notes-box{{width:100%;height:110px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.12);border-radius:7px;padding:7px 9px;font-family:var(--sans);font-size:10px;color:#fff;outline:none;resize:none;line-height:1.55;transition:border-color var(--dur),background var(--dur);}}
 .notes-box::placeholder{{color:var(--t3);font-style:italic;}}
-.notes-box:focus{{
-  border-color:rgba(106,171,255,0.50);
-  background:rgba(255,255,255,0.08);
-}}
+.notes-box:focus{{border-color:rgba(106,171,255,0.50);background:rgba(255,255,255,0.08);}}
 
-/* ── TOPBAR ───────────────────────────────────────────────────────────── */
+/* ── TOPBAR ── */
 .topbar{{
   height:52px;
   background:rgba(5,7,20,0.55);
@@ -716,11 +777,7 @@ body{{
 }}
 .topbar-left{{display:flex;align-items:center;gap:10px;}}
 .page-title{{font-size:13px;font-weight:700;color:#fff;letter-spacing:-.3px;white-space:nowrap;}}
-.title-dot{{
-  width:8px;height:8px;border-radius:50%;background:var(--accent);flex-shrink:0;
-  box-shadow:0 0 0 2px rgba(106,171,255,0.28),0 0 14px rgba(106,171,255,0.70);
-  animation:dotPulse 2.8s ease-in-out infinite;
-}}
+.title-dot{{width:8px;height:8px;border-radius:50%;background:var(--accent);flex-shrink:0;box-shadow:0 0 0 2px rgba(106,171,255,0.28),0 0 14px rgba(106,171,255,0.70);animation:dotPulse 2.8s ease-in-out infinite;}}
 @keyframes dotPulse{{
   0%,100%{{box-shadow:0 0 0 2px rgba(106,171,255,0.18),0 0 8px rgba(106,171,255,0.50);}}
   50%{{box-shadow:0 0 0 5px rgba(106,171,255,0.32),0 0 22px rgba(106,171,255,0.85);}}
@@ -728,60 +785,25 @@ body{{
 .vdiv{{width:1px;height:16px;background:rgba(255,255,255,0.14);}}
 .topbar-meta{{font-size:10px;color:var(--t2);white-space:nowrap;}}
 .topbar-right{{display:flex;align-items:center;gap:8px;flex-shrink:0;}}
-
-.tstat{{
-  display:flex;flex-direction:column;align-items:center;padding:5px 12px;
-  border-radius:9px;
-  background:rgba(255,255,255,0.07);
-  backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);
-  border:1px solid rgba(255,255,255,0.14);
-  box-shadow:inset 0 1px 0 rgba(255,255,255,0.18);
-  transition:background var(--dur),border-color var(--dur);
-}}
+.tstat{{display:flex;flex-direction:column;align-items:center;padding:5px 12px;border-radius:9px;background:rgba(255,255,255,0.07);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border:1px solid rgba(255,255,255,0.14);box-shadow:inset 0 1px 0 rgba(255,255,255,0.18);transition:background var(--dur),border-color var(--dur);}}
 .tstat:hover{{background:rgba(255,255,255,0.12);border-color:rgba(255,255,255,0.22);}}
 .tstat-num{{font-family:var(--mono);font-size:15px;font-weight:700;color:#fff;line-height:1.1;}}
 .tstat-lbl{{font-size:7px;color:var(--t2);text-transform:uppercase;letter-spacing:.9px;margin-top:2px;}}
-
-.sidebar-toggle{{
-  display:flex;align-items:center;justify-content:center;
-  width:28px;height:28px;border-radius:7px;
-  background:rgba(255,255,255,0.09);
-  border:1px solid rgba(255,255,255,0.15);
-  box-shadow:inset 0 1px 0 rgba(255,255,255,0.18);
-  color:var(--t1);cursor:pointer;
-  font-size:20px;font-weight:700;line-height:1;
-  transition:background var(--dur),color var(--dur),transform var(--dur);
-  flex-shrink:0;
-}}
+.sidebar-toggle{{display:flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:7px;background:rgba(255,255,255,0.09);border:1px solid rgba(255,255,255,0.15);box-shadow:inset 0 1px 0 rgba(255,255,255,0.18);color:var(--t1);cursor:pointer;font-size:20px;font-weight:700;line-height:1;transition:background var(--dur),color var(--dur),transform var(--dur);flex-shrink:0;}}
 .sidebar-toggle:hover{{background:rgba(255,255,255,0.16);color:#fff;}}
 .sidebar-toggle.flipped{{transform:scaleX(-1);}}
 
-/* ── TIMING / KEY BAR ─────────────────────────────────────────────────── */
-.timingbar{{
-  background:rgba(5,7,20,0.50);
-  backdrop-filter:blur(24px) saturate(170%);
-  -webkit-backdrop-filter:blur(24px) saturate(170%);
-  border-bottom:1px solid rgba(255,255,255,0.09);
-  padding:8px 18px 10px;
-  display:flex;align-items:center;gap:8px;
-  font-size:11px;color:var(--t2);flex-wrap:wrap;
-}}
+/* ── KEY BAR ── */
+.timingbar{{background:rgba(5,7,20,0.50);backdrop-filter:blur(24px) saturate(170%);-webkit-backdrop-filter:blur(24px) saturate(170%);border-bottom:1px solid rgba(255,255,255,0.09);padding:8px 18px 10px;display:flex;align-items:center;gap:8px;font-size:11px;color:var(--t2);flex-wrap:wrap;}}
 .key-label{{font-family:var(--mono);font-size:8.5px;font-weight:700;color:var(--t0);text-transform:uppercase;letter-spacing:1px;}}
-.tpill{{
-  display:inline-flex;align-items:center;gap:4px;font-size:9px;font-weight:700;
-  padding:3px 9px;border-radius:5px;font-family:var(--mono);letter-spacing:.3px;white-space:nowrap;
-  backdrop-filter:blur(8px);
-}}
+.tpill{{display:inline-flex;align-items:center;gap:4px;font-size:9px;font-weight:700;padding:3px 9px;border-radius:5px;font-family:var(--mono);letter-spacing:.3px;white-space:nowrap;backdrop-filter:blur(8px);}}
 .tpill.pre{{background:rgba(255,215,64,.15);color:#ffd740;border:1px solid rgba(255,215,64,.38);}}
 .tpill.aft{{background:rgba(196,176,255,.15);color:#c4b0ff;border:1px solid rgba(196,176,255,.38);}}
 .tpill.unc{{background:rgba(255,179,71,.15);color:#ffb347;border:1px solid rgba(255,179,71,.38);}}
 .tpill.mis{{background:rgba(255,95,95,.15);color:#ff5f5f;border:1px solid rgba(255,95,95,.38);}}
 .key-sep{{color:var(--t3);}}
 .key-desc{{font-size:9.5px;color:var(--t1);}}
-.event-legend{{
-  display:flex;flex-wrap:wrap;align-items:center;gap:6px;
-  width:100%;margin-top:7px;padding-top:7px;border-top:1px solid rgba(255,255,255,0.08);
-}}
+.event-legend{{display:flex;flex-wrap:wrap;align-items:center;gap:6px;width:100%;margin-top:7px;padding-top:7px;border-top:1px solid rgba(255,255,255,0.08);}}
 .evleg-label{{font-family:var(--mono);font-size:8px;font-weight:700;color:var(--t2);text-transform:uppercase;letter-spacing:1px;}}
 .evleg-item{{display:inline-flex;align-items:center;gap:4px;font-size:9px;color:var(--t1);}}
 .evleg-dot{{width:7px;height:7px;border-radius:2px;flex-shrink:0;}}
@@ -789,324 +811,116 @@ body{{
 .evleg-dot.retail{{background:#a07030;}}
 .evleg-dot.closed{{background:rgba(220,60,60,.9);}}
 
-/* ── SEARCH BAR ───────────────────────────────────────────────────────── */
-.search-bar{{
-  background:rgba(5,7,20,0.48);
-  backdrop-filter:blur(24px) saturate(170%);
-  -webkit-backdrop-filter:blur(24px) saturate(170%);
-  border-bottom:1px solid rgba(255,255,255,0.08);
-  padding:7px 18px;
-  display:flex;align-items:center;gap:10px;
-  position:sticky;top:52px;z-index:299;
-}}
+/* ── SEARCH ── */
+.search-bar{{background:rgba(5,7,20,0.48);backdrop-filter:blur(24px) saturate(170%);-webkit-backdrop-filter:blur(24px) saturate(170%);border-bottom:1px solid rgba(255,255,255,0.08);padding:7px 18px;display:flex;align-items:center;gap:10px;position:sticky;top:52px;z-index:299;}}
 .search-wrap{{position:relative;display:flex;align-items:center;}}
 .search-icon{{position:absolute;left:9px;color:var(--t2);font-size:13px;pointer-events:none;}}
-.search-input{{
-  background:rgba(255,255,255,0.07);
-  border:1px solid rgba(255,255,255,0.14);
-  border-radius:7px;
-  padding:5px 28px 5px 28px;
-  font-family:var(--mono);font-size:11px;color:#fff;
-  outline:none;width:200px;
-  backdrop-filter:blur(12px);
-  transition:border-color var(--dur),background var(--dur);
-  box-shadow:inset 0 1px 0 rgba(255,255,255,0.10);
-}}
+.search-input{{background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.14);border-radius:7px;padding:5px 28px 5px 28px;font-family:var(--mono);font-size:11px;color:#fff;outline:none;width:200px;backdrop-filter:blur(12px);transition:border-color var(--dur),background var(--dur);box-shadow:inset 0 1px 0 rgba(255,255,255,0.10);}}
 .search-input::placeholder{{color:var(--t3);}}
-.search-input:focus{{
-  border-color:rgba(106,171,255,0.55);
-  background:rgba(106,171,255,0.10);
-}}
-.search-clear{{
-  position:absolute;right:7px;background:none;border:none;color:var(--t2);
-  cursor:pointer;font-size:14px;line-height:1;padding:0;display:none;transition:color var(--dur);
-}}
+.search-input:focus{{border-color:rgba(106,171,255,0.55);background:rgba(106,171,255,0.10);}}
+.search-clear{{position:absolute;right:7px;background:none;border:none;color:var(--t2);cursor:pointer;font-size:14px;line-height:1;padding:0;display:none;transition:color var(--dur);}}
 .search-clear:hover{{color:#fff;}}
 .search-clear.on{{display:block;}}
 .search-hint{{font-size:10px;color:var(--t1);font-family:var(--mono);}}
 
-/* ── CALENDAR ─────────────────────────────────────────────────────────── */
+/* ── CALENDAR ── */
 .main{{padding:16px 18px 32px;max-width:1440px;margin:0 auto;}}
 
-/* ── Month block — collapsible ─────────────────────────────────────── */
+/* Month block */
 .mblock{{
   margin-bottom:16px;border-radius:var(--r-lg);overflow:hidden;
   background:rgba(255,255,255,0.048);
   backdrop-filter:blur(20px) saturate(160%);
   -webkit-backdrop-filter:blur(20px) saturate(160%);
   border:1px solid rgba(255,255,255,0.12);
-  box-shadow:
-    inset 0 1px 0 rgba(255,255,255,0.13),
-    0 6px 30px rgba(0,0,0,0.45);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,0.13),0 6px 30px rgba(0,0,0,0.45);
   transition:box-shadow 0.2s;
 }}
-.mblock:hover{{
-  box-shadow:
-    inset 0 1px 0 rgba(255,255,255,0.18),
-    0 8px 36px rgba(0,0,0,0.55);
-}}
+.mblock:hover{{box-shadow:inset 0 1px 0 rgba(255,255,255,0.18),0 8px 36px rgba(0,0,0,0.55);}}
 
-/* Past-month collapsed state */
+/* Collapsed past month */
 .mblock.past-month .mblock-body{{
   display:grid;
   grid-template-rows:0fr;
   transition:grid-template-rows 0.38s cubic-bezier(0.4,0,0.2,1);
 }}
-.mblock.past-month .mblock-body > .cgrid{{
-  overflow:hidden;min-height:0;
-}}
-.mblock.past-month.expanded .mblock-body{{
-  grid-template-rows:1fr;
-}}
-
-/* Current month — body always visible, no grid trick needed */
-.mblock:not(.past-month) .mblock-body{{
-  display:block;
-}}
+.mblock.past-month .mblock-body > .cgrid{{overflow:hidden;min-height:0;}}
+.mblock.past-month.expanded .mblock-body{{grid-template-rows:1fr;}}
+/* Current/future month — body always visible */
+.mblock:not(.past-month) .mblock-body{{display:block;}}
 
 .mblock-header{{
   padding:10px 14px 9px;border-bottom:1px solid rgba(255,255,255,0.09);
   display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;
   background:linear-gradient(90deg,var(--es-bg,rgba(255,255,255,0.03)) 0%,transparent 60%);
-  cursor:pointer;
-  user-select:none;
-  transition:background 0.15s;
+  cursor:pointer;user-select:none;transition:background 0.15s;
 }}
-.mblock-header:hover{{
-  background:linear-gradient(90deg,
-    color-mix(in srgb,var(--es-bg,rgba(255,255,255,0.03)) 100%,rgba(255,255,255,0.04)) 0%,
-    rgba(255,255,255,0.025) 60%);
-}}
+.mblock-header:hover{{background:linear-gradient(90deg,rgba(255,255,255,0.055) 0%,rgba(255,255,255,0.02) 60%);}}
 .mblock-header-left{{display:flex;align-items:center;gap:8px;}}
-.month-chevron{{
-  font-size:13px;color:var(--t2);
-  transition:transform 0.28s cubic-bezier(0.4,0,0.2,1),color 0.15s;
-  display:inline-block;line-height:1;width:14px;text-align:center;
-}}
+.month-chevron{{font-size:11px;color:var(--t2);transition:color 0.15s;display:inline-block;line-height:1;width:14px;text-align:center;}}
 .mblock.past-month .month-chevron{{color:var(--t3);}}
-.mblock.past-month.expanded .month-chevron{{
-  transform:rotate(90deg);color:var(--t2);
-}}
-.past-pill{{
-  font-family:var(--mono);font-size:7.5px;font-weight:700;
-  padding:2px 7px;border-radius:4px;
-  background:rgba(255,255,255,0.07);
-  border:1px solid rgba(255,255,255,0.12);
-  color:var(--t2);letter-spacing:.4px;
-}}
+.past-pill{{font-family:var(--mono);font-size:7.5px;font-weight:700;padding:2px 7px;border-radius:4px;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.12);color:var(--t2);letter-spacing:.4px;}}
 .mlabel{{font-family:var(--mono);font-size:12px;font-weight:700;color:#fff;letter-spacing:.5px;}}
-.earn-season-badge{{
-  display:inline-flex;align-items:center;font-family:var(--mono);font-size:8.5px;font-weight:700;
-  padding:3px 9px;border-radius:5px;white-space:nowrap;
-  background:color-mix(in srgb,var(--ec) 14%,transparent);
-  color:var(--ec);border:1px solid color-mix(in srgb,var(--ec) 32%,transparent);
-}}
+.earn-season-badge{{display:inline-flex;align-items:center;font-family:var(--mono);font-size:8.5px;font-weight:700;padding:3px 9px;border-radius:5px;white-space:nowrap;background:color-mix(in srgb,var(--ec) 14%,transparent);color:var(--ec);border:1px solid color-mix(in srgb,var(--ec) 32%,transparent);}}
 .earn-season-sub{{font-size:7px;font-weight:400;opacity:0.65;margin-left:5px;}}
 
-.cgrid{{
-  display:grid;grid-template-columns:repeat(7,1fr);gap:2px;padding:4px;
-  background:rgba(2,4,14,0.55);
-}}
-.dname{{
-  text-align:center;font-family:var(--mono);font-size:8px;font-weight:700;
-  color:var(--t2);padding:5px 0;letter-spacing:1.2px;
-}}
+.cgrid{{display:grid;grid-template-columns:repeat(7,1fr);gap:2px;padding:4px;background:rgba(2,4,14,0.55);}}
+.dname{{text-align:center;font-family:var(--mono);font-size:8px;font-weight:700;color:var(--t2);padding:5px 0;letter-spacing:1.2px;}}
 
-/* ── Calendar cells — brighter glass ──────────────────────────────── */
-.dcell{{
-  background:rgba(255,255,255,0.040);
-  border:1px solid rgba(255,255,255,0.09);
-  border-radius:7px;min-height:100px;padding:7px 6px 5px;
-  transition:border-color 0.15s,background 0.15s;
-  position:relative;overflow:hidden;
-}}
-.dcell::before{{
-  content:'';position:absolute;inset:0;
-  background:linear-gradient(155deg,rgba(255,255,255,0.06) 0%,transparent 40%);
-  pointer-events:none;border-radius:7px;
-}}
+/* Cells */
+.dcell{{background:rgba(255,255,255,0.040);border:1px solid rgba(255,255,255,0.09);border-radius:7px;min-height:100px;padding:7px 6px 5px;transition:border-color 0.15s,background 0.15s;position:relative;overflow:hidden;}}
+.dcell::before{{content:'';position:absolute;inset:0;background:linear-gradient(155deg,rgba(255,255,255,0.06) 0%,transparent 40%);pointer-events:none;border-radius:7px;}}
 .dcell.empty{{background:transparent;border-color:transparent;pointer-events:none;}}
 .dcell.wknd{{background:rgba(0,0,0,0.28);opacity:0.40;}}
 .dcell.past{{opacity:0.35;filter:saturate(0.40) brightness(0.78);}}
-
-/* Today — vivid accent with animated shimmer */
-.dcell.today{{
-  border-color:rgba(106,171,255,0.70)!important;
-  background:rgba(106,171,255,0.11)!important;
-  box-shadow:
-    0 0 0 1px rgba(106,171,255,0.22),
-    inset 0 1px 0 rgba(106,171,255,0.28)!important;
-}}
-.dcell.today::after{{
-  content:'';position:absolute;top:0;left:0;right:0;height:2px;
-  background:linear-gradient(90deg,transparent,var(--accent),var(--accent2),transparent);
-  border-radius:7px 7px 0 0;
-  animation:shimmerLine 2.5s ease-in-out infinite;
-}}
-@keyframes shimmerLine{{
-  0%,100%{{opacity:0.6;}}
-  50%{{opacity:1;}}
-}}
+.dcell.today{{border-color:rgba(106,171,255,0.70)!important;background:rgba(106,171,255,0.11)!important;box-shadow:0 0 0 1px rgba(106,171,255,0.22),inset 0 1px 0 rgba(106,171,255,0.28)!important;}}
+.dcell.today::after{{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--accent),var(--accent2),transparent);border-radius:7px 7px 0 0;animation:shimmerLine 2.5s ease-in-out infinite;}}
+@keyframes shimmerLine{{0%,100%{{opacity:0.6;}}50%{{opacity:1;}}}}
 .dcell.today .dno{{color:var(--accent)!important;font-weight:700;}}
-.dcell.has-e{{
-  border-color:rgba(255,255,255,0.13);
-  background:rgba(255,255,255,0.060);
-}}
-.dcell.mkt-closed{{
-  background:rgba(90,10,10,0.38);
-  border-color:rgba(220,60,60,.22);
-}}
-.dno{{
-  font-family:var(--mono);font-size:10.5px;font-weight:600;
-  color:rgba(220,235,255,0.80);margin-bottom:3px;display:block;
-}}
-.evbadge{{
-  font-family:var(--mono);font-size:6.5px;font-weight:700;padding:1px 4px;border-radius:3px;
-  margin-bottom:2px;display:inline-block;letter-spacing:.2px;white-space:nowrap;
-  max-width:100%;overflow:hidden;text-overflow:ellipsis;
-}}
+.dcell.has-e{{border-color:rgba(255,255,255,0.13);background:rgba(255,255,255,0.060);}}
+.dcell.mkt-closed{{background:rgba(90,10,10,0.38);border-color:rgba(220,60,60,.22);}}
+.dno{{font-family:var(--mono);font-size:10.5px;font-weight:600;color:rgba(220,235,255,0.80);margin-bottom:3px;display:block;}}
+.evbadge{{font-family:var(--mono);font-size:6.5px;font-weight:700;padding:1px 4px;border-radius:3px;margin-bottom:2px;display:inline-block;letter-spacing:.2px;white-space:nowrap;max-width:100%;overflow:hidden;text-overflow:ellipsis;}}
 .evbadge-holiday{{background:rgba(74,122,200,.32);color:#b0d0ff;border:1px solid rgba(74,122,200,.50);}}
 .evbadge-retail{{background:rgba(160,112,48,.32);color:#f5d090;border:1px solid rgba(160,112,48,.50);}}
-.ev-closed{{
-  font-size:6px;font-weight:900;background:rgba(210,30,30,.90);color:#fff;
-  padding:0 3px;border-radius:2px;margin-left:2px;letter-spacing:.3px;vertical-align:middle;
-}}
+.ev-closed{{font-size:6px;font-weight:900;background:rgba(210,30,30,.90);color:#fff;padding:0 3px;border-radius:2px;margin-left:2px;letter-spacing:.3px;vertical-align:middle;}}
 .chips{{display:flex;flex-wrap:wrap;gap:3px;margin-top:3px;}}
 
-/* ── CHIPS — vivid, black text, slight lift on hover ──────────────── */
-.chip{{
-  display:inline-flex;align-items:center;gap:2px;
-  background:linear-gradient(135deg,
-    color-mix(in srgb,var(--cc) 65%,#fff 35%) 0%,
-    color-mix(in srgb,var(--cc) 85%,#fff 15%) 100%);
-  font-family:var(--mono);font-size:9px;font-weight:800;
-  color:#000;
-  padding:4px 7px;border-radius:5px;cursor:pointer;white-space:nowrap;
-  border:1px solid rgba(255,255,255,0.32);
-  box-shadow:
-    inset 0 1px 0 rgba(255,255,255,0.52),
-    inset 0 -1px 0 rgba(0,0,0,0.12),
-    0 2px 6px rgba(0,0,0,0.38);
-  transition:transform 0.12s,filter 0.12s,box-shadow 0.12s,opacity 0.12s;
-  letter-spacing:.2px;
-}}
-.chip:hover{{
-  transform:translateY(-2px) scale(1.09);
-  filter:brightness(1.18) saturate(1.10);
-  box-shadow:
-    inset 0 1px 0 rgba(255,255,255,0.58),
-    0 6px 16px rgba(0,0,0,0.52);
-  z-index:10;position:relative;
-}}
+/* Chips */
+.chip{{display:inline-flex;align-items:center;gap:2px;background:linear-gradient(135deg,color-mix(in srgb,var(--cc) 65%,#fff 35%) 0%,color-mix(in srgb,var(--cc) 85%,#fff 15%) 100%);font-family:var(--mono);font-size:9px;font-weight:800;color:#000;padding:4px 7px;border-radius:5px;cursor:pointer;white-space:nowrap;border:1px solid rgba(255,255,255,0.32);box-shadow:inset 0 1px 0 rgba(255,255,255,0.52),inset 0 -1px 0 rgba(0,0,0,0.12),0 2px 6px rgba(0,0,0,0.38);transition:transform 0.12s,filter 0.12s,box-shadow 0.12s,opacity 0.12s;letter-spacing:.2px;}}
+.chip:hover{{transform:translateY(-2px) scale(1.09);filter:brightness(1.18) saturate(1.10);box-shadow:inset 0 1px 0 rgba(255,255,255,0.58),0 6px 16px rgba(0,0,0,0.52);z-index:10;position:relative;}}
 .chip.dimmed{{opacity:0.06;pointer-events:none;}}
-
-.tbadge{{
-  font-family:var(--mono);font-size:6.5px;font-weight:900;
-  padding:1px 3px;border-radius:3px;letter-spacing:.2px;line-height:1.4;
-  vertical-align:middle;display:inline-block;
-}}
+.tbadge{{font-family:var(--mono);font-size:6.5px;font-weight:900;padding:1px 3px;border-radius:3px;letter-spacing:.2px;line-height:1.4;vertical-align:middle;display:inline-block;}}
 .tbadge-bmo{{background:rgba(0,0,0,0.32);color:#ffd740;border:1px solid rgba(255,215,64,.50);}}
 .tbadge-amc{{background:rgba(0,0,0,0.32);color:#c4b0ff;border:1px solid rgba(196,176,255,.50);}}
-.bdg-uc{{
-  font-family:var(--mono);font-size:7.5px;font-weight:900;
-  background:rgba(255,179,71,.38);color:#ffb347;border:1px solid rgba(255,179,71,.60);
-  border-radius:3px;padding:0 3px;line-height:1.4;
-}}
-.bdg-mm{{
-  font-family:var(--mono);font-size:7.5px;font-weight:900;
-  background:rgba(255,95,95,.42);color:#ff5f5f;border:1px solid rgba(255,95,95,.70);
-  border-radius:3px;padding:0 3px;line-height:1.4;
-  animation:warnPulse 2.2s ease-in-out infinite;
-}}
-@keyframes warnPulse{{
-  0%,100%{{box-shadow:none;}}
-  50%{{box-shadow:0 0 0 2px rgba(255,95,95,.32);}}
-}}
+.bdg-uc{{font-family:var(--mono);font-size:7.5px;font-weight:900;background:rgba(255,179,71,.38);color:#ffb347;border:1px solid rgba(255,179,71,.60);border-radius:3px;padding:0 3px;line-height:1.4;}}
+.bdg-mm{{font-family:var(--mono);font-size:7.5px;font-weight:900;background:rgba(255,95,95,.42);color:#ff5f5f;border:1px solid rgba(255,95,95,.70);border-radius:3px;padding:0 3px;line-height:1.4;animation:warnPulse 2.2s ease-in-out infinite;}}
+@keyframes warnPulse{{0%,100%{{box-shadow:none;}}50%{{box-shadow:0 0 0 2px rgba(255,95,95,.32);}}}}
 
-/* ── UNANNOUNCED ──────────────────────────────────────────────────────── */
-.ubox{{
-  margin:0 18px 32px;
-  background:rgba(255,255,255,0.042);
-  backdrop-filter:blur(20px) saturate(160%);
-  -webkit-backdrop-filter:blur(20px) saturate(160%);
-  border:1px solid rgba(255,255,255,0.11);
-  border-radius:var(--r-lg);overflow:hidden;
-  box-shadow:0 6px 26px rgba(0,0,0,0.42),inset 0 1px 0 rgba(255,255,255,0.10);
-}}
-.ubox-head{{
-  padding:12px 18px;border-bottom:1px solid rgba(255,255,255,0.09);
-  display:flex;align-items:baseline;gap:12px;
-  background:rgba(255,255,255,0.025);
-}}
+/* Unannounced */
+.ubox{{margin:0 18px 32px;background:rgba(255,255,255,0.042);backdrop-filter:blur(20px) saturate(160%);-webkit-backdrop-filter:blur(20px) saturate(160%);border:1px solid rgba(255,255,255,0.11);border-radius:var(--r-lg);overflow:hidden;box-shadow:0 6px 26px rgba(0,0,0,0.42),inset 0 1px 0 rgba(255,255,255,0.10);}}
+.ubox-head{{padding:12px 18px;border-bottom:1px solid rgba(255,255,255,0.09);display:flex;align-items:baseline;gap:12px;background:rgba(255,255,255,0.025);}}
 .ubox-title{{font-family:var(--mono);font-size:10.5px;font-weight:700;color:#fff;letter-spacing:.5px;}}
 .ubox-sub{{font-size:9.5px;color:var(--t1);}}
 .utable{{width:100%;border-collapse:collapse;}}
-.utable th{{
-  text-align:left;padding:6px 14px;font-family:var(--mono);font-size:7.5px;font-weight:700;
-  color:var(--t1);border-bottom:1px solid rgba(255,255,255,0.08);text-transform:uppercase;letter-spacing:.8px;
-}}
+.utable th{{text-align:left;padding:6px 14px;font-family:var(--mono);font-size:7.5px;font-weight:700;color:var(--t1);border-bottom:1px solid rgba(255,255,255,0.08);text-transform:uppercase;letter-spacing:.8px;}}
 .utable td{{padding:7px 14px;border-bottom:1px solid rgba(255,255,255,0.06);vertical-align:middle;}}
 .utable tr:last-child td{{border-bottom:none;}}
 .utable tr:hover td{{background:rgba(255,255,255,0.035);}}
-.sbadge{{
-  font-family:var(--mono);font-size:8.5px;font-weight:700;color:#000;
-  padding:3px 8px;border-radius:5px;white-space:nowrap;
-  border:1px solid rgba(255,255,255,0.22);
-  box-shadow:inset 0 1px 0 rgba(255,255,255,0.32);
-}}
-.uchip{{
-  display:inline-flex;align-items:center;
-  background:linear-gradient(135deg,
-    color-mix(in srgb,var(--cc) 65%,#fff 35%) 0%,
-    var(--cc) 100%);
-  font-family:var(--mono);font-size:9px;font-weight:800;color:#000;
-  padding:3px 7px;border-radius:4px;margin:2px;cursor:pointer;
-  transition:transform 0.12s,filter 0.12s,opacity 0.12s;
-  border:1px solid rgba(255,255,255,0.26);
-  box-shadow:inset 0 1px 0 rgba(255,255,255,0.40);
-}}
+.sbadge{{font-family:var(--mono);font-size:8.5px;font-weight:700;color:#000;padding:3px 8px;border-radius:5px;white-space:nowrap;border:1px solid rgba(255,255,255,0.22);box-shadow:inset 0 1px 0 rgba(255,255,255,0.32);}}
+.uchip{{display:inline-flex;align-items:center;background:linear-gradient(135deg,color-mix(in srgb,var(--cc) 65%,#fff 35%) 0%,var(--cc) 100%);font-family:var(--mono);font-size:9px;font-weight:800;color:#000;padding:3px 7px;border-radius:4px;margin:2px;cursor:pointer;transition:transform 0.12s,filter 0.12s,opacity 0.12s;border:1px solid rgba(255,255,255,0.26);box-shadow:inset 0 1px 0 rgba(255,255,255,0.40);}}
 .uchip:hover{{transform:translateY(-1px) scale(1.07);filter:brightness(1.16);}}
 .uchip.dimmed{{opacity:0.06;pointer-events:none;}}
 
-/* ── FOOTER ───────────────────────────────────────────────────────────── */
-.footer{{
-  border-top:1px solid rgba(255,255,255,0.09);padding:10px 18px;
-  font-family:var(--mono);font-size:8.5px;color:var(--t2);
-  display:flex;justify-content:space-between;align-items:center;
-  background:rgba(4,6,16,0.60);
-  backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);
-}}
+/* Footer */
+.footer{{border-top:1px solid rgba(255,255,255,0.09);padding:10px 18px;font-family:var(--mono);font-size:8.5px;color:var(--t2);display:flex;justify-content:space-between;align-items:center;background:rgba(4,6,16,0.60);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);}}
 
-/* ── MODAL ────────────────────────────────────────────────────────────── */
-.overlay{{
-  display:none;position:fixed;inset:0;
-  background:rgba(0,0,0,0.80);
-  backdrop-filter:blur(32px) saturate(150%);
-  -webkit-backdrop-filter:blur(32px) saturate(150%);
-  z-index:999;align-items:center;justify-content:center;
-}}
+/* Modal */
+.overlay{{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.80);backdrop-filter:blur(32px) saturate(150%);-webkit-backdrop-filter:blur(32px) saturate(150%);z-index:999;align-items:center;justify-content:center;}}
 .overlay.on{{display:flex;}}
-.modal{{
-  background:rgba(12,16,44,0.78);
-  backdrop-filter:blur(44px) saturate(190%);
-  -webkit-backdrop-filter:blur(44px) saturate(190%);
-  border:1px solid rgba(255,255,255,0.20);
-  border-radius:var(--r-xl);padding:26px;max-width:400px;width:90%;
-  box-shadow:
-    inset 0 1px 0 rgba(255,255,255,0.18),
-    0 32px 80px rgba(0,0,0,0.88);
-  position:relative;animation:popIn .20s cubic-bezier(.34,1.4,.64,1);
-}}
+.modal{{background:rgba(12,16,44,0.78);backdrop-filter:blur(44px) saturate(190%);-webkit-backdrop-filter:blur(44px) saturate(190%);border:1px solid rgba(255,255,255,0.20);border-radius:var(--r-xl);padding:26px;max-width:400px;width:90%;box-shadow:inset 0 1px 0 rgba(255,255,255,0.18),0 32px 80px rgba(0,0,0,0.88);position:relative;animation:popIn .20s cubic-bezier(.34,1.4,.64,1);}}
 @keyframes popIn{{from{{transform:scale(.88) translateY(12px);opacity:0}}to{{transform:scale(1) translateY(0);opacity:1}}}}
-.modal-close{{
-  position:absolute;top:12px;right:14px;
-  background:rgba(255,255,255,0.09);
-  border:1px solid rgba(255,255,255,0.16);
-  border-radius:6px;width:24px;height:24px;font-size:14px;color:var(--t1);cursor:pointer;
-  display:flex;align-items:center;justify-content:center;
-  box-shadow:inset 0 1px 0 rgba(255,255,255,0.18);
-  transition:background var(--dur),color var(--dur);
-}}
+.modal-close{{position:absolute;top:12px;right:14px;background:rgba(255,255,255,0.09);border:1px solid rgba(255,255,255,0.16);border-radius:6px;width:24px;height:24px;font-size:14px;color:var(--t1);cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:inset 0 1px 0 rgba(255,255,255,0.18);transition:background var(--dur),color var(--dur);}}
 .modal-close:hover{{background:rgba(255,255,255,0.18);color:#fff;}}
 .modal-ticker{{font-family:var(--mono);font-size:28px;font-weight:700;margin-bottom:3px;line-height:1;}}
 .modal-name{{font-size:11.5px;color:var(--t1);margin-bottom:20px;}}
@@ -1124,22 +938,10 @@ body{{
 .modal-source-label{{color:var(--t2);font-size:8.5px;text-transform:uppercase;letter-spacing:.7px;font-weight:600;}}
 .modal-source-date{{font-family:var(--mono);font-size:11.5px;font-weight:600;color:#fff;}}
 .modal-source-date.conflict{{color:var(--conflict);}}
-.modal-ir-link{{
-  display:inline-flex;align-items:center;gap:6px;margin-top:16px;
-  font-family:var(--mono);font-size:9.5px;font-weight:600;color:var(--accent);text-decoration:none;
-  border:1px solid rgba(106,171,255,.32);border-radius:8px;padding:9px 14px;width:100%;
-  justify-content:center;
-  background:rgba(106,171,255,0.09);
-  backdrop-filter:blur(8px);
-  box-shadow:inset 0 1px 0 rgba(106,171,255,0.18);
-  transition:background var(--dur),border-color var(--dur);
-}}
-.modal-ir-link:hover{{
-  background:rgba(106,171,255,0.18);
-  border-color:rgba(106,171,255,.55);
-}}
+.modal-ir-link{{display:inline-flex;align-items:center;gap:6px;margin-top:16px;font-family:var(--mono);font-size:9.5px;font-weight:600;color:var(--accent);text-decoration:none;border:1px solid rgba(106,171,255,.32);border-radius:8px;padding:9px 14px;width:100%;justify-content:center;background:rgba(106,171,255,0.09);backdrop-filter:blur(8px);box-shadow:inset 0 1px 0 rgba(106,171,255,0.18);transition:background var(--dur),border-color var(--dur);}}
+.modal-ir-link:hover{{background:rgba(106,171,255,0.18);border-color:rgba(106,171,255,.55);}}
 
-/* ── MOBILE ───────────────────────────────────────────────────────────── */
+/* Mobile */
 @media(max-width:768px){{
   .sidebar{{width:0;border-right-color:transparent;}}
   .topbar{{padding:0 10px;height:46px;gap:6px;}}
@@ -1168,11 +970,8 @@ body{{
 <body>
 <div class="page-wrap">
 
-<!-- ===== SIDEBAR ===== -->
 <aside class="sidebar" id="sidebar">
-  <div class="sidebar-head">
-    <span class="sidebar-title">&#11041; Sectors</span>
-  </div>
+  <div class="sidebar-head"><span class="sidebar-title">&#11041; Sectors</span></div>
   <div class="sidebar-sectors">{sidebar_html}</div>
   <div class="notes-panel">
     <textarea class="notes-box" id="notesBox"
@@ -1182,47 +981,30 @@ body{{
 </aside>
 
 <div class="content">
-
-<!-- ===== TOPBAR ===== -->
 <header class="topbar">
   <div class="topbar-left">
-    <button class="sidebar-toggle" id="sidebarToggle"
-            onclick="toggleSidebar()" title="Toggle sidebar">&#8249;</button>
+    <button class="sidebar-toggle" id="sidebarToggle" onclick="toggleSidebar()" title="Toggle sidebar">&#8249;</button>
     <span class="title-dot"></span>
     <span class="page-title">Earnings Calendar</span>
     <span class="vdiv"></span>
-    <span class="topbar-meta">Consumer &amp; Retail &middot; {ts}</span>
+    <span class="topbar-meta">Consumer &amp; Retail &middot; <span id="liveDate">{ts}</span></span>
   </div>
   <div class="topbar-right">
-    <div class="tstat">
-      <span class="tstat-num" style="color:#6aabff">{nf}</span>
-      <span class="tstat-lbl">Dates Found</span>
-    </div>
-    <div class="tstat">
-      <span class="tstat-num" style="color:var(--t2)">{nu}</span>
-      <span class="tstat-lbl">Unannounced</span>
-    </div>
-    <div class="tstat">
-      <span class="tstat-num" style="color:var(--conflict)">{nm}</span>
-      <span class="tstat-lbl">Mismatches</span>
-    </div>
+    <div class="tstat"><span class="tstat-num" style="color:#6aabff">{nf}</span><span class="tstat-lbl">Dates Found</span></div>
+    <div class="tstat"><span class="tstat-num" style="color:var(--t2)">{nu}</span><span class="tstat-lbl">Unannounced</span></div>
+    <div class="tstat"><span class="tstat-num" style="color:var(--conflict)">{nm}</span><span class="tstat-lbl">Mismatches</span></div>
   </div>
 </header>
 
-<!-- ===== KEY BAR ===== -->
 <div class="timingbar">
   <span class="key-label">Key</span>
-  {BMO_KEY_BADGE}
-  <span class="key-desc">Before market open</span>
+  {BMO_KEY_BADGE}<span class="key-desc">Before market open</span>
   <span class="key-sep">&middot;</span>
-  {AMC_KEY_BADGE}
-  <span class="key-desc">After market close</span>
+  {AMC_KEY_BADGE}<span class="key-desc">After market close</span>
   <span class="key-sep">&middot;</span>
-  <span class="tpill unc">? Unconfirmed</span>
-  <span class="key-desc">Yahoo only</span>
+  <span class="tpill unc">? Unconfirmed</span><span class="key-desc">Yahoo only</span>
   <span class="key-sep">&middot;</span>
-  <span class="tpill mis">! Conflict</span>
-  <span class="key-desc">Sources disagree</span>
+  <span class="tpill mis">! Conflict</span><span class="key-desc">Sources disagree</span>
   <span class="key-sep">&middot;</span>
   <span class="key-desc" style="color:var(--t2)">Click any ticker for details</span>
   <div class="event-legend">
@@ -1233,7 +1015,6 @@ body{{
   </div>
 </div>
 
-<!-- ===== SEARCH ===== -->
 <div class="search-bar">
   <div class="search-wrap">
     <span class="search-icon">&#8981;</span>
@@ -1249,48 +1030,26 @@ body{{
 
 <footer class="footer">
   <span>Neil J Kanatt &middot; NASDAQ API + Yahoo Finance</span>
-  <span id="refreshLabel">Next refresh calculating&hellip;</span>
+  <span id="refreshLabel">Calculating next refresh&hellip;</span>
 </footer>
-</div><!-- .content -->
-</div><!-- .page-wrap -->
+</div>
+</div>
 
-<!-- ===== MODAL ===== -->
 <div class="overlay" id="overlay" onclick="closeModal(event)">
   <div class="modal" id="modal">
     <button class="modal-close" onclick="closeModal()">&times;</button>
     <div class="modal-ticker" id="mTicker"></div>
     <div class="modal-name"   id="mName"></div>
-    <div class="modal-banner warn" id="mMismatch">
-      &#9888; Date conflict &mdash; NASDAQ and Yahoo show different dates.
-    </div>
-    <div class="modal-banner info" id="mUnconf">
-      &#10069; Unconfirmed &mdash; sourced from Yahoo Finance only.
-    </div>
-    <div class="modal-row">
-      <span class="modal-key">Sector</span>
-      <span class="modal-val" id="mSector"></span>
-    </div>
+    <div class="modal-banner warn" id="mMismatch">&#9888; Date conflict &mdash; NASDAQ and Yahoo show different dates.</div>
+    <div class="modal-banner info" id="mUnconf">&#10069; Unconfirmed &mdash; sourced from Yahoo Finance only.</div>
+    <div class="modal-row"><span class="modal-key">Sector</span><span class="modal-val" id="mSector"></span></div>
     <div class="modal-source-row">
-      <div class="modal-source-col">
-        <span class="modal-source-label">NASDAQ Date</span>
-        <span class="modal-source-date" id="mNasdaqDate"></span>
-      </div>
-      <div class="modal-source-col">
-        <span class="modal-source-label">Yahoo Date</span>
-        <span class="modal-source-date" id="mYahooDate"></span>
-      </div>
+      <div class="modal-source-col"><span class="modal-source-label">NASDAQ Date</span><span class="modal-source-date" id="mNasdaqDate"></span></div>
+      <div class="modal-source-col"><span class="modal-source-label">Yahoo Date</span><span class="modal-source-date" id="mYahooDate"></span></div>
     </div>
-    <div class="modal-row">
-      <span class="modal-key">Timing</span>
-      <span class="modal-val" id="mTiming"></span>
-    </div>
-    <div class="modal-row">
-      <span class="modal-key">Source</span>
-      <span class="modal-val secondary" id="mSource"></span>
-    </div>
-    <a class="modal-ir-link" id="mIRLink" href="#" target="_blank" rel="noopener">
-      &#8599; Investor Relations Page
-    </a>
+    <div class="modal-row"><span class="modal-key">Timing</span><span class="modal-val" id="mTiming"></span></div>
+    <div class="modal-row"><span class="modal-key">Source</span><span class="modal-val secondary" id="mSource"></span></div>
+    <a class="modal-ir-link" id="mIRLink" href="#" target="_blank" rel="noopener">&#8599; Investor Relations Page</a>
   </div>
 </div>
 
@@ -1300,14 +1059,12 @@ const SECTOR_COLORS = {cj};
 const COMPANY_NAMES = {nj};
 const IR_URLS_JS    = {ir_json};
 
-// ── Sidebar toggle ──────────────────────────────────────────────────────
 let sidebarOpen = true;
 function toggleSidebar() {{
   sidebarOpen = !sidebarOpen;
   document.getElementById('sidebar').classList.toggle('collapsed', !sidebarOpen);
   document.getElementById('sidebarToggle').classList.toggle('flipped', !sidebarOpen);
 }}
-
 function toggleSector(safe) {{
   const t = document.getElementById('tickers-' + safe);
   const a = document.getElementById('arrow-'   + safe);
@@ -1316,16 +1073,6 @@ function toggleSector(safe) {{
   a.classList.toggle('open', !open);
 }}
 
-// ── Month collapse/expand ───────────────────────────────────────────────
-function toggleMonth(mblock) {{
-  if (!mblock.classList.contains('past-month')) return; // current month always open
-  mblock.classList.toggle('expanded');
-  // flip chevron text
-  const chev = mblock.querySelector('.month-chevron');
-  if (chev) chev.textContent = mblock.classList.contains('expanded') ? '▾' : '▸';
-}}
-
-// ── Search ──────────────────────────────────────────────────────────────
 const searchInput = document.getElementById('searchInput');
 const searchClear = document.getElementById('searchClear');
 const searchHint  = document.getElementById('searchHint');
@@ -1363,7 +1110,6 @@ function applySearch(q) {{
   searchHint.textContent = found ? found + ' result' + (found > 1 ? 's' : '') : 'No results';
 }}
 
-// ── Modal ───────────────────────────────────────────────────────────────
 function showCard(ticker, name, sector, timing, nasdaqDate, color, source, yahooDate, mismatch, confirmed, irUrl) {{
   document.getElementById('mTicker').textContent = ticker;
   document.getElementById('mTicker').style.color  = color;
@@ -1394,13 +1140,8 @@ document.addEventListener('keydown', e => {{
 }});
 </script>
 
-<script>
-{notes_js}
-</script>
-
-<script>
-{refresh_js}
-</script>
+<script>{notes_js}</script>
+<script>{live_js}</script>
 
 </body>
 </html>"""
