@@ -2,7 +2,7 @@ name: Daily Refresh
 
 on:
   schedule:
-    - cron: '0 8 * * *'  # 8 AM UTC = 4 AM EDT (summer), change to 9 for winter
+    - cron: '50 8 * * *'  # 8:50 AM UTC = 4:50 AM EDT (summer) / 3:50 AM EST (winter)
   workflow_dispatch:
 
 jobs:
