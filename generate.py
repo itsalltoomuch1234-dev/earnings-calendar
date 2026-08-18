@@ -10,7 +10,7 @@ warnings.filterwarnings('ignore')
 COMPANY_NAMES = {
     "UAA":"Under Armour","AEO":"American Eagle Outfitters",
     "ANF":"Abercrombie & Fitch","VFC":"VF Corporation","GAP":"Gap Inc.",
-    "BIRK":"Birkenstock","LEVI":"Levi Strauss & Co.","ONON":"On Holding",
+    "BIRK":"Birkenstock","LEVI":"Levi Strauss & Co.","ONON":"On Holding", "DKS":"Dick's Sporting Goods",
     "LULU":"Lululemon Athletica","DECK":"Deckers Outdoor","NKE":"Nike",
     "DLTR":"Dollar Tree","DG":"Dollar General","ROST":"Ross Stores",
     "TJX":"TJX Companies","GOOS":"Canada Goose","COTY":"Coty Inc.",
@@ -133,10 +133,11 @@ IR_URLS = {
     "ROL":  "https://www.rollins.com/investors",
     "CTAS": "https://www.cintas.com/investors/",
     "IP":   "https://www.internationalpaper.com/investors",
+    "DKS": "https://investors.dicks.com/investors/default.aspx",
 }
 
 SECTORS = {
-    "APPAREL & FOOTWEAR":  ["UAA","AEO","ANF","VFC","GAP","BIRK","LEVI","ONON","LULU","DECK","NKE"],
+    "APPAREL & FOOTWEAR":  ["UAA","AEO","ANF","VFC","GAP","BIRK","LEVI","ONON","LULU","DECK","NKE","DKS"],
     "DOLLAR STORES":       ["DLTR","DG","ROST","TJX"],
     "LUXURY & BEAUTY":     ["GOOS","COTY","CPRI","ELF","ULTA","RL","TPR","EL"],
     "RETAILERS":           ["KSS","BBWI","M","ACI","BBY","KR","TGT","LOW","HD","COST","WMT"],
