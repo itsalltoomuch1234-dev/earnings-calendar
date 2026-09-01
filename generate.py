@@ -41,7 +41,7 @@ COMPANY_NAMES = {
     "KIM":"Kimco Realty","SPG":"Simon Property Group",
     "MAS":"Masco Corporation","BALL":"Ball Corporation",
     "TSCO":"Tractor Supply","AMCR":"Amcor",
-    "ROL":"Rollins","CTAS":"Cintas Corporation","IP":"International Paper",
+    "ROL":"Rollins","CTAS":"Cintas Corporation","IP":"International Paper", "DOL":"Dolaarama","L":"Loblaw"
 }
 
 IR_URLS = {
@@ -134,13 +134,15 @@ IR_URLS = {
     "CTAS": "https://www.cintas.com/investors/",
     "IP":   "https://www.internationalpaper.com/investors",
     "DKS": "https://investors.dicks.com/investors/default.aspx",
+    "DOL": "https://www.dollarama.com/en-CA/corp/investor-relations",
+    "L":"https://www.loblaw.ca/en/investors-overview/"
 }
 
 SECTORS = {
     "APPAREL & FOOTWEAR":  ["UAA","AEO","ANF","VFC","GAP","BIRK","LEVI","ONON","LULU","DECK","NKE","DKS"],
-    "DOLLAR STORES":       ["DLTR","DG","ROST","TJX"],
+    "DOLLAR STORES":       ["DLTR","DG","ROST","TJX","DOL"],
     "LUXURY & BEAUTY":     ["GOOS","COTY","CPRI","ELF","ULTA","RL","TPR","EL"],
-    "RETAILERS":           ["KSS","BBWI","M","ACI","BBY","KR","TGT","LOW","HD","COST","WMT"],
+    "RETAILERS":           ["KSS","BBWI","M","ACI","BBY","KR","TGT","LOW","HD","COST","WMT","L"],
     "CRUISES":             ["NCLH","RCL","CCL"],
     "BEVERAGES & ALCOHOL": ["TAP","BF-B","STZ","KDP","PEP","KO"],
     "PACKAGED FOOD":       ["BYND","LW","CAG","CPB","SJM","MKC","HRL","GIS","IFF","KHC","HSY","MDLZ"],
@@ -1030,7 +1032,7 @@ body{{
 {uhtml}
 
 <footer class="footer">
-  <span>Neil J Kanatt &middot; NASDAQ API + Yahoo Finance</span>
+  <span>By Neil J Kanatt &middot; Source: NASDAQ API + Yahoo Finance</span>
   <span id="refreshLabel">Calculating next refresh&hellip;</span>
 </footer>
 </div>
