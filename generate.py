@@ -41,7 +41,7 @@ COMPANY_NAMES = {
     "KIM":"Kimco Realty","SPG":"Simon Property Group",
     "MAS":"Masco Corporation","BALL":"Ball Corporation",
     "TSCO":"Tractor Supply","AMCR":"Amcor",
-    "ROL":"Rollins","CTAS":"Cintas Corporation","IP":"International Paper", "DOL":"Dolaarama","L":"Loblaw"
+    "ROL":"Rollins","CTAS":"Cintas Corporation","IP":"International Paper", "DOL.TO":"Dollarama","L.TO":"Loblaw"
 }
 
 IR_URLS = {
@@ -134,15 +134,15 @@ IR_URLS = {
     "CTAS": "https://www.cintas.com/investors/",
     "IP":   "https://www.internationalpaper.com/investors",
     "DKS": "https://investors.dicks.com/investors/default.aspx",
-    "DOL": "https://www.dollarama.com/en-CA/corp/investor-relations",
-    "L":"https://www.loblaw.ca/en/investors-overview/"
+    "DOL.TO": "https://www.dollarama.com/en-CA/corp/investor-relations",
+    "L.TO":"https://www.loblaw.ca/en/investors-overview/"
 }
 
 SECTORS = {
     "APPAREL & FOOTWEAR":  ["UAA","AEO","ANF","VFC","GAP","BIRK","LEVI","ONON","LULU","DECK","NKE","DKS"],
-    "DOLLAR STORES":       ["DLTR","DG","ROST","TJX","DOL"],
+    "DOLLAR STORES":       ["DLTR","DG","ROST","TJX","DOL.TO"],
     "LUXURY & BEAUTY":     ["GOOS","COTY","CPRI","ELF","ULTA","RL","TPR","EL"],
-    "RETAILERS":           ["KSS","BBWI","M","ACI","BBY","KR","TGT","LOW","HD","COST","WMT","L"],
+    "RETAILERS":           ["KSS","BBWI","M","ACI","BBY","KR","TGT","LOW","HD","COST","WMT","L.TO"],
     "CRUISES":             ["NCLH","RCL","CCL"],
     "BEVERAGES & ALCOHOL": ["TAP","BF-B","STZ","KDP","PEP","KO"],
     "PACKAGED FOOD":       ["BYND","LW","CAG","CPB","SJM","MKC","HRL","GIS","IFF","KHC","HSY","MDLZ"],
@@ -724,7 +724,6 @@ body{{
   min-height:100vh;-webkit-font-smoothing:antialiased;overflow-x:hidden;
   background-image:
     radial-gradient(ellipse 110% 70% at 8%  -8%,  rgba(60,120,255,0.32) 0%,transparent 52%),
-    radial-gradient(ellipse 85%  60% at 92% 108%,  rgba(160,60,240,0.22) 0%,transparent 52%),
     radial-gradient(ellipse 55%  45% at 52%  48%,  rgba(10,22,80,0.35)  0%,transparent 65%),
     radial-gradient(ellipse 45%  35% at 28%  82%,  rgba(30,90,200,0.14) 0%,transparent 50%),
     radial-gradient(ellipse 40%  30% at 75%  20%,  rgba(100,40,200,0.10) 0%,transparent 45%);
