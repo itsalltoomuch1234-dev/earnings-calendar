@@ -708,7 +708,7 @@ setInterval(stampToday, 60 * 1000);
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Earnings Calendar - Consumer &amp; Retail</title>
+<title>Earnings Calendar - US Consumer Retail</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
@@ -1034,7 +1034,9 @@ body.show-emea .uchip:not(.eu-item):not(.dimmed):hover{{opacity:0.9;filter:brigh
     <span class="title-dot"></span>
     <span class="page-title">Earnings Calendar</span>
     <span class="vdiv"></span>
-    <span class="topbar-meta">Consumer &amp; Retail &middot; <span id="liveDate">{ts}</span></span>
+    <span class="topbar-meta">US Consumer Retail &middot; <span id="liveDate">{ts}</span></span>
+    <span class="topbar-meta">By Neil J Kanatt &middot; Source: NASDAQ API + Yahoo Finance</span>
+    <span class="topbar-meta">Reuters</span>
   </div>
   <div class="topbar-right">
     <label class="eu-toggle" title="Show European companies (test basis)">
@@ -1088,7 +1090,6 @@ body.show-emea .uchip:not(.eu-item):not(.dimmed):hover{{opacity:0.9;filter:brigh
 {uhtml}
 
 <footer class="footer">
-  <span>By Neil J Kanatt &middot; Source: NASDAQ API + Yahoo Finance</span>
   <span id="refreshLabel">Calculating next refresh&hellip;</span>
 </footer>
 </div>
