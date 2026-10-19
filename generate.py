@@ -1035,8 +1035,7 @@ body.show-emea .uchip:not(.eu-item):not(.dimmed):hover{{opacity:0.9;filter:brigh
     <span class="page-title">Earnings Calendar</span>
     <span class="vdiv"></span>
     <span class="topbar-meta">US Consumer Retail &middot; <span id="liveDate">{ts}</span></span>
-    <span class="topbar-meta">By Neil J Kanatt &middot; Source: NASDAQ API + Yahoo Finance</span>
-    <span class="topbar-meta">Reuters</span>
+    <span class="topbar-meta">By Neil J Kanatt for Reuters &middot; Source: NASDAQ API + Yahoo Finance</span>
   </div>
   <div class="topbar-right">
     <label class="eu-toggle" title="Show European companies (test basis)">
