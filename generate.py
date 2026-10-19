@@ -41,7 +41,12 @@ COMPANY_NAMES = {
     "KIM":"Kimco Realty","SPG":"Simon Property Group",
     "MAS":"Masco Corporation","BALL":"Ball Corporation",
     "TSCO":"Tractor Supply","AMCR":"Amcor",
-    "ROL":"Rollins","CTAS":"Cintas Corporation","IP":"International Paper", "DOL.TO":"Dollarama","L.TO":"Loblaw"
+    "ROL":"Rollins","CTAS":"Cintas Corporation","IP":"International Paper", "DOL.TO":"Dollarama","L.TO":"Loblaw",
+    # EMEA
+    "ULVR.L":"Unilever","BN.PA":"Danone","NESN.SW":"Nestlé","HLN.L":"Haleon",
+    "RKT.L":"Reckitt","MC.PA":"LVMH","OR.PA":"L'Oréal","DGE.L":"Diageo",
+    "CARL-B.CO":"Carlsberg","ABI.BR":"AB InBev","ITX.MC":"Inditex",
+    "HM-B.ST":"H&M","AD.AS":"Ahold Delhaize",
 }
 
 IR_URLS = {
@@ -135,7 +140,21 @@ IR_URLS = {
     "IP":   "https://www.internationalpaper.com/investors",
     "DKS": "https://investors.dicks.com/investors/default.aspx",
     "DOL.TO": "https://www.dollarama.com/en-CA/corp/investor-relations",
-    "L.TO":"https://www.loblaw.ca/en/investors-overview/"
+    "L.TO":"https://www.loblaw.ca/en/investors-overview/",
+    # EMEA (verify these)
+    "ULVR.L":"https://www.unilever.com/investors/",
+    "BN.PA":"https://www.danone.com/investors.html",
+    "NESN.SW":"https://www.nestle.com/investors",
+    "HLN.L":"https://www.haleon.com/investors",
+    "RKT.L":"https://www.reckitt.com/investors/",
+    "MC.PA":"https://www.lvmh.com/investors",
+    "OR.PA":"https://www.loreal-finance.com/eng",
+    "DGE.L":"https://www.diageo.com/en/investors",
+    "CARL-B.CO":"https://www.carlsberggroup.com/investors/",
+    "ABI.BR":"https://www.ab-inbev.com/investors/",
+    "ITX.MC":"https://www.inditex.com/itxcorp/en/investors",
+    "HM-B.ST":"https://hmgroup.com/investors.html",
+    "AD.AS":"https://www.aholddelhaize.com/investors/",
 }
 
 SECTORS = {
@@ -154,6 +173,8 @@ SECTORS = {
     "DELIVERY":            ["CART","DASH"],
     "REAL ESTATE":         ["FRT","REG","KIM","SPG"],
     "OTHERS":              ["MAS","BALL","TSCO","AMCR","ROL","CTAS","IP"],
+    "EMEA":                ["ULVR.L","BN.PA","NESN.SW","HLN.L","RKT.L","MC.PA","OR.PA",
+                            "DGE.L","CARL-B.CO","ABI.BR","ITX.MC","HM-B.ST","AD.AS"],
 }
 
 SECTOR_COLORS = {
@@ -172,6 +193,7 @@ SECTOR_COLORS = {
     "DELIVERY":            "#5580d4",
     "REAL ESTATE":         "#6a8fa8",
     "OTHERS":              "#7a8fa0",
+    "EMEA":                "#2fb8c9",
 }
 
 ALL_TICKERS = [t for v in SECTORS.values() for t in v]
@@ -327,7 +349,9 @@ def run_fetch():
                 rows.append({"Sector":sector,"Ticker":t,"Earnings Date":None,"Timing":None,
                              "Source":"-","Yahoo Date":"N/A","Mismatch":False,"Confirmed":False})
     df=pd.DataFrame(rows)
-    print(f"DONE: {df['Earnings Date'].notna().sum()} dates · {df['Earnings Date'].isna().sum()} unannounced · {mismatches} mismatches")
+    us=df[df["Sector"]!="EMEA"]; eu=df[df["Sector"]=="EMEA"]
+    print(f"DONE US:   {us['Earnings Date'].notna().sum()} dates · {us['Earnings Date'].isna().sum()} unannounced · {int(us['Mismatch'].sum())} mismatches")
+    print(f"DONE EMEA: {eu['Earnings Date'].notna().sum()} dates · {eu['Earnings Date'].isna().sum()} unannounced · {int(eu['Mismatch'].sum())} mismatches")
     return df,today
 
 BMO_BADGE     = '<span class="tbadge tbadge-bmo">&#9650; BMO</span>'
@@ -340,8 +364,6 @@ def build_html(df, generated_at):
     dated["dt"] = pd.to_datetime(dated["Earnings Date"])
 
     # ── Build month range from data ─────────────────────────────────────
-    # We still need a stable month range for rendering all cells in Python.
-    # We anchor on generated_at so the range always includes current month.
     today_dt = generated_at.date()
     days_since_monday = today_dt.weekday()
     prior_monday = today_dt - timedelta(days=days_since_monday + 7)
@@ -373,8 +395,6 @@ def build_html(df, generated_at):
         for ds, evs in get_us_events(yr).items():
             event_map.setdefault(ds, []).extend(evs)
 
-    # ── IMPORTANT: today_str and current_month_str are NO LONGER baked in.
-    # Every cell gets a data-date attribute; JS computes today at runtime.
     DAYS = ["MON","TUE","WED","THU","FRI","SAT","SUN"]
 
     def build_chips(rpts, ds):
@@ -382,6 +402,7 @@ def build_html(df, generated_at):
         for ticker, sector, timing, source, yahoo_date, mismatch, confirmed in rpts:
             col  = SECTOR_COLORS.get(sector, "#666")
             safe = sector.replace(" ","_").replace("/","_").replace("&","_")
+            eu_cls = " eu-item" if sector == "EMEA" else ""
             cn   = COMPANY_NAMES.get(ticker, ticker).replace("'","\\'").replace('"',"&quot;")
             st   = sector.replace("'","\\'")
             yd_safe = yahoo_date.replace("'","\\'") if yahoo_date else "N/A"
@@ -390,7 +411,7 @@ def build_html(df, generated_at):
             unconf = '<span class="bdg-uc" title="Unconfirmed">?</span>' if not confirmed else ""
             warn   = '<span class="bdg-mm" title="Date conflict">!</span>' if mismatch else ""
             chips += (
-                f'<div class="chip s-{safe}" style="--cc:{col}" data-ticker="{ticker}" '
+                f'<div class="chip s-{safe}{eu_cls}" style="--cc:{col}" data-ticker="{ticker}" '
                 f'onclick="showCard(\'{ticker}\',\'{cn}\',\'{st}\',\'{timing or "TBD"}\','
                 f'\'{ds}\',\'{col}\',\'{source}\',\'{yd_safe}\','
                 f'{str(mismatch).lower()},{str(confirmed).lower()},\'{ir_url}\')">'
@@ -401,20 +422,23 @@ def build_html(df, generated_at):
     def render_month(ms):
         es_name, es_sub, es_color, es_bg = EARNINGS_SEASON_BY_MONTH[ms.month]
         lbl   = ms.strftime("%B %Y").upper()
-        month_key = ms.strftime("%Y-%m")   # e.g. "2026-07" — used by JS
+        month_key = ms.strftime("%Y-%m")
         heads = "".join(f'<div class="dname">{d}</div>' for d in DAYS)
         blank = "".join('<div class="dcell empty"></div>' for _ in range(ms.weekday()))
-        nm = (ms.replace(month=ms.month+1) if ms.month < 12
-              else ms.replace(year=ms.year+1, month=1))
+        nm_date = (ms.replace(month=ms.month+1) if ms.month < 12
+                   else ms.replace(year=ms.year+1, month=1))
         cells = ""
-        for day in range(1, (nm - ms).days + 1):
+        for day in range(1, (nm_date - ms).days + 1):
             do  = ms.replace(day=day)
             ds  = do.strftime("%Y-%m-%d")
-            # Base classes only — no today/past baked in; JS will add them
             cls = "dcell"
             if do.weekday() >= 5: cls += " wknd"
             rpts = dl.get(ds, [])
-            if rpts: cls += " has-e"
+            non_eu = [r for r in rpts if r[1] != "EMEA"]
+            if non_eu:
+                cls += " has-e"
+            elif rpts:
+                cls += " has-e eu-only"
             day_events = event_map.get(ds, [])
             if any(e["closed"] for e in day_events): cls += " mkt-closed"
             ev_html = "".join(
@@ -423,20 +447,19 @@ def build_html(df, generated_at):
                 for e in day_events
             )
             chips = build_chips(rpts, ds)
-            # data-date lets JS stamp today/past without a page rebuild
             cells += (f'<div class="{cls}" data-date="{ds}"><span class="dno">{day}</span>'
                       f'{ev_html}<div class="chips">{chips}</div></div>')
 
-        # Count earnings in this month for the collapsed summary pill
-        month_end_dt = nm - timedelta(days=1)
-        month_ticker_count = sum(
-            1 for ds_key in dl
-            if ms.strftime("%Y-%m-01") <= ds_key <= month_end_dt.strftime("%Y-%m-%d")
-        )
+        # Count reports (not days) for this month, US and EMEA separately
+        month_start_str = ms.strftime("%Y-%m-01")
+        month_end_str = (nm_date - timedelta(days=1)).strftime("%Y-%m-%d")
+        us_count = 0; eu_count = 0
+        for ds_key, rows_day in dl.items():
+            if month_start_str <= ds_key <= month_end_str:
+                for r in rows_day:
+                    if r[1] == "EMEA": eu_count += 1
+                    else: us_count += 1
 
-        # past-month vs current decided by JS at runtime via data-month-key
-        # We render ALL months with past-month class initially; JS will
-        # immediately remove it from current+future months on DOMContentLoaded.
         return (
             f'<div class="mblock past-month" data-month-key="{month_key}" '
             f'style="--es-bg:{es_bg};--es-col:{es_color}">'
@@ -444,8 +467,10 @@ def build_html(df, generated_at):
             f'<div class="mblock-header-left">'
             f'<span class="month-chevron">&#9658;</span>'
             f'<span class="mlabel">{lbl}</span>'
-            f'<span class="past-pill" data-count="{month_ticker_count}">'
-            f'PAST &middot; {month_ticker_count} reports</span>'
+            f'<span class="past-pill" data-count="{us_count}">'
+            f'PAST &middot; {us_count} reports</span>'
+            f'<span class="past-pill eu-pill eu-item" data-count="{eu_count}">'
+            f'EMEA &middot; {eu_count} reports</span>'
             f'</div>'
             f'<span class="earn-season-badge" style="--ec:{es_color}">'
             f'<svg viewBox="0 0 14 14" width="10" height="10" style="vertical-align:middle;margin-right:4px">'
@@ -472,8 +497,9 @@ def build_html(df, generated_at):
             if not miss: continue
             col  = SECTOR_COLORS[s]
             safe = s.replace(" ","_").replace("/","_").replace("&","_")
+            eu_cls = " eu-item" if s == "EMEA" else ""
             chips_u = "".join(
-                f'<span class="uchip s-{safe}" style="--cc:{col}" data-ticker="{t}" '
+                f'<span class="uchip s-{safe}{eu_cls}" style="--cc:{col}" data-ticker="{t}" '
                 f'onclick="showCard(\'{t}\','
                 f'\'{COMPANY_NAMES.get(t,t).replace(chr(39),chr(92)+chr(39))}\','
                 f'\'{s.replace(chr(39),chr(92)+chr(39))}\','
@@ -481,7 +507,7 @@ def build_html(df, generated_at):
                 f'\'{IR_URLS.get(t,f"https://finance.yahoo.com/quote/{t}")}\')">{t}</span>'
                 for t in miss
             )
-            rows_h += (f'<tr><td><span class="sbadge" style="background:{col}">{s}</span></td>'
+            rows_h += (f'<tr class="{eu_cls.strip()}"><td><span class="sbadge" style="background:{col}">{s}</span></td>'
                        f'<td>{chips_u}</td></tr>')
         uhtml = (
             f'<div class="ubox"><div class="ubox-head">'
@@ -492,7 +518,16 @@ def build_html(df, generated_at):
             f'<tbody>{rows_h}</tbody></table></div>'
         )
 
-    nf = len(dated); nu = len(unann); nm = int(df["Mismatch"].sum())
+    # ── Split counts: US (always shown) vs EMEA (shown only when toggle on)
+    us_df = df[df["Sector"] != "EMEA"]
+    eu_df = df[df["Sector"] == "EMEA"]
+    nf_us = int(us_df["Earnings Date"].notna().sum())
+    nu_us = int(us_df["Earnings Date"].isna().sum())
+    mm_us = int(us_df["Mismatch"].sum())
+    nf_eu = int(eu_df["Earnings Date"].notna().sum())
+    nu_eu = int(eu_df["Earnings Date"].isna().sum())
+    mm_eu = int(eu_df["Mismatch"].sum())
+
     ts = generated_at.strftime("%d %b %Y, %I:%M %p ET")
     sj = json.dumps(SECTORS); cj = json.dumps(SECTOR_COLORS); nj = json.dumps(COMPANY_NAMES)
     ir_json = json.dumps(IR_URLS)
@@ -501,6 +536,7 @@ def build_html(df, generated_at):
     for s in SECTORS:
         col  = SECTOR_COLORS[s]
         safe = s.replace(" ","_").replace("/","_").replace("&","_")
+        eu_cls = " eu-item" if s == "EMEA" else ""
         tickers_html = ""
         for t in SECTORS[s]:
             ir = IR_URLS.get(t, f"https://finance.yahoo.com/quote/{t}")
@@ -509,7 +545,7 @@ def build_html(df, generated_at):
                 f'title="{COMPANY_NAMES.get(t, t)}">{t}</a>'
             )
         sidebar_html += (
-            f'<div class="sleg-group">'
+            f'<div class="sleg-group{eu_cls}">'
             f'<button class="sleg-toggle" onclick="toggleSector(\'{safe}\')" style="--cc:{col}">'
             f'<span class="sleg-dot" style="background:{col}"></span>'
             f'<span class="sleg-label">{s}</span>'
@@ -544,19 +580,10 @@ function onNotesInput() {
 loadNotes();
 """
 
-    # ── Live today/month init + smart refresh JS ────────────────────────
-    # All "what day is today" logic lives here, runs on every page load.
-    # Refresh strategy:
-    #   - On load, if current ET time is already past 04:05 AM, the page is
-    #     fresh (GitHub Action ran at 04:00). No same-day reload needed.
-    #   - If current ET time is BEFORE 04:05 AM, schedule a reload for 04:05.
-    #   - Additionally, reload at midnight ET so the "today" highlight and
-    #     month open/close state always stay correct even without a data push.
     live_js = r"""
 // ── Helper: get current date/time in ET ────────────────────────────────
 function getETNow() {
   const now = new Date();
-  // Use Intl to get ET wall-clock parts
   const fmt = new Intl.DateTimeFormat('en-US', {
     timeZone: 'America/New_York',
     year: 'numeric', month: '2-digit', day: '2-digit',
@@ -596,21 +623,19 @@ function stampToday() {
     const mk = block.dataset.monthKey;
     const isPast = mk < monthKey;
     const chev   = block.querySelector('.month-chevron');
-    const pill   = block.querySelector('.past-pill');
+    const pills  = block.querySelectorAll('.past-pill');
 
     if (isPast) {
-      // Collapsed by default unless user already expanded it
       if (!block.classList.contains('user-expanded')) {
         block.classList.add('past-month');
         block.classList.remove('expanded');
-        if (chev) chev.innerHTML = '&#9658;'; // ▶
+        if (chev) chev.innerHTML = '&#9658;';
       }
-      if (pill) pill.style.display = '';
+      pills.forEach(p => p.style.display = '');
     } else {
-      // Current or future — always open
       block.classList.remove('past-month', 'expanded');
-      if (chev) chev.innerHTML = '&#9660;'; // ▼
-      if (pill) pill.style.display = 'none';
+      if (chev) chev.innerHTML = '&#9660;';
+      pills.forEach(p => p.style.display = 'none');
     }
   });
 
@@ -630,33 +655,29 @@ function stampToday() {
 
 // ── Month toggle (user-initiated) ──────────────────────────────────────
 function toggleMonth(mblock) {
-  if (!mblock.classList.contains('past-month')) return; // current/future always open
+  if (!mblock.classList.contains('past-month')) return;
   const expanded = mblock.classList.contains('expanded');
   mblock.classList.toggle('expanded', !expanded);
-  mblock.classList.toggle('user-expanded', !expanded); // remember user intent
+  mblock.classList.toggle('user-expanded', !expanded);
   const chev = mblock.querySelector('.month-chevron');
   if (chev) chev.innerHTML = !expanded ? '&#9660;' : '&#9658;';
 }
 
 // ── Smart refresh ───────────────────────────────────────────────────────
-// Reload at 04:05 AM ET (5 min after GH Action fires) and at midnight ET.
-// If we're already past 04:05 when the page loads, skip the data refresh
-// (it already ran today) — only schedule the midnight calendar rollover.
 function scheduleRefreshes() {
-  const REFRESH_SEC  = 4 * 3600 + 5 * 60;  // 04:05:00 ET
-  const MIDNIGHT_SEC = 0;                    // 00:00:00 ET
+  const REFRESH_SEC  = 4 * 3600 + 5 * 60;
+  const MIDNIGHT_SEC = 0;
 
   function secsUntil(targetSec) {
     const cur = getETNow().totalSec;
     let diff = targetSec - cur;
-    if (diff <= 30) diff += 86400; // already passed (or within 30s) → next day
+    if (diff <= 30) diff += 86400;
     return diff;
   }
 
   function scheduleReload(delaySec, label) {
     const ms = delaySec * 1000;
     setTimeout(function() { location.reload(); }, ms);
-    // Update footer label with the soonest upcoming reload
     const nextTime = new Date(Date.now() + ms);
     const lbl = nextTime.toLocaleString('en-US', {
       timeZone: 'America/New_York',
@@ -669,11 +690,8 @@ function scheduleRefreshes() {
   const secsToData     = secsUntil(REFRESH_SEC);
   const secsToMidnight = secsUntil(MIDNIGHT_SEC);
 
-  // Schedule whichever is sooner
   if (secsToData <= secsToMidnight) {
     scheduleReload(secsToData, 'data update');
-    // Also schedule midnight rollover after the data reload fires,
-    // but that will be re-scheduled on the reloaded page naturally.
   } else {
     scheduleReload(secsToMidnight, 'day rollover');
   }
@@ -682,9 +700,6 @@ function scheduleRefreshes() {
 // ── Run on load ─────────────────────────────────────────────────────────
 stampToday();
 scheduleRefreshes();
-
-// Re-stamp every minute so "today" highlight stays correct across midnight
-// (belt-and-suspenders alongside the midnight reload)
 setInterval(stampToday, 60 * 1000);
 """
 
@@ -791,9 +806,20 @@ body{{
 .tstat:hover{{background:rgba(255,255,255,0.12);border-color:rgba(255,255,255,0.22);}}
 .tstat-num{{font-family:var(--mono);font-size:15px;font-weight:700;color:#fff;line-height:1.1;}}
 .tstat-lbl{{font-size:7px;color:var(--t2);text-transform:uppercase;letter-spacing:.9px;margin-top:2px;}}
+.tstat-eu{{display:flex;align-items:center;gap:8px;padding-left:8px;margin-left:2px;border-left:1px solid rgba(47,184,201,0.35);}}
+.eu-grp-tag{{font-family:var(--mono);font-size:7px;font-weight:700;color:#2fb8c9;border:1px solid rgba(47,184,201,0.45);border-radius:3px;padding:1px 4px;letter-spacing:.8px;}}
 .sidebar-toggle{{display:flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:7px;background:rgba(255,255,255,0.09);border:1px solid rgba(255,255,255,0.15);box-shadow:inset 0 1px 0 rgba(255,255,255,0.18);color:var(--t1);cursor:pointer;font-size:20px;font-weight:700;line-height:1;transition:background var(--dur),color var(--dur),transform var(--dur);flex-shrink:0;}}
 .sidebar-toggle:hover{{background:rgba(255,255,255,0.16);color:#fff;}}
 .sidebar-toggle.flipped{{transform:scaleX(-1);}}
+
+/* ── EMEA TOGGLE ── */
+.eu-toggle{{display:inline-flex;align-items:center;gap:6px;padding:5px 10px;border-radius:9px;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.14);cursor:pointer;user-select:none;font-family:var(--mono);font-size:9px;font-weight:700;color:var(--t1);white-space:nowrap;}}
+.eu-toggle input{{display:none;}}
+.eu-track{{position:relative;width:26px;height:14px;border-radius:8px;background:rgba(255,255,255,0.16);transition:background var(--dur);}}
+.eu-knob{{position:absolute;top:2px;left:2px;width:10px;height:10px;border-radius:50%;background:#fff;transition:transform var(--dur);}}
+body.show-emea .eu-track{{background:rgba(47,184,201,0.85);}}
+body.show-emea .eu-knob{{transform:translateX(12px);}}
+.eu-test-tag{{font-size:7px;color:var(--bmo);border:1px solid rgba(255,215,64,.45);border-radius:3px;padding:1px 4px;letter-spacing:.8px;}}
 
 /* ── KEY BAR ── */
 .timingbar{{background:rgba(5,7,20,0.50);backdrop-filter:blur(24px) saturate(170%);-webkit-backdrop-filter:blur(24px) saturate(170%);border-bottom:1px solid rgba(255,255,255,0.09);padding:8px 18px 10px;display:flex;align-items:center;gap:8px;font-size:11px;color:var(--t2);flex-wrap:wrap;}}
@@ -848,7 +874,6 @@ body{{
 }}
 .mblock.past-month .mblock-body > .cgrid{{overflow:hidden;min-height:0;}}
 .mblock.past-month.expanded .mblock-body{{grid-template-rows:1fr;}}
-/* Current/future month — body always visible */
 .mblock:not(.past-month) .mblock-body{{display:block;}}
 
 .mblock-header{{
@@ -858,10 +883,11 @@ body{{
   cursor:pointer;user-select:none;transition:background 0.15s;
 }}
 .mblock-header:hover{{background:linear-gradient(90deg,rgba(255,255,255,0.055) 0%,rgba(255,255,255,0.02) 60%);}}
-.mblock-header-left{{display:flex;align-items:center;gap:8px;}}
+.mblock-header-left{{display:flex;align-items:center;gap:8px;flex-wrap:wrap;}}
 .month-chevron{{font-size:11px;color:var(--t2);transition:color 0.15s;display:inline-block;line-height:1;width:14px;text-align:center;}}
 .mblock.past-month .month-chevron{{color:var(--t3);}}
 .past-pill{{font-family:var(--mono);font-size:7.5px;font-weight:700;padding:2px 7px;border-radius:4px;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.12);color:var(--t2);letter-spacing:.4px;}}
+.past-pill.eu-pill{{color:#2fb8c9;border-color:rgba(47,184,201,0.40);background:rgba(47,184,201,0.08);}}
 .mlabel{{font-family:var(--mono);font-size:12px;font-weight:700;color:#fff;letter-spacing:.5px;}}
 .earn-season-badge{{display:inline-flex;align-items:center;font-family:var(--mono);font-size:8.5px;font-weight:700;padding:3px 9px;border-radius:5px;white-space:nowrap;background:color-mix(in srgb,var(--ec) 14%,transparent);color:var(--ec);border:1px solid color-mix(in srgb,var(--ec) 32%,transparent);}}
 .earn-season-sub{{font-size:7px;font-weight:400;opacity:0.65;margin-left:5px;}}
@@ -881,6 +907,8 @@ body{{
 .dcell.today .dno{{color:var(--accent)!important;font-weight:700;}}
 .dcell.has-e{{border-color:rgba(255,255,255,0.13);background:rgba(255,255,255,0.060);}}
 .dcell.mkt-closed{{background:rgba(90,10,10,0.38);border-color:rgba(220,60,60,.22);}}
+body:not(.show-emea) .dcell.eu-only{{background:rgba(255,255,255,0.040);border-color:rgba(255,255,255,0.09);}}
+body:not(.show-emea) .dcell.eu-only .chips{{display:none;}}
 .dno{{font-family:var(--mono);font-size:10.5px;font-weight:600;color:rgba(220,235,255,0.80);margin-bottom:3px;display:block;}}
 .evbadge{{font-family:var(--mono);font-size:6.5px;font-weight:700;padding:1px 4px;border-radius:3px;margin-bottom:2px;display:inline-block;letter-spacing:.2px;white-space:nowrap;max-width:100%;overflow:hidden;text-overflow:ellipsis;}}
 .evbadge-holiday{{background:rgba(74,122,200,.32);color:#b0d0ff;border:1px solid rgba(74,122,200,.50);}}
@@ -917,6 +945,9 @@ body{{
 /* Footer */
 .footer{{border-top:1px solid rgba(255,255,255,0.09);padding:10px 18px;font-family:var(--mono);font-size:8.5px;color:var(--t2);display:flex;justify-content:space-between;align-items:center;background:rgba(4,6,16,0.60);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);}}
 
+/* EU hide rule: everything tagged eu-item disappears when toggle is off */
+body:not(.show-emea) .eu-item{{display:none !important;}}
+
 /* Modal */
 .overlay{{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.80);backdrop-filter:blur(32px) saturate(150%);-webkit-backdrop-filter:blur(32px) saturate(150%);z-index:999;align-items:center;justify-content:center;}}
 .overlay.on{{display:flex;}}
@@ -942,6 +973,11 @@ body{{
 .modal-source-date.conflict{{color:var(--conflict);}}
 .modal-ir-link{{display:inline-flex;align-items:center;gap:6px;margin-top:16px;font-family:var(--mono);font-size:9.5px;font-weight:600;color:var(--accent);text-decoration:none;border:1px solid rgba(106,171,255,.32);border-radius:8px;padding:9px 14px;width:100%;justify-content:center;background:rgba(106,171,255,0.09);backdrop-filter:blur(8px);box-shadow:inset 0 1px 0 rgba(106,171,255,0.18);transition:background var(--dur),border-color var(--dur);}}
 .modal-ir-link:hover{{background:rgba(106,171,255,0.18);border-color:rgba(106,171,255,.55);}}
+.emea-btns{{display:flex;gap:8px;margin-top:16px;}}
+.emea-btn{{flex:1;font-family:var(--mono);font-size:9.5px;font-weight:700;padding:9px 12px;border-radius:8px;cursor:pointer;color:#fff;background:rgba(47,184,201,0.20);border:1px solid rgba(47,184,201,0.50);transition:background var(--dur);}}
+.emea-btn:hover{{background:rgba(47,184,201,0.32);}}
+.emea-btn.ghost{{background:rgba(255,255,255,0.06);border-color:rgba(255,255,255,0.16);color:var(--t1);}}
+.emea-btn.ghost:hover{{background:rgba(255,255,255,0.12);}}
 
 /* Mobile */
 @media(max-width:768px){{
@@ -952,6 +988,9 @@ body{{
   .tstat{{padding:3px 7px;}}
   .tstat-num{{font-size:12px;}}
   .tstat-lbl{{font-size:6px;}}
+  .tstat-eu{{gap:4px;padding-left:4px;}}
+  .eu-toggle{{padding:3px 6px;}}
+  .eu-test-tag{{display:none;}}
   .timingbar{{flex-direction:column;align-items:flex-start;gap:5px;padding:7px 10px;}}
   .search-bar{{padding:6px 10px;top:46px;}}
   .search-input{{width:150px;}}
@@ -992,9 +1031,21 @@ body{{
     <span class="topbar-meta">Consumer &amp; Retail &middot; <span id="liveDate">{ts}</span></span>
   </div>
   <div class="topbar-right">
-    <div class="tstat"><span class="tstat-num" style="color:#6aabff">{nf}</span><span class="tstat-lbl">Dates Found</span></div>
-    <div class="tstat"><span class="tstat-num" style="color:var(--t2)">{nu}</span><span class="tstat-lbl">Unannounced</span></div>
-    <div class="tstat"><span class="tstat-num" style="color:var(--conflict)">{nm}</span><span class="tstat-lbl">Mismatches</span></div>
+    <label class="eu-toggle" title="Show European companies (test basis)">
+      <input type="checkbox" id="emeaToggle" onchange="onEmeaToggle(this)">
+      <span class="eu-track"><span class="eu-knob"></span></span>
+      <span>EMEA</span>
+      <span class="eu-test-tag">TEST</span>
+    </label>
+    <div class="tstat"><span class="tstat-num" style="color:#6aabff">{nf_us}</span><span class="tstat-lbl">Dates Found</span></div>
+    <div class="tstat"><span class="tstat-num" style="color:var(--t2)">{nu_us}</span><span class="tstat-lbl">Unannounced</span></div>
+    <div class="tstat"><span class="tstat-num" style="color:var(--conflict)">{mm_us}</span><span class="tstat-lbl">Mismatches</span></div>
+    <div class="tstat-eu eu-item">
+      <span class="eu-grp-tag">EMEA</span>
+      <div class="tstat"><span class="tstat-num" style="color:#2fb8c9">{nf_eu}</span><span class="tstat-lbl">Dates Found</span></div>
+      <div class="tstat"><span class="tstat-num" style="color:var(--t2)">{nu_eu}</span><span class="tstat-lbl">Unannounced</span></div>
+      <div class="tstat"><span class="tstat-num" style="color:var(--conflict)">{mm_eu}</span><span class="tstat-lbl">Mismatches</span></div>
+    </div>
   </div>
 </header>
 
@@ -1055,6 +1106,21 @@ body{{
   </div>
 </div>
 
+<div class="overlay" id="emeaOverlay" onclick="closeEmeaWarn(event)">
+  <div class="modal">
+    <button class="modal-close" onclick="closeEmeaWarn()">&times;</button>
+    <div class="modal-ticker" style="font-size:20px;color:#ffb347">&#9888; EMEA: test basis</div>
+    <div class="modal-name">European consumer companies</div>
+    <div class="modal-banner info on">
+      Dates for these companies come only from Yahoo Finance. They are not cross-checked against NASDAQ and may be wrong. Verify each date on the company's IR page before relying on it.
+    </div>
+    <div class="emea-btns">
+      <button class="emea-btn ghost" onclick="closeEmeaWarn()">Cancel</button>
+      <button class="emea-btn" onclick="confirmEmea()">I understand, show EMEA</button>
+    </div>
+  </div>
+</div>
+
 <script>
 const SECTORS       = {sj};
 const SECTOR_COLORS = {cj};
@@ -1075,6 +1141,30 @@ function toggleSector(safe) {{
   a.classList.toggle('open', !open);
 }}
 
+// ── EMEA toggle + warning popup ────────────────────────────────────────
+function onEmeaToggle(cb) {{
+  if (cb.checked) {{
+    cb.checked = false;                       // stay off until confirmed
+    document.getElementById('emeaOverlay').classList.add('on');
+  }} else {{
+    setEmea(false);
+  }}
+}}
+function closeEmeaWarn(e) {{
+  if (!e || e.target === document.getElementById('emeaOverlay'))
+    document.getElementById('emeaOverlay').classList.remove('on');
+}}
+function confirmEmea() {{
+  closeEmeaWarn();
+  setEmea(true);
+}}
+function setEmea(on) {{
+  document.body.classList.toggle('show-emea', on);
+  document.getElementById('emeaToggle').checked = on;
+  const q = document.getElementById('searchInput').value.trim().toUpperCase();
+  applySearch(q);
+}}
+
 const searchInput = document.getElementById('searchInput');
 const searchClear = document.getElementById('searchClear');
 const searchHint  = document.getElementById('searchHint');
@@ -1092,6 +1182,7 @@ function clearSearch() {{
 function applySearch(q) {{
   const chips  = document.querySelectorAll('.chip');
   const uchips = document.querySelectorAll('.uchip');
+  const euOff  = !document.body.classList.contains('show-emea');
   if (!q) {{
     chips.forEach(c  => c.classList.remove('dimmed'));
     uchips.forEach(c => c.classList.remove('dimmed'));
@@ -1100,12 +1191,14 @@ function applySearch(q) {{
   }}
   let found = 0;
   chips.forEach(c => {{
-    const match = c.dataset.ticker && c.dataset.ticker.toUpperCase().includes(q);
+    const hidden = euOff && c.classList.contains('eu-item');
+    const match  = !hidden && c.dataset.ticker && c.dataset.ticker.toUpperCase().includes(q);
     c.classList.toggle('dimmed', !match);
     if (match) found++;
   }});
   uchips.forEach(c => {{
-    const match = c.dataset.ticker && c.dataset.ticker.toUpperCase().includes(q);
+    const hidden = euOff && c.classList.contains('eu-item');
+    const match  = !hidden && c.dataset.ticker && c.dataset.ticker.toUpperCase().includes(q);
     c.classList.toggle('dimmed', !match);
     if (match) found++;
   }});
@@ -1138,7 +1231,10 @@ function closeModal(e) {{
     document.getElementById('overlay').classList.remove('on');
 }}
 document.addEventListener('keydown', e => {{
-  if (e.key === 'Escape') document.getElementById('overlay').classList.remove('on');
+  if (e.key === 'Escape') {{
+    document.getElementById('overlay').classList.remove('on');
+    document.getElementById('emeaOverlay').classList.remove('on');
+  }}
 }});
 </script>
 
