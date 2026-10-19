@@ -43,8 +43,8 @@ COMPANY_NAMES = {
     "TSCO":"Tractor Supply","AMCR":"Amcor",
     "ROL":"Rollins","CTAS":"Cintas Corporation","IP":"International Paper", "DOL.TO":"Dollarama","L.TO":"Loblaw",
     # EMEA
-    "ULVR.L":"Unilever","BN.PA":"Danone","NESN.SW":"Nestlé","HLN.L":"Haleon",
-    "RKT.L":"Reckitt","MC.PA":"LVMH","OR.PA":"L'Oréal","DGE.L":"Diageo",
+    "ULVR.L":"Unilever","DANO.PA":"Danone","NESN.SW":"Nestlé","HLN.L":"Haleon",
+    "RKT.L":"Reckitt","LVMH.PA":"LVMH","OREP.PA":"L'Oréal","DGE.L":"Diageo",
     "CARL-B.CO":"Carlsberg","ABI.BR":"AB InBev","ITX.MC":"Inditex",
     "HM-B.ST":"H&M","AD.AS":"Ahold Delhaize",
 }
@@ -143,12 +143,12 @@ IR_URLS = {
     "L.TO":"https://www.loblaw.ca/en/investors-overview/",
     # EMEA (verify these)
     "ULVR.L":"https://www.unilever.com/investors/",
-    "BN.PA":"https://www.danone.com/investors.html",
+    "DANO.PA":"https://www.danone.com/investors.html",
     "NESN.SW":"https://www.nestle.com/investors",
     "HLN.L":"https://www.haleon.com/investors",
     "RKT.L":"https://www.reckitt.com/investors/",
-    "MC.PA":"https://www.lvmh.com/investors",
-    "OR.PA":"https://www.loreal-finance.com/eng",
+    "LVMH.PA":"https://www.lvmh.com/investors",
+    "OREP.PA":"https://www.loreal-finance.com/eng",
     "DGE.L":"https://www.diageo.com/en/investors",
     "CARL-B.CO":"https://www.carlsberggroup.com/investors/",
     "ABI.BR":"https://www.ab-inbev.com/investors/",
@@ -173,7 +173,7 @@ SECTORS = {
     "DELIVERY":            ["CART","DASH"],
     "REAL ESTATE":         ["FRT","REG","KIM","SPG"],
     "OTHERS":              ["MAS","BALL","TSCO","AMCR","ROL","CTAS","IP"],
-    "EMEA":                ["ULVR.L","BN.PA","NESN.SW","HLN.L","RKT.L","MC.PA","OR.PA",
+    "EMEA":                ["ULVR.L","DANO.PA","NESN.SW","HLN.L","RKT.L","LVMH.PA","OREP.PA",
                             "DGE.L","CARL-B.CO","ABI.BR","ITX.MC","HM-B.ST","AD.AS"],
 }
 
@@ -741,7 +741,7 @@ body{{
     radial-gradient(ellipse 110% 70% at 8%  -8%,  rgba(60,120,255,0.32) 0%,transparent 52%),
     radial-gradient(ellipse 55%  45% at 52%  48%,  rgba(10,22,80,0.35)  0%,transparent 65%),
     radial-gradient(ellipse 45%  35% at 28%  82%,  rgba(30,90,200,0.14) 0%,transparent 50%),
-    radial-gradient(ellipse 40%  30% at 75%  20%,  rgba(100,40,200,0.10) 0%,transparent 45%);
+    radial-gradient(ellipse 40%  30% at 75%  20%,  rgba(40,120,255,0.12) 0%,transparent 45%);
 }}
 .page-wrap{{display:flex;min-height:100vh;}}
 
@@ -813,13 +813,13 @@ body{{
 .sidebar-toggle.flipped{{transform:scaleX(-1);}}
 
 /* ── EMEA TOGGLE ── */
-.eu-toggle{{display:inline-flex;align-items:center;gap:6px;padding:5px 10px;border-radius:9px;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.14);cursor:pointer;user-select:none;font-family:var(--mono);font-size:9px;font-weight:700;color:var(--t1);white-space:nowrap;}}
+.eu-toggle{{display:inline-flex;align-items:center;gap:9px;padding:8px 14px;border-radius:12px;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.14);cursor:pointer;user-select:none;font-family:var(--mono);font-size:12px;font-weight:700;color:var(--t1);white-space:nowrap;}}
 .eu-toggle input{{display:none;}}
-.eu-track{{position:relative;width:26px;height:14px;border-radius:8px;background:rgba(255,255,255,0.16);transition:background var(--dur);}}
-.eu-knob{{position:absolute;top:2px;left:2px;width:10px;height:10px;border-radius:50%;background:#fff;transition:transform var(--dur);}}
+.eu-track{{position:relative;width:42px;height:24px;border-radius:12px;background:rgba(255,255,255,0.16);transition:background var(--dur);flex-shrink:0;}}
+.eu-knob{{position:absolute;top:3px;left:3px;width:18px;height:18px;border-radius:50%;background:#fff;transition:transform var(--dur);box-shadow:0 1px 4px rgba(0,0,0,0.35);}}
 body.show-emea .eu-track{{background:rgba(47,184,201,0.85);}}
-body.show-emea .eu-knob{{transform:translateX(12px);}}
-.eu-test-tag{{font-size:7px;color:var(--bmo);border:1px solid rgba(255,215,64,.45);border-radius:3px;padding:1px 4px;letter-spacing:.8px;}}
+body.show-emea .eu-knob{{transform:translateX(18px);}}
+.eu-test-tag{{font-size:9px;color:var(--bmo);border:1px solid rgba(255,215,64,.45);border-radius:4px;padding:2px 5px;letter-spacing:.8px;}}
 
 /* ── KEY BAR ── */
 .timingbar{{background:rgba(5,7,20,0.50);backdrop-filter:blur(24px) saturate(170%);-webkit-backdrop-filter:blur(24px) saturate(170%);border-bottom:1px solid rgba(255,255,255,0.09);padding:8px 18px 10px;display:flex;align-items:center;gap:8px;font-size:11px;color:var(--t2);flex-wrap:wrap;}}
@@ -948,6 +948,12 @@ body:not(.show-emea) .dcell.eu-only .chips{{display:none;}}
 /* EU hide rule: everything tagged eu-item disappears when toggle is off */
 body:not(.show-emea) .eu-item{{display:none !important;}}
 
+/* ── Dim US entries while EMEA is shown ── */
+body.show-emea .chip:not(.eu-item):not(.dimmed),
+body.show-emea .uchip:not(.eu-item):not(.dimmed){{opacity:0.45;filter:saturate(0.55) brightness(0.8);}}
+body.show-emea .chip:not(.eu-item):not(.dimmed):hover,
+body.show-emea .uchip:not(.eu-item):not(.dimmed):hover{{opacity:0.9;filter:brightness(1.05) saturate(0.9);}}
+
 /* Modal */
 .overlay{{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.80);backdrop-filter:blur(32px) saturate(150%);-webkit-backdrop-filter:blur(32px) saturate(150%);z-index:999;align-items:center;justify-content:center;}}
 .overlay.on{{display:flex;}}
@@ -989,7 +995,7 @@ body:not(.show-emea) .eu-item{{display:none !important;}}
   .tstat-num{{font-size:12px;}}
   .tstat-lbl{{font-size:6px;}}
   .tstat-eu{{gap:4px;padding-left:4px;}}
-  .eu-toggle{{padding:3px 6px;}}
+  .eu-toggle{{padding:5px 9px;font-size:10px;}}
   .eu-test-tag{{display:none;}}
   .timingbar{{flex-direction:column;align-items:flex-start;gap:5px;padding:7px 10px;}}
   .search-bar{{padding:6px 10px;top:46px;}}
