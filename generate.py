@@ -41,7 +41,7 @@ COMPANY_NAMES = {
     "KIM":"Kimco Realty","SPG":"Simon Property Group",
     "MAS":"Masco Corporation","BALL":"Ball Corporation",
     "TSCO":"Tractor Supply","AMCR":"Amcor",
-    "ROL":"Rollins","CTAS":"Cintas Corporation","IP":"International Paper", "DOL.TO":"Dollarama","L.TO":"Loblaw",
+    "ROL":"Rollins","CTAS":"Cintas Corporation","IP":"International Paper", "DOL.TO":"Dollarama","L.TO":"Loblaw", "ETSY": "Etsy",
     # EMEA
     "ULVR.L":"Unilever","DANO.PA":"Danone","NESN.SW":"Nestlé","HLN.L":"Haleon",
     "RKT.L":"Reckitt","LVMH.PA":"LVMH","OREP.PA":"L'Oréal","DGE.L":"Diageo",
@@ -141,6 +141,7 @@ IR_URLS = {
     "DKS": "https://investors.dicks.com/investors/default.aspx",
     "DOL.TO": "https://www.dollarama.com/en-CA/corp/investor-relations",
     "L.TO":"https://www.loblaw.ca/en/investors-overview/",
+    "ETSY": "https://investors.etsy.com/",
     # EMEA (verify these)
     "ULVR.L":"https://www.unilever.com/investors/",
     "DANO.PA":"https://www.danone.com/investors.html",
@@ -170,7 +171,7 @@ SECTORS = {
     "TOYMAKERS":           ["MAT","HAS"],
     "RESTAURANTS":         ["DPZ","DRI","QSR","CMG","YUM","SBUX","MCD"],
     "MEAT COS":            ["SFD","TSN","SYY"],
-    "DELIVERY":            ["CART","DASH"],
+    "DELIVERY/ONLINE":     ["CART","DASH","ETSY"],
     "REAL ESTATE":         ["FRT","REG","KIM","SPG"],
     "OTHERS":              ["MAS","BALL","TSCO","AMCR","ROL","CTAS","IP"],
     "EMEA":                ["ULVR.L","DANO.PA","NESN.SW","HLN.L","RKT.L","LVMH.PA","OREP.PA",
