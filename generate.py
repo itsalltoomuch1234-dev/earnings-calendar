@@ -1118,7 +1118,7 @@ body.show-emea .uchip:not(.eu-item):not(.dimmed):hover{{opacity:0.9;filter:brigh
     <div class="modal-ticker" style="font-size:20px;color:#ffb347">&#9888; EMEA: test basis</div>
     <div class="modal-name">European consumer companies</div>
     <div class="modal-banner info on">
-      Dates for these companies come only from Yahoo Finance. They are not cross-checked against NASDAQ and may be wrong. Verify each date on the company's IR page before relying on it.
+      Dates for these companies come only from Yahoo Finance. They are not cross-checked and may be wrong. Kindly verify each date on the company's IR page before relying.
     </div>
     <div class="emea-btns">
       <button class="emea-btn ghost" onclick="closeEmeaWarn()">Cancel</button>
