@@ -191,7 +191,7 @@ SECTOR_COLORS = {
     "TOYMAKERS":           "#d45f5f",
     "RESTAURANTS":         "#d47a3a",
     "MEAT COS":            "#9a66c0",
-    "DELIVERY":            "#5580d4",
+    "DELIVERY/ONLINE":     "#5580d4",
     "REAL ESTATE":         "#6a8fa8",
     "OTHERS":              "#7a8fa0",
     "EMEA":                "#2fb8c9",
